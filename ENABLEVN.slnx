@@ -4,4 +4,5 @@
   <Project Path="ENABLEVN/Presentation.csproj" />
   <Project Path="InfrastructureInMemory/InfrastructureInMemory.csproj" />
   <Project Path="InfrastructureSqlite/InfrastructureSqlite.csproj" />
+  <Project Path="Ports/Ports.csproj" />
 </Solution>
