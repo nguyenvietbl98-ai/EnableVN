@@ -95,5 +95,32 @@ namespace Domain.Candidates
         {
             IsPublicProfile = false;
         }
+
+        public static CandidateProfile Restore(
+            Guid id,
+            Guid userId,
+            string fullName,
+            string? bio,
+            string? cvUrl,
+            DisabilityInfo disabilityInfo,
+            bool isPublicProfile
+        )
+        {
+            if (id == Guid.Empty)
+                throw new DomainException("CandidateProfileId không hợp lệ.");
+
+            if (userId == Guid.Empty)
+                throw new DomainException("UserId không hợp lệ.");
+
+            return new CandidateProfile(
+                id,
+                userId,
+                FullName.Create(fullName),
+                bio,
+                cvUrl,
+                disabilityInfo,
+                isPublicProfile
+            );
+        }
     }
 }

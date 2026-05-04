@@ -72,5 +72,30 @@ namespace Domain.Employers
         {
             WorkplaceInfo = workplaceInfo;
         }
+
+        public static EmployerProfile Restore(
+            Guid id,
+            Guid userId,
+            string companyName,
+            string? description,
+            string? websiteUrl,
+            InclusiveWorkplaceInfo workplaceInfo
+        )
+        {
+            if (id == Guid.Empty)
+                throw new DomainException("EmployerProfileId không hợp lệ.");
+
+            if (userId == Guid.Empty)
+                throw new DomainException("UserId không hợp lệ.");
+
+            return new EmployerProfile(
+                id,
+                userId,
+                CompanyName.Create(companyName),
+                description,
+                websiteUrl,
+                workplaceInfo
+            );
+        }
     }
 }

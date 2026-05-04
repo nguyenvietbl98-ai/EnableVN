@@ -1,8 +1,9 @@
 using Application;
 using InfrastructureInMemory;
+using InfrastructureSqlite.SeedData;
 using Ports.Outbound.Services;
-using Presentation.SeedData;
 using Presentation.Services;
+using InfrastructureSqlite;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Session dùng để lưu UserId, Email, Role sau khi login/register.
-// Đây là bản đơn giản cho MVP InMemory.
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromHours(2);
@@ -24,8 +24,12 @@ builder.Services.AddHttpContextAccessor();
 // Đăng ký Application UseCases.
 builder.Services.AddEnableVNApplication();
 
-// Đăng ký repository/service InMemory.
+// Đăng ký InMemory infrastructure cho services (password hasher, token service, etc.)
+// mà chưa có bản SQLite.
 builder.Services.AddEnableVNInMemoryInfrastructure();
+
+// Ghi đè repositories bằng SQLite implementation.
+builder.Services.AddEnableVNSqliteInfrastructure(builder.Configuration);
 
 // Ghi đè ICurrentUserService mặc định của InMemory.
 // Trong MVC, current user phải đọc từ Session thay vì Singleton RAM.
@@ -33,13 +37,11 @@ builder.Services.AddScoped<ICurrentUserService, SessionCurrentUserService>();
 
 var app = builder.Build();
 
-// Seed Admin + Catalog mặc định cho môi trường Development/InMemory.
-// Email: admin@enablevn.local
-// Password: Admin@123
+// Seed Admin + Catalog mặc định cho môi trường Development.
 if (app.Environment.IsDevelopment())
 {
-    await InMemoryAdminSeeder.SeedAsync(app.Services);
-    await InMemoryCatalogSeeder.SeedAsync(app.Services);
+    await SqliteAdminSeeder.SeedAsync(app.Services);
+    await SqliteCatalogSeeder.SeedAsync(app.Services);
 }
 
 if (!app.Environment.IsDevelopment())

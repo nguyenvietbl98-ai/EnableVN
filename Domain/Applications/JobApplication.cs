@@ -118,5 +118,45 @@ namespace Domain.Applications
                 )
             );
         }
+
+        public static JobApplication Restore(
+            Guid id,
+            Guid jobId,
+            Guid candidateId,
+            string? coverLetter,
+            string? cvUrl,
+            ApplicationStatus status,
+            DateTime submittedAt,
+            IReadOnlyList<ApplicationStatusHistory> statusHistories
+        )
+        {
+            if (id == Guid.Empty)
+                throw new DomainException("JobApplicationId không hợp lệ.");
+
+            if (jobId == Guid.Empty)
+                throw new DomainException("JobId không hợp lệ.");
+
+            if (candidateId == Guid.Empty)
+                throw new DomainException("CandidateId không hợp lệ.");
+
+            var application = new JobApplication(
+                id,
+                jobId,
+                candidateId,
+                coverLetter,
+                cvUrl
+            );
+
+            application.Status = status;
+            // Clear default history added by constructor
+            application._statusHistories.Clear();
+            // Add restored histories
+            foreach (var history in statusHistories)
+            {
+                application._statusHistories.Add(history);
+            }
+
+            return application;
+        }
     }
 }

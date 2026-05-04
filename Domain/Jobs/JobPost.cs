@@ -127,5 +127,45 @@ namespace Domain.Jobs
         {
             return Status == JobStatus.Published;
         }
+
+        public static JobPost Restore(
+            Guid id,
+            Guid employerId,
+            string title,
+            string description,
+            string requirement,
+            WorkMode workMode,
+            SalaryRange salaryRange,
+            JobAccessibilityInfo accessibilityInfo,
+            JobStatus status,
+            DateTime createdAt,
+            DateTime? publishedAt,
+            DateTime? closedAt
+        )
+        {
+            if (id == Guid.Empty)
+                throw new DomainException("JobPostId không hợp lệ.");
+
+            if (employerId == Guid.Empty)
+                throw new DomainException("EmployerId không hợp lệ.");
+
+            var job = new JobPost(
+                id,
+                employerId,
+                JobTitle.Create(title),
+                description.Trim(),
+                requirement.Trim(),
+                workMode,
+                salaryRange,
+                accessibilityInfo
+            );
+
+            job.Status = status;
+            job.CreatedAt = createdAt;
+            job.PublishedAt = publishedAt;
+            job.ClosedAt = closedAt;
+
+            return job;
+        }
     }
 }

@@ -32,5 +32,18 @@ namespace Domain.Applications
                 DateTime.UtcNow
             );
         }
+
+        public static ApplicationStatusHistory Restore(
+            ApplicationStatus status,
+            string? note,
+            DateTime changedAt
+        )
+        {
+            return new ApplicationStatusHistory(
+                status,
+                note,
+                changedAt
+            );
+        }
     }
 }
