@@ -1,7 +1,7 @@
 ﻿EnableVN.Application
 │
 ├── Common
-│   ├── ApplicationException.cs
+│   ├── UseCaseException.cs
 │   ├── AuthorizationGuard.cs
 │   └── DomainEventHelper.cs
 │
