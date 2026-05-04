@@ -1,0 +1,41 @@
+﻿@model LoginCommand
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5">
+                <div class="evn-card evn-form">
+                    <h1 class="h3 fw-bold mb-2">Đăng nhập</h1>
+                    <p class="evn-muted mb-4">
+                        Truy cập tài khoản EnableVN của bạn.
+                    </p>
+
+                    <form asp-action="Login" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="you@example.com" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Password" class="form-label">Mật khẩu</label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                        </div>
+
+                        <button class="btn btn-primary evn-btn-primary w-100" type="submit">
+                            Đăng nhập
+                        </button>
+                    </form>
+
+                    <p class="mt-4 mb-0 evn-muted text-center">
+                        Chưa có tài khoản?
+                        <a asp-controller="Auth" asp-action="Register">Đăng ký</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

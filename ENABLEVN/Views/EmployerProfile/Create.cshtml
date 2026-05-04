@@ -1,0 +1,33 @@
+﻿@model CreateEmployerProfileCommand
+
+@{
+    ViewData["Title"] = "Tạo hồ sơ doanh nghiệp";
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="evn-card evn-form">
+                    <span class="evn-badge mb-3">Employer</span>
+                    <h1 class="h3 fw-bold mb-2">Tạo hồ sơ doanh nghiệp</h1>
+                    <p class="evn-muted mb-4">
+                        Bạn cần có hồ sơ doanh nghiệp trước khi đăng tin tuyển dụng.
+                    </p>
+
+                    <form asp-action="Create" method="post">
+                        <partial name="_EmployerProfileForm" model="Model" />
+
+                        <button class="btn btn-primary evn-btn-primary" type="submit">
+                            Tạo hồ sơ
+                        </button>
+
+                        <a class="btn btn-outline-dark" asp-controller="Home" asp-action="Index">
+                            Hủy
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

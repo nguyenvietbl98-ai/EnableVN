@@ -1,0 +1,53 @@
+﻿@model UpdateDisabilityInfoCommand
+
+@{
+    ViewData["Title"] = "Thông tin khuyết tật";
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="evn-card evn-form">
+                    <span class="evn-badge mb-3">Privacy by Design</span>
+                    <h1 class="h3 fw-bold mb-2">Thông tin khuyết tật</h1>
+                    <p class="evn-muted mb-4">
+                        Bạn có toàn quyền quyết định thông tin này có hiển thị với nhà tuyển dụng hay không.
+                    </p>
+
+                    <form asp-action="Disability" method="post">
+                        <div class="mb-3">
+                            <label asp-for="DisabilityTypeId" class="form-label">Loại khuyết tật</label>
+                            <input asp-for="DisabilityTypeId" class="form-control" placeholder="Tạm thời nhập Guid nếu có catalog" />
+                            <div class="form-text">
+                                Dropdown catalog sẽ được nối sau khi làm Catalog UI.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Mô tả thêm</label>
+                            <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-check">
+                                <input asp-for="IsVisibleToEmployer" class="form-check-input" />
+                                <span class="form-check-label">
+                                    Cho phép nhà tuyển dụng xem thông tin này
+                                </span>
+                            </label>
+                        </div>
+
+                        <button class="btn btn-primary evn-btn-primary" type="submit">
+                            Lưu thông tin
+                        </button>
+
+                        <a class="btn btn-outline-dark" asp-action="Index">
+                            Hủy
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

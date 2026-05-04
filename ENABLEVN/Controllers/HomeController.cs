@@ -1,25 +1,20 @@
-using ENABLEVN.Models;
+namespace Presentation.Controllers;
+
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
-namespace ENABLEVN.Controllers
+/// <summary>
+/// Controller trang chủ.
+/// Không chứa nghiệp vụ, chỉ trả view.
+/// </summary>
+public sealed class HomeController : Controller
 {
-    public class HomeController : Controller
+    public IActionResult Index()
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+        return View();
+    }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    public IActionResult Error()
+    {
+        return View();
     }
 }

@@ -1,0 +1,98 @@
+﻿@model IReadOnlyList<JobApplicationResult>
+
+@{
+    ViewData["Title"] = "Hồ sơ ứng tuyển";
+    var jobId = (Guid)ViewBag.JobId;
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+            <div>
+                <span class="evn-badge mb-3">Employer</span>
+                <h1 class="fw-bold display-6 mb-2">Hồ sơ ứng tuyển</h1>
+                <p class="evn-muted mb-0">
+                    Quản lý trạng thái ứng tuyển cho tin tuyển dụng.
+                </p>
+            </div>
+
+            <div>
+                <a class="btn btn-outline-dark" asp-controller="EmployerJobs" asp-action="Index">
+                    Quay lại tin của tôi
+                </a>
+            </div>
+        </div>
+
+        @if (Model.Count == 0)
+        {
+            <div class="evn-card p-5 text-center">
+                <h4 class="fw-bold">Chưa có ứng viên nộp hồ sơ</h4>
+                <p class="evn-muted mb-0">Khi có ứng viên ứng tuyển, hồ sơ sẽ xuất hiện tại đây.</p>
+            </div>
+        }
+        else
+        {
+            <div class="d-grid gap-4">
+                @foreach (var item in Model)
+                {
+                    <div class="evn-card p-4">
+                        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+                            <div>
+                                <h3 class="h5 fw-bold mb-1">Ứng viên: @item.CandidateId</h3>
+                                <p class="evn-muted mb-0">
+                                    Nộp lúc @item.SubmittedAt.ToString("dd/MM/yyyy HH:mm")
+                                </p>
+                            </div>
+
+                            <span class="evn-badge">@item.Status</span>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(item.CoverLetter))
+                        {
+                            <div class="evn-card-soft p-3 mb-3">
+                                <div class="evn-muted small mb-1">Thư ứng tuyển</div>
+                                <p class="mb-0">@item.CoverLetter</p>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(item.CvUrl))
+                        {
+                            <p>
+                                <strong>CV:</strong>
+                                <a href="@item.CvUrl" target="_blank" rel="noopener">
+                                    Xem CV
+                                </a>
+                            </p>
+                        }
+
+                        <form asp-action="ChangeStatus" method="post" class="row g-3 align-items-end">
+                            <input type="hidden" name="applicationId" value="@item.Id" />
+                            <input type="hidden" name="jobId" value="@jobId" />
+
+                            <div class="col-lg-3">
+                                <label class="form-label">Trạng thái mới</label>
+                                <select name="newStatus" class="form-select">
+                                    <option value="@ApplicationStatus.Reviewing">Reviewing</option>
+                                    <option value="@ApplicationStatus.Interview">Interview</option>
+                                    <option value="@ApplicationStatus.Rejected">Rejected</option>
+                                    <option value="@ApplicationStatus.Accepted">Accepted</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label class="form-label">Ghi chú</label>
+                                <input name="note" class="form-control" placeholder="VD: Mời phỏng vấn vòng 1" />
+                            </div>
+
+                            <div class="col-lg-3">
+                                <button class="btn btn-primary evn-btn-primary w-100" type="submit">
+                                    Cập nhật
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

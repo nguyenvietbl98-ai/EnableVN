@@ -1,36 +1,60 @@
-namespace ENABLEVN
+using Application;
+using InfrastructureInMemory;
+using Ports.Outbound.Services;
+using Presentation.Services;
+using Presentation.SeedData;
+
+
+var builder = WebApplication.CreateBuilder(args);
+
+// MVC + Razor View.
+builder.Services.AddControllersWithViews();
+
+// Session dùng để lưu UserId, Email, Role sau khi login/register.
+// Đây là bản đơn giản để test MVC với InMemory.
+builder.Services.AddSession(options =>
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
+// Cho phép service đọc HttpContext hiện tại.
+builder.Services.AddHttpContextAccessor();
 
-            var app = builder.Build();
+// Đăng ký Application UseCases.
+builder.Services.AddEnableVNApplication();
 
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+// Đăng ký repository/service InMemory.
+builder.Services.AddEnableVNInMemoryInfrastructure();
 
-            app.UseHttpsRedirection();
-            app.UseRouting();
+// Ghi đè ICurrentUserService mặc định của InMemory.
+// Trong MVC, current user nên đọc từ Session thay vì Singleton RAM.
+builder.Services.AddScoped<ICurrentUserService, SessionCurrentUserService>();
 
-            app.UseAuthorization();
-
-            app.MapStaticAssets();
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
-
-            app.Run();
-        }
-    }
+var app = builder.Build();
+// Seed Admin mặc định cho môi trường Development/InMemory.
+// Email: admin@enablevn.local
+// Password: Admin@123
+if (app.Environment.IsDevelopment())
+{
+    await InMemoryAdminSeeder.SeedAsync(app.Services);
 }
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+}
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseSession();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
+
+app.Run();

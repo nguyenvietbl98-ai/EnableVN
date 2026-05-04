@@ -1,0 +1,85 @@
+﻿@model IReadOnlyList<JobResult>
+
+@{
+    ViewData["Title"] = "Tin tuyển dụng của tôi";
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <span class="evn-badge mb-3">Employer</span>
+                <h1 class="fw-bold display-6 mb-0">Tin tuyển dụng của tôi</h1>
+            </div>
+
+            <a class="btn btn-primary evn-btn-primary" asp-action="Create">
+                Tạo tin mới
+            </a>
+        </div>
+
+        @if (Model.Count == 0)
+        {
+            <div class="evn-card p-5 text-center">
+                <h4 class="fw-bold">Bạn chưa có tin tuyển dụng</h4>
+                <p class="evn-muted">Hãy tạo tin đầu tiên để ứng viên có thể tìm thấy.</p>
+                <a class="btn btn-primary evn-btn-primary" asp-action="Create">Tạo tin</a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var job in Model)
+                {
+                    <div class="col-lg-6">
+                        <div class="evn-card p-4">
+                            <div class="d-flex justify-content-between gap-3 mb-3">
+                                <div>
+                                    <h3 class="h5 fw-bold mb-1">@job.Title</h3>
+                                    <p class="evn-muted mb-0">@job.WorkMode</p>
+                                </div>
+
+                                <span class="evn-badge">@job.Status</span>
+                            </div>
+
+                            <p class="evn-muted">
+                                @(job.Description.Length > 150 ? job.Description[..150] + "..." : job.Description)
+                            </p>
+
+                            <div class="d-flex gap-2">
+                                @if (job.Status == JobStatus.Draft)
+                                {
+                                    <form asp-action="Publish" method="post">
+                                        <input type="hidden" name="id" value="@job.Id" />
+                                        <button class="btn btn-primary btn-sm evn-btn-primary" type="submit">
+                                            Đăng tin
+                                        </button>
+                                    </form>
+                                }
+
+                                @if (job.Status == JobStatus.Published)
+                                {
+                                    <form asp-action="Close" method="post">
+                                        <input type="hidden" name="id" value="@job.Id" />
+                                        <button class="btn btn-outline-dark btn-sm" type="submit">
+                                            Đóng tin
+                                        </button>
+                                    </form>
+                                }
+
+                                <a class="btn btn-outline-dark btn-sm" asp-controller="Jobs" asp-action="Details" asp-route-id="@job.Id">
+                                    Xem
+                                </a>
+                                <a class="btn btn-outline-dark btn-sm"
+                                       asp-controller="JobApplications"
+                                       asp-action="ByJob"
+                                       asp-route-jobId="@job.Id">
+                                    Hồ sơ ứng tuyển
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

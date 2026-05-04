@@ -1,0 +1,59 @@
+﻿@model JobResult
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="evn-card p-4 p-lg-5">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+                <div>
+                    <span class="evn-badge mb-3">@Model.WorkMode</span>
+                    <h1 class="fw-bold display-6 mb-2">@Model.Title</h1>
+                    <p class="evn-muted mb-0">
+                        Đăng lúc: @(Model.PublishedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa rõ")
+                    </p>
+                </div>
+
+                <form asp-action="Apply" method="post">
+                    <input type="hidden" name="jobId" value="@Model.Id" />
+                    <button class="btn btn-primary btn-lg evn-btn-primary" type="submit">
+                        Nộp hồ sơ
+                    </button>
+                </form>
+            </div>
+
+            <hr />
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <h4 class="fw-bold">Mô tả công việc</h4>
+                    <p class="evn-muted">@Model.Description</p>
+
+                    <h4 class="fw-bold mt-4">Yêu cầu</h4>
+                    <p class="evn-muted">@Model.Requirement</p>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="evn-card-soft p-4">
+                        <h5 class="fw-bold mb-3">Thông tin tiếp cận</h5>
+
+                        <ul class="list-unstyled d-grid gap-2 mb-0">
+                            <li>Xe lăn: <strong>@(Model.SupportsWheelchairAccess ? "Có" : "Không")</strong></li>
+                            <li>Remote: <strong>@(Model.SupportsRemoteWork ? "Có" : "Không")</strong></li>
+                            <li>Thời gian linh hoạt: <strong>@(Model.SupportsFlexibleTime ? "Có" : "Không")</strong></li>
+                            <li>Thiết bị hỗ trợ: <strong>@(Model.ProvidesAssistiveDevices ? "Có" : "Không")</strong></li>
+                        </ul>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.AdditionalSupportDescription))
+                        {
+                            <hr />
+                            <p class="evn-muted mb-0">@Model.AdditionalSupportDescription</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

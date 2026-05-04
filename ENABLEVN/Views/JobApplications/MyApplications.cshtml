@@ -1,0 +1,87 @@
+﻿@model IReadOnlyList<JobApplicationResult>
+
+@{
+    ViewData["Title"] = "Hồ sơ đã ứng tuyển";
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="mb-4">
+            <span class="evn-badge mb-3">Candidate</span>
+            <h1 class="fw-bold display-6 mb-2">Hồ sơ đã ứng tuyển</h1>
+            <p class="evn-muted mb-0">
+                Theo dõi các hồ sơ bạn đã nộp và trạng thái hiện tại.
+            </p>
+        </div>
+
+        @if (Model.Count == 0)
+        {
+            <div class="evn-card p-5 text-center">
+                <h4 class="fw-bold">Bạn chưa nộp hồ sơ nào</h4>
+                <p class="evn-muted">Hãy tìm công việc phù hợp và ứng tuyển.</p>
+                <a class="btn btn-primary evn-btn-primary" asp-controller="Jobs" asp-action="Index">
+                    Tìm việc
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="evn-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="p-4">Application ID</th>
+                                <th>Job ID</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày nộp</th>
+                                <th class="text-end p-4">Thao tác</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="p-4">
+                                        <code>@item.Id</code>
+                                    </td>
+
+                                    <td>
+                                        <a asp-controller="Jobs" asp-action="Details" asp-route-id="@item.JobId">
+                                            @item.JobId
+                                        </a>
+                                    </td>
+
+                                    <td>
+                                        <span class="evn-badge">@item.Status</span>
+                                    </td>
+
+                                    <td>@item.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</td>
+
+                                    <td class="text-end p-4">
+                                        @if (item.Status != ApplicationStatus.Withdrawn &&
+                                             item.Status != ApplicationStatus.Accepted &&
+                                             item.Status != ApplicationStatus.Rejected)
+                                        {
+                                            <form asp-action="Withdraw" method="post" class="d-inline">
+                                                <input type="hidden" name="applicationId" value="@item.Id" />
+                                                <button class="btn btn-outline-dark btn-sm" type="submit">
+                                                    Rút hồ sơ
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="evn-muted small">Không có thao tác</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</section>

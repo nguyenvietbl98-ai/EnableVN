@@ -1,0 +1,46 @@
+﻿@model UpdateCandidateProfileCommand
+
+@{
+    ViewData["Title"] = "Cập nhật hồ sơ ứng viên";
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="evn-card evn-form">
+                    <span class="evn-badge mb-3">Candidate</span>
+                    <h1 class="h3 fw-bold mb-2">Cập nhật hồ sơ ứng viên</h1>
+                    <p class="evn-muted mb-4">
+                        Cập nhật thông tin cá nhân và CV của bạn.
+                    </p>
+
+                    <form asp-action="Edit" method="post">
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label">Họ và tên</label>
+                            <input asp-for="FullName" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CvUrl" class="form-label">Đường dẫn CV</label>
+                            <input asp-for="CvUrl" class="form-control" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Bio" class="form-label">Giới thiệu bản thân</label>
+                            <textarea asp-for="Bio" class="form-control" rows="5"></textarea>
+                        </div>
+
+                        <button class="btn btn-primary evn-btn-primary" type="submit">
+                            Lưu thay đổi
+                        </button>
+
+                        <a class="btn btn-outline-dark" asp-action="Index">
+                            Hủy
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

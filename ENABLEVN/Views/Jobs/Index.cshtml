@@ -1,0 +1,133 @@
+﻿@model IReadOnlyList<JobResult>
+
+@{
+    ViewData["Title"] = "Việc làm";
+    var query = ViewBag.Query as SearchJobQuery ?? new SearchJobQuery();
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+            <div>
+                <span class="evn-badge mb-3">Danh sách việc làm</span>
+                <h1 class="fw-bold display-6 mb-2">Tìm công việc phù hợp</h1>
+                <p class="evn-muted mb-0">
+                    Lọc theo hình thức làm việc và các tiêu chí hỗ trợ tiếp cận.
+                </p>
+            </div>
+        </div>
+
+        <div class="evn-card p-4 mb-4">
+            <form method="get" asp-action="Index">
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <label class="form-label">Từ khóa</label>
+                        <input name="Keyword" value="@query.Keyword" class="form-control" placeholder="VD: developer, kế toán..." />
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label class="form-label">Hình thức</label>
+                        <select name="WorkMode" class="form-select">
+                            <option value="">Tất cả</option>
+                            <option value="Onsite">Onsite</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-5 d-flex align-items-end">
+                        <div class="d-flex flex-wrap gap-3">
+                            <label class="form-check">
+                                <input class="form-check-input" type="checkbox" name="SupportsRemoteWork" value="true" />
+                                <span class="form-check-label">Remote</span>
+                            </label>
+
+                            <label class="form-check">
+                                <input class="form-check-input" type="checkbox" name="SupportsWheelchairAccess" value="true" />
+                                <span class="form-check-label">Xe lăn</span>
+                            </label>
+
+                            <label class="form-check">
+                                <input class="form-check-input" type="checkbox" name="SupportsFlexibleTime" value="true" />
+                                <span class="form-check-label">Linh hoạt</span>
+                            </label>
+
+                            <label class="form-check">
+                                <input class="form-check-input" type="checkbox" name="ProvidesAssistiveDevices" value="true" />
+                                <span class="form-check-label">Thiết bị hỗ trợ</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <button class="btn btn-primary evn-btn-primary" type="submit">
+                            Tìm kiếm
+                        </button>
+
+                        <a class="btn btn-outline-dark" asp-action="Index">
+                            Xóa lọc
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        @if (Model.Count == 0)
+        {
+            <div class="evn-card p-5 text-center">
+                <h4 class="fw-bold">Chưa có công việc phù hợp</h4>
+                <p class="evn-muted mb-0">Hãy thử thay đổi bộ lọc hoặc quay lại sau.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var job in Model)
+                {
+                    <div class="col-lg-6">
+                        <div class="evn-card evn-job-card p-4 h-100">
+                            <div class="d-flex justify-content-between gap-3 mb-3">
+                                <div>
+                                    <h3 class="h5 fw-bold mb-1">@job.Title</h3>
+                                    <p class="evn-muted mb-0">@job.WorkMode</p>
+                                </div>
+
+                                <span class="evn-badge">@job.Status</span>
+                            </div>
+
+                            <p class="evn-muted">
+                                @(job.Description.Length > 160 ? job.Description[..160] + "..." : job.Description)
+                            </p>
+
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                @if (job.SupportsRemoteWork)
+                                {
+                                    <span class="badge text-bg-light">Remote</span>
+                                }
+
+                                @if (job.SupportsWheelchairAccess)
+                                {
+                                    <span class="badge text-bg-light">Xe lăn</span>
+                                }
+
+                                @if (job.SupportsFlexibleTime)
+                                {
+                                    <span class="badge text-bg-light">Linh hoạt</span>
+                                }
+
+                                @if (job.ProvidesAssistiveDevices)
+                                {
+                                    <span class="badge text-bg-light">Thiết bị hỗ trợ</span>
+                                }
+                            </div>
+
+                            <a class="btn btn-outline-dark" asp-action="Details" asp-route-id="@job.Id">
+                                Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
