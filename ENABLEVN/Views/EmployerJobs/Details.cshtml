@@ -1,0 +1,85 @@
+﻿@using Domain.Jobs
+@model Ports.Models.Jobs.JobResult
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="page-section">
+    <div class="page-header">
+        <p class="eyebrow">Tin tuyển dụng</p>
+        <h1>@Model.Title</h1>
+        <p>
+            Trạng thái: <strong>@Model.Status</strong> ·
+            Hình thức: <strong>@Model.WorkMode</strong>
+        </p>
+    </div>
+
+    <div class="detail-card">
+        <h2>Mô tả công việc</h2>
+        <p>@Model.Description</p>
+
+        <h2>Yêu cầu</h2>
+        <p>@Model.Requirement</p>
+
+        <h2>Lương</h2>
+        <p>
+            @if (Model.MinSalary.HasValue || Model.MaxSalary.HasValue)
+            {
+                <span>
+                    @(Model.MinSalary?.ToString("N0") ?? "Thỏa thuận")
+                    -
+                    @(Model.MaxSalary?.ToString("N0") ?? "Thỏa thuận")
+                </span>
+            }
+            else
+            {
+                <span>Thỏa thuận</span>
+            }
+        </p>
+
+        <h2>Hỗ trợ tiếp cận</h2>
+        <ul class="accessibility-list">
+            <li>Xe lăn: @(Model.SupportsWheelchairAccess ? "Có" : "Không")</li>
+            <li>Làm việc từ xa: @(Model.SupportsRemoteWork ? "Có" : "Không")</li>
+            <li>Thời gian linh hoạt: @(Model.SupportsFlexibleTime ? "Có" : "Không")</li>
+            <li>Thiết bị hỗ trợ: @(Model.ProvidesAssistiveDevices ? "Có" : "Không")</li>
+        </ul>
+
+        @if (!string.IsNullOrWhiteSpace(Model.AdditionalSupportDescription))
+        {
+            <h2>Mô tả hỗ trợ thêm</h2>
+            <p>@Model.AdditionalSupportDescription</p>
+        }
+    </div>
+
+    <div class="form-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Sửa tin</a>
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+
+        @if (Model.Status == JobStatus.Draft)
+        {
+            <form asp-action="Publish" method="post" class="inline-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-success">Đăng tin</button>
+            </form>
+        }
+
+        @if (Model.Status == JobStatus.Published)
+        {
+            <form asp-action="Close" method="post" class="inline-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-warning">Đóng tin</button>
+            </form>
+        }
+
+        <form asp-action="Delete" method="post" class="inline-form"
+              onsubmit="return confirm('Bạn có chắc muốn xóa tin tuyển dụng này không?');">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger">Xóa tin</button>
+        </form>
+    </div>
+</section>

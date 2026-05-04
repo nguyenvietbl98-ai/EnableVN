@@ -1,0 +1,92 @@
+﻿@using Domain.Jobs
+@model Ports.Models.Jobs.UpdateJobCommand
+
+@{
+    ViewData["Title"] = "Cập nhật tin tuyển dụng";
+}
+
+<section class="page-section">
+    <div class="page-header">
+        <p class="eyebrow">Employer</p>
+        <h1>Cập nhật tin tuyển dụng</h1>
+        <p>Chỉnh sửa nội dung, hình thức làm việc và các hỗ trợ tiếp cận cho ứng viên.</p>
+    </div>
+
+    <form asp-action="Edit" method="post" class="form-card">
+        @Html.AntiForgeryToken()
+
+        <input asp-for="JobId" type="hidden" />
+
+        <div class="form-group">
+            <label asp-for="Title">Tiêu đề</label>
+            <input asp-for="Title" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description">Mô tả công việc</label>
+            <textarea asp-for="Description" class="form-control" rows="6" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Requirement">Yêu cầu</label>
+            <textarea asp-for="Requirement" class="form-control" rows="5" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="WorkMode">Hình thức làm việc</label>
+            <select asp-for="WorkMode" class="form-control">
+                <option value="@WorkMode.Onsite">Onsite</option>
+                <option value="@WorkMode.Remote">Remote</option>
+                <option value="@WorkMode.Hybrid">Hybrid</option>
+            </select>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label asp-for="MinSalary">Lương tối thiểu</label>
+                <input asp-for="MinSalary" class="form-control" type="number" min="0" step="100000" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxSalary">Lương tối đa</label>
+                <input asp-for="MaxSalary" class="form-control" type="number" min="0" step="100000" />
+            </div>
+        </div>
+
+        <hr />
+
+        <fieldset class="form-group">
+            <legend>Hỗ trợ tiếp cận</legend>
+
+            <label class="checkbox-line">
+                <input asp-for="SupportsWheelchairAccess" />
+                <span>Hỗ trợ xe lăn</span>
+            </label>
+
+            <label class="checkbox-line">
+                <input asp-for="SupportsRemoteWork" />
+                <span>Hỗ trợ làm việc từ xa</span>
+            </label>
+
+            <label class="checkbox-line">
+                <input asp-for="SupportsFlexibleTime" />
+                <span>Thời gian linh hoạt</span>
+            </label>
+
+            <label class="checkbox-line">
+                <input asp-for="ProvidesAssistiveDevices" />
+                <span>Có thiết bị hỗ trợ</span>
+            </label>
+        </fieldset>
+
+        <div class="form-group">
+            <label asp-for="AdditionalSupportDescription">Mô tả hỗ trợ thêm</label>
+            <textarea asp-for="AdditionalSupportDescription" class="form-control" rows="4"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+        </div>
+    </form>
+</section>
