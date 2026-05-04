@@ -1,0 +1,53 @@
+﻿@model IReadOnlyList<Ports.Models.Notifications.NotificationResult>
+@using Domain.Notifications
+
+@{
+    ViewData["Title"] = "Thông báo";
+}
+
+<h1>Thông báo</h1>
+
+@if (!Model.Any())
+{
+    <p>Hiện chưa có thông báo nào.</p>
+}
+else
+{
+    <div class="notification-list">
+        @foreach (var item in Model)
+        {
+            <article class="card mb-3"
+                     aria-label="Thông báo @item.Title">
+                <div class="card-body">
+                    <h2 class="h5">
+                        @item.Title
+
+                        @if (item.Status == NotificationStatus.Unread)
+                        {
+                            <span class="badge bg-warning text-dark">Chưa đọc</span>
+                        }
+                    </h2>
+
+                    <p>@item.Message</p>
+
+                    <p class="text-muted">
+                        @item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                    </p>
+
+                    @if (item.Status == NotificationStatus.Unread)
+                    {
+                        <form asp-action="MarkAsRead" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="id" value="@item.Id" />
+
+                            <button type="submit" class="btn btn-primary">
+                                Đánh dấu đã đọc
+                            </button>
+                        </form>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+}

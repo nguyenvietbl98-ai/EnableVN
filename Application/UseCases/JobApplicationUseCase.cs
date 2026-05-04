@@ -1,6 +1,7 @@
 ﻿using Application.Common;
 using Application.Mappers;
 using Domain.Applications;
+using Domain.Notifications;
 using Ports.Inbound;
 using Ports.Models.Applications;
 using Ports.Outbound.Repositories;
@@ -25,6 +26,7 @@ namespace Application.UseCases
         private readonly IEmployerProfileRepository _employerProfileRepository;
         private readonly ICurrentUserService _currentUser;
         private readonly IDomainEventDispatcher _domainEventDispatcher;
+        private readonly INotificationRepository _notificationRepository;
 
         public JobApplicationUseCase(
             IJobApplicationRepository jobApplicationRepository,
@@ -32,7 +34,8 @@ namespace Application.UseCases
             ICandidateProfileRepository candidateProfileRepository,
             IEmployerProfileRepository employerProfileRepository,
             ICurrentUserService currentUser,
-            IDomainEventDispatcher domainEventDispatcher
+            IDomainEventDispatcher domainEventDispatcher,
+            INotificationRepository notificationRepository
         )
         {
             _jobApplicationRepository = jobApplicationRepository;
@@ -41,6 +44,7 @@ namespace Application.UseCases
             _employerProfileRepository = employerProfileRepository;
             _currentUser = currentUser;
             _domainEventDispatcher = domainEventDispatcher;
+                _notificationRepository = notificationRepository;
         }
 
         public async Task<Guid> SubmitAsync(
@@ -93,6 +97,27 @@ namespace Application.UseCases
                 application,
                 cancellationToken
             );
+            var employerProfile = await _employerProfileRepository.GetByIdAsync(
+    job.EmployerId,
+    cancellationToken
+);
+            // Job đang lưu EmployerId là Id của EmployerProfile.
+
+            if (employerProfile is not null)
+            {
+                var notification = Notification.Create(
+                    employerProfile.UserId,
+                    "Có hồ sơ ứng tuyển mới",
+                    $"Một ứng viên vừa nộp hồ sơ vào tin: {job.Title.Value}.",
+                    NotificationType.ApplicationSubmitted
+                );
+                // Tạo thông báo cho tài khoản Employer sở hữu công việc này.
+
+                await _notificationRepository.AddAsync(
+                    notification,
+                    cancellationToken
+                );
+            }
 
             await DomainEventHelper.DispatchAndClearEventsAsync(
                 application,
@@ -146,6 +171,27 @@ namespace Application.UseCases
                 application,
                 cancellationToken
             );
+            var candidateProfile = await _candidateProfileRepository.GetByIdAsync(
+    application.CandidateId,
+    cancellationToken
+);
+            // Lấy CandidateProfile để biết UserId của ứng viên nhận thông báo.
+
+            if (candidateProfile is not null)
+            {
+                var notification = Notification.Create(
+                    candidateProfile.UserId,
+                    "Trạng thái hồ sơ đã thay đổi",
+                    $"Hồ sơ của bạn đã được cập nhật sang trạng thái: {application.Status}.",
+                    NotificationType.ApplicationStatusChanged
+                );
+                // Tạo thông báo cho Candidate.
+
+                await _notificationRepository.AddAsync(
+                    notification,
+                    cancellationToken
+                );
+            }
 
             await DomainEventHelper.DispatchAndClearEventsAsync(
                 application,

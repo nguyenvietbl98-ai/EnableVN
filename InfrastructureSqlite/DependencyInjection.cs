@@ -55,6 +55,7 @@ namespace InfrastructureSqlite
             services.AddScoped<IAssistiveDeviceRepository, SqliteAssistiveDeviceRepository>();
 
             services.AddScoped<IJobCategoryRepository, SqliteJobCategoryRepository>();
+            services.AddScoped<INotificationRepository, SqliteNotificationRepository>();
 
             return services;
         }

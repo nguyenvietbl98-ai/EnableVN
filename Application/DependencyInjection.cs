@@ -23,6 +23,8 @@ public static class DependencyInjection
         services.AddScoped<IJobUseCase, JobUseCase>();
         services.AddScoped<IJobApplicationUseCase, JobApplicationUseCase>();
         services.AddScoped<ICatalogUseCase, CatalogUseCase>();
+        services.AddScoped<INotificationUseCase, NotificationUseCase>();
+        services.AddScoped<IEmployerCandidateSearchUseCase, EmployerCandidateSearchUseCase>();
 
         return services;
     }

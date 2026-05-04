@@ -30,6 +30,7 @@ namespace InfrastructureSqlite.Persistence
         public DbSet<AssistiveDeviceRecord> AssistiveDevices => Set<AssistiveDeviceRecord>();
 
         public DbSet<JobCategoryRecord> JobCategories => Set<JobCategoryRecord>();
+        public DbSet<NotificationRecord> Notifications => Set<NotificationRecord>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +45,40 @@ namespace InfrastructureSqlite.Persistence
             ConfigureDisabilityTypes(modelBuilder);
             ConfigureAssistiveDevices(modelBuilder);
             ConfigureJobCategories(modelBuilder);
+            modelBuilder.Entity<NotificationRecord>(entity =>
+            {
+                entity.ToTable("Notifications"); // Tên bảng trong SQLite.
+
+                entity.HasKey(x => x.Id); // Khóa chính.
+
+                entity.Property(x => x.UserId)
+                    .IsRequired(); // Bắt buộc có người nhận.
+
+                entity.Property(x => x.Title)
+                    .IsRequired()
+                    .HasMaxLength(200); // Tiêu đề không nên quá dài.
+
+                entity.Property(x => x.Message)
+                    .IsRequired()
+                    .HasMaxLength(1000); // Nội dung giới hạn để tránh quá tải UI.
+
+                entity.Property(x => x.Type)
+                    .IsRequired()
+                    .HasMaxLength(50); // Enum lưu string.
+
+                entity.Property(x => x.Status)
+                    .IsRequired()
+                    .HasMaxLength(50); // Unread/Read.
+
+                entity.Property(x => x.CreatedAt)
+                    .IsRequired();
+
+                entity.HasIndex(x => x.UserId);
+                // Tối ưu truy vấn danh sách thông báo theo user.
+
+                entity.HasIndex(x => new { x.UserId, x.Status });
+                // Tối ưu đếm thông báo chưa đọc.
+            });
         }
 
         private static void ConfigureUsers(ModelBuilder modelBuilder)
@@ -266,5 +301,6 @@ namespace InfrastructureSqlite.Persistence
 
             category.HasIndex(x => x.Status);
         }
+
     }
 }

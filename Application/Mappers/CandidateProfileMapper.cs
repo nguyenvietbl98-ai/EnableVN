@@ -20,6 +20,8 @@ namespace Application.Mappers
             bool canViewDisabilityInfo
         )
         {
+            var disabilityInfo = profile.DisabilityInfo;
+
             return new CandidateProfileResult
             {
                 Id = profile.Id,
@@ -29,14 +31,14 @@ namespace Application.Mappers
                 CvUrl = profile.CvUrl,
 
                 DisabilityTypeId = canViewDisabilityInfo
-                    ? profile.DisabilityInfo.DisabilityTypeId
+                    ? disabilityInfo?.DisabilityTypeId
                     : null,
 
                 DisabilityDescription = canViewDisabilityInfo
-                    ? profile.DisabilityInfo.Description
+                    ? disabilityInfo?.Description
                     : null,
 
-                IsDisabilityInfoVisibleToEmployer = profile.DisabilityInfo.IsVisibleToEmployer,
+                IsDisabilityInfoVisibleToEmployer = disabilityInfo?.IsVisibleToEmployer ?? false,
                 IsPublicProfile = profile.IsPublicProfile
             };
         }
