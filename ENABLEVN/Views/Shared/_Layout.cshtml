@@ -58,6 +58,14 @@
                                 <a class="nav-link" asp-controller="JobApplications" asp-action="MyApplications">Đã ứng tuyển</a>
                             </li>
                         }
+                        @if (isLoggedIn && userRole == nameof(UserRole.Admin))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Catalog" asp-action="Index">
+                                    Quản lý danh mục
+                                </a>
+                            </li>
+                        }
                     </ul>
 
                     <div class="d-flex align-items-center gap-2">

@@ -20,9 +20,15 @@ namespace Presentation.Controllers
     {
         private readonly ICandidateProfileUseCase _candidateProfileUseCase;
 
-        public CandidateProfileController(ICandidateProfileUseCase candidateProfileUseCase)
+        private readonly ICatalogUseCase _catalogUseCase;
+
+        public CandidateProfileController(
+            ICandidateProfileUseCase candidateProfileUseCase,
+            ICatalogUseCase catalogUseCase
+        )
         {
             _candidateProfileUseCase = candidateProfileUseCase;
+            _catalogUseCase = catalogUseCase;
         }
 
         [HttpGet]
@@ -130,6 +136,8 @@ namespace Presentation.Controllers
                     return RedirectToAction(nameof(Create));
                 }
 
+                await LoadDisabilityTypesAsync();
+
                 var command = new UpdateDisabilityInfoCommand
                 {
                     DisabilityTypeId = profile.DisabilityTypeId,
@@ -145,7 +153,6 @@ namespace Presentation.Controllers
                 return RedirectToAction("Index", "Home");
             }
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Disability(UpdateDisabilityInfoCommand command)
@@ -161,10 +168,14 @@ namespace Presentation.Controllers
             catch (Exception ex) when (ex is UseCaseException or DomainException)
             {
                 TempData["Error"] = ex.Message;
+
+                // Nếu return lại View khi lỗi, cần load lại dropdown,
+                // nếu không ViewBag.DisabilityTypes sẽ null.
+                await LoadDisabilityTypesAsync();
+
                 return View(command);
             }
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> HideDisabilityInfo()
@@ -235,6 +246,18 @@ namespace Presentation.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+        /// <summary>
+        /// Load danh sách loại khuyết tật active để render dropdown.
+        /// 
+        /// Đặt ở Controller vì đây là dữ liệu phục vụ View.
+        /// Controller vẫn chỉ gọi Inbound Port, không gọi Repository trực tiếp.
+        /// </summary>
+        private async Task LoadDisabilityTypesAsync()
+        {
+            var disabilityTypes = await _catalogUseCase.GetActiveDisabilityTypesAsync();
+
+            ViewBag.DisabilityTypes = disabilityTypes;
         }
     }
 }

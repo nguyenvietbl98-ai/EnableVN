@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Thông tin khuyết tật";
+
+    var disabilityTypes = ViewBag.DisabilityTypes as IReadOnlyList<CatalogItemResult>
+        ?? new List<CatalogItemResult>();
 }
 
 <section class="evn-section">
@@ -10,32 +13,66 @@
             <div class="col-lg-7">
                 <div class="evn-card evn-form">
                     <span class="evn-badge mb-3">Privacy by Design</span>
+
                     <h1 class="h3 fw-bold mb-2">Thông tin khuyết tật</h1>
+
                     <p class="evn-muted mb-4">
                         Bạn có toàn quyền quyết định thông tin này có hiển thị với nhà tuyển dụng hay không.
                     </p>
 
+                    @if (disabilityTypes.Count == 0)
+                    {
+                        <div class="alert alert-warning evn-alert">
+                            Hiện chưa có danh mục loại khuyết tật.
+                            Admin cần tạo danh mục trước trong phần Quản lý danh mục.
+                        </div>
+                    }
+
                     <form asp-action="Disability" method="post">
                         <div class="mb-3">
-                            <label asp-for="DisabilityTypeId" class="form-label">Loại khuyết tật</label>
-                            <input asp-for="DisabilityTypeId" class="form-control" placeholder="Tạm thời nhập Guid nếu có catalog" />
+                            <label asp-for="DisabilityTypeId" class="form-label">
+                                Loại khuyết tật
+                            </label>
+
+                            <select asp-for="DisabilityTypeId" class="form-select">
+                                <option value="">Không chọn / Không muốn khai báo</option>
+
+                                @foreach (var item in disabilityTypes)
+                                {
+                                    <option value="@item.Id">
+                                        @item.Name
+                                    </option>
+                                }
+                            </select>
+
                             <div class="form-text">
-                                Dropdown catalog sẽ được nối sau khi làm Catalog UI.
+                                Bạn có thể không chọn nếu chưa muốn khai báo loại khuyết tật.
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Description" class="form-label">Mô tả thêm</label>
-                            <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                            <label asp-for="Description" class="form-label">
+                                Mô tả thêm
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="VD: Tôi cần môi trường làm việc yên tĩnh, hỗ trợ làm việc từ xa..."></textarea>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-check">
                                 <input asp-for="IsVisibleToEmployer" class="form-check-input" />
+
                                 <span class="form-check-label">
                                     Cho phép nhà tuyển dụng xem thông tin này
                                 </span>
                             </label>
+
+                            <div class="form-text">
+                                Nếu không bật, nhà tuyển dụng sẽ không thấy loại khuyết tật và mô tả này.
+                            </div>
                         </div>
 
                         <button class="btn btn-primary evn-btn-primary" type="submit">

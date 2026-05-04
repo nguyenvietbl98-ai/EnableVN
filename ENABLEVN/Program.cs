@@ -39,6 +39,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     await InMemoryAdminSeeder.SeedAsync(app.Services);
+    await InMemoryCatalogSeeder.SeedAsync(app.Services);
 }
 
 if (!app.Environment.IsDevelopment())

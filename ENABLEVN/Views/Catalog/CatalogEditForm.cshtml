@@ -1,0 +1,44 @@
+﻿@model UpdateCatalogItemCommand
+
+@{
+    ViewData["Title"] = ViewBag.Title;
+    var postAction = (string)ViewBag.PostAction;
+}
+
+<section class="evn-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="evn-card evn-form">
+                    <span class="evn-badge mb-3">Admin Catalog</span>
+                    <h1 class="h3 fw-bold mb-2">@ViewBag.Title</h1>
+                    <p class="evn-muted mb-4">
+                        Cập nhật thông tin danh mục.
+                    </p>
+
+                    <form asp-controller="Catalog" asp-action="@postAction" method="post">
+                        <input asp-for="Id" type="hidden" />
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Tên</label>
+                            <input asp-for="Name" class="form-control" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                        </div>
+
+                        <button class="btn btn-primary evn-btn-primary" type="submit">
+                            Lưu thay đổi
+                        </button>
+
+                        <a class="btn btn-outline-dark" asp-controller="Catalog" asp-action="Index">
+                            Hủy
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
