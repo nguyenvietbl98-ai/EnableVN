@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\InfrastructureInMemory\InfrastructureInMemory.csproj" />
-    <ProjectReference Include="..\InfrastructureSqlite\InfrastructureSqlite.csproj" />
     <ProjectReference Include="..\Ports\Ports.csproj" />
   </ItemGroup>
 

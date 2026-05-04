@@ -68,5 +68,28 @@ namespace Domain.Users
         {
             Status = UserStatus.Deleted;
         }
+        public static User Restore(
+    Guid id,
+    string email,
+    string passwordHash,
+    UserRole role,
+    UserStatus status)
+        {
+            if (id == Guid.Empty)
+                throw new DomainException("UserId không hợp lệ.");
+
+            if (string.IsNullOrWhiteSpace(passwordHash))
+                throw new DomainException("Mật khẩu đã mã hóa không được để trống.");
+
+            var user = new User(
+                id,
+                Email.Create(email),
+                passwordHash,
+                role);
+
+            user.Status = status;
+
+            return user;
+        }
     }
 }

@@ -116,5 +116,22 @@ namespace Domain.Catalogs
         {
             Status = CatalogStatus.Inactive;
         }
+        public static JobCategory Restore(
+    Guid id,
+    string name,
+    string? description,
+    CatalogStatus status)
+        {
+            if (id == Guid.Empty)
+                throw new DomainException("JobCategoryId không hợp lệ.");
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new DomainException("Tên ngành nghề không được để trống.");
+
+            var item = new JobCategory(id, name.Trim(), description);
+            item.Status = status;
+
+            return item;
+        }
     }
 }

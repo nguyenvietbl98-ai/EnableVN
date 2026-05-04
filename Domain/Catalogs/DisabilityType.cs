@@ -55,5 +55,22 @@ namespace Domain.Catalogs
         {
             Status = CatalogStatus.Inactive;
         }
+        public static DisabilityType Restore(
+    Guid id,
+    string name,
+    string? description,
+    CatalogStatus status)
+        {
+            if (id == Guid.Empty)
+                throw new DomainException("DisabilityTypeId không hợp lệ.");
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new DomainException("Tên loại khuyết tật không được để trống.");
+
+            var item = new DisabilityType(id, name.Trim(), description);
+            item.Status = status;
+
+            return item;
+        }
     }
 }
