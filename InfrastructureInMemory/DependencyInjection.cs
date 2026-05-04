@@ -38,6 +38,8 @@ namespace InfrastructureInMemory
 
             services.AddSingleton<IJobApplicationRepository, InMemoryJobApplicationRepository>();
 
+            services.AddSingleton<ICompanyReviewRepository, InMemoryCompanyReviewRepository>();
+
             services.AddSingleton<IDisabilityTypeRepository, InMemoryDisabilityTypeRepository>();
 
             services.AddSingleton<IAssistiveDeviceRepository, InMemoryAssistiveDeviceRepository>();

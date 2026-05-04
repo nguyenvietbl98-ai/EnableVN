@@ -1,14 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Ports.Inbound;
 using Ports.Models.Reviews;
 using Ports.Outbound.Services;
 using Application.Common;
 
-namespace ENABLEVN.Controllers
+namespace Presentation.Controllers
 {
-    [Authorize]
-    public class CompanyReviewsController : Controller
+    public sealed class CompanyReviewsController : Controller
     {
         private readonly ICompanyReviewUseCase _companyReviewUseCase;
         private readonly ICurrentUserService _currentUserService;
@@ -21,27 +19,28 @@ namespace ENABLEVN.Controllers
 
         // Ứng viên gửi đánh giá
         [HttpPost]
-        [Authorize(Roles = "Candidate")]
-      
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateCompanyReviewCommand command)
         {
             try
             {
-                // Truyền chính xác ID người dùng hiện tại vào Command
-                command.CandidateId = _currentUserService.UserId.Value;
+                if (!_currentUserService.UserId.HasValue)
+                {
+                    TempData["Error"] = "Vui lòng đăng nhập để gửi đánh giá.";
+                    return RedirectToAction("Login", "Auth");
+                }
 
-                // Đã sửa tên hàm thành CreateAsync để khớp với ICompanyReviewUseCase
+                command.CandidateId = _currentUserService.UserId.Value;
                 await _companyReviewUseCase.CreateAsync(command);
 
-                TempData["SuccessMessage"] = "Đánh giá doanh nghiệp thành công.";
+                TempData["Success"] = "Đánh giá doanh nghiệp thành công.";
                 return RedirectToAction("Details", "EmployerProfile", new { id = command.EmployerId });
             }
             catch (UseCaseException ex)
             {
-                TempData["ErrorMessage"] = ex.Message;
+                TempData["Error"] = ex.Message;
                 return RedirectToAction("Details", "EmployerProfile", new { id = command.EmployerId });
             }
         }
-    
-}
+    }
 }

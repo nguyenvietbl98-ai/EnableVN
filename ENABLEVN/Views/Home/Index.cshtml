@@ -1,53 +1,102 @@
-﻿@{
+﻿@model Presentation.ViewModels.Home.HomeIndexViewModel
+@{
     ViewData["Title"] = "Trang chủ";
+    var isLoggedIn = !string.IsNullOrWhiteSpace(Context.Session.GetString("UserId"));
 }
 
-<section class="evn-hero">
+<div class="evn-page">
     <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-7">
-                <span class="evn-badge mb-4">Tuyển dụng tiếp cận · Inclusive hiring</span>
-
-                <h1 class="evn-hero-title mb-4">
-                    Việc làm dễ tiếp cận hơn cho mọi người.
-                </h1>
-
-                <p class="evn-hero-text mb-4">
-                    EnableVN kết nối ứng viên với các doanh nghiệp quan tâm đến môi trường làm việc bao trùm:
-                    hỗ trợ xe lăn, làm việc từ xa, thời gian linh hoạt và thiết bị hỗ trợ.
-                </p>
-
-                <div class="d-flex flex-wrap gap-3">
-                    <a class="btn btn-primary btn-lg evn-btn-primary" asp-controller="Jobs" asp-action="Index">
-                        Tìm việc ngay
-                    </a>
-
-                    <a class="btn btn-outline-dark btn-lg" asp-controller="Auth" asp-action="Register">
-                        Tham gia EnableVN
-                    </a>
+        <section class="evn-hero pb-4">
+            <div class="row g-4 align-items-stretch">
+                <div class="col-lg-7">
+                    <div class="evn-hero-panel h-100">
+                        <span class="evn-badge mb-3"><i class="bi bi-stars" aria-hidden="true"></i> Tuyển dụng tiếp cận · Inclusive hiring</span>
+                        <h1 class="evn-hero-title mb-3">
+                            Việc làm dễ tiếp cận hơn cho mọi người.
+                        </h1>
+                        <p class="evn-hero-text mb-4">
+                            EnableVN kết nối ứng viên với các doanh nghiệp quan tâm đến môi trường làm việc bao trùm:
+                            hỗ trợ xe lăn, làm việc từ xa, thời gian linh hoạt và thiết bị hỗ trợ.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a class="btn btn-primary btn-lg evn-btn-primary" asp-controller="Jobs" asp-action="Index">
+                                <i class="bi bi-search me-2" aria-hidden="true"></i> Tìm việc ngay
+                            </a>
+                            @if (!isLoggedIn)
+                            {
+                                <a class="btn btn-outline-secondary btn-lg evn-btn-outline" asp-controller="Auth" asp-action="Register">
+                                    <i class="bi bi-person-plus me-2" aria-hidden="true"></i> Tham gia EnableVN
+                                </a>
+                            }
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="col-lg-5">
-                <div class="evn-card p-4">
-                    <div class="d-grid gap-3">
-                        <div class="evn-card-soft p-4">
-                            <h5 class="fw-bold mb-1">Hỗ trợ tiếp cận</h5>
-                            <p class="evn-muted mb-0">Lọc việc theo xe lăn, remote, thời gian linh hoạt.</p>
+                <div class="col-lg-5">
+                    <div class="d-grid gap-3 h-100">
+                        <div class="evn-card p-4 evn-card--interactive h-100">
+                            <div class="d-flex gap-3">
+                                <span class="evn-page-head__icon mb-0" style="width:2.5rem;height:2.5rem;" aria-hidden="true"><i class="bi bi-universal-access"></i></span>
+                                <div>
+                                    <h2 class="h6 fw-bold mb-1">Hỗ trợ tiếp cận</h2>
+                                    <p class="evn-muted mb-0 small">Lọc việc theo xe lăn, remote, thời gian linh hoạt và thiết bị hỗ trợ.</p>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="evn-card-soft p-4">
-                            <h5 class="fw-bold mb-1">Quyền riêng tư</h5>
-                            <p class="evn-muted mb-0">Ứng viên kiểm soát việc hiển thị thông tin khuyết tật.</p>
+                        <div class="evn-card p-4 evn-card--interactive h-100">
+                            <div class="d-flex gap-3">
+                                <span class="evn-page-head__icon mb-0" style="width:2.5rem;height:2.5rem;background:var(--evn-accent-soft);color:var(--evn-accent);" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
+                                <div>
+                                    <h2 class="h6 fw-bold mb-1">Quyền riêng tư</h2>
+                                    <p class="evn-muted mb-0 small">Bạn kiểm soát việc hiển thị thông tin hỗ trợ cá nhân với nhà tuyển dụng.</p>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="evn-card-soft p-4">
-                            <h5 class="fw-bold mb-1">Quản lý hồ sơ</h5>
-                            <p class="evn-muted mb-0">Nhà tuyển dụng theo dõi trạng thái ứng tuyển rõ ràng.</p>
+                        <div class="evn-card p-4 evn-card--interactive h-100">
+                            <div class="d-flex gap-3">
+                                <span class="evn-page-head__icon mb-0" style="width:2.5rem;height:2.5rem;background:#fff7ed;color:#c2410c;" aria-hidden="true"><i class="bi bi-kanban"></i></span>
+                                <div>
+                                    <h2 class="h6 fw-bold mb-1">Quản lý hồ sơ</h2>
+                                    <p class="evn-muted mb-0 small">Nhà tuyển dụng theo dõi trạng thái ứng tuyển rõ ràng, có ghi chú.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <section class="evn-section pt-0">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+                <h2 class="h4 fw-bold mb-0">Việc làm mới nhất</h2>
+                <a class="evn-btn-ghost" asp-controller="Jobs" asp-action="Index">Xem tất cả <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+            </div>
+
+            @if (!Model.LatestJobs.Any())
+            {
+                <div class="evn-empty" role="status">
+                    <h3 class="evn-empty__title">Chưa có tin tuyển dụng</h3>
+                    <p class="evn-empty__text">Quay lại sau hoặc đăng ký để nhận thông báo khi có việc làm mới.</p>
+                </div>
+            }
+            else
+            {
+                <div class="evn-card p-3 p-md-4">
+                    <div class="row g-3">
+                        @foreach (var job in Model.LatestJobs)
+                        {
+                            <div class="col-md-6 col-xl-4">
+                                <article class="evn-card-soft p-3 h-100 d-flex flex-column">
+                                    <h3 class="h6 fw-bold mb-1">@job.Title</h3>
+                                    <p class="evn-muted small mb-2">@job.WorkMode · @(job.PublishedAt?.ToString("dd/MM/yyyy") ?? job.CreatedAt.ToString("dd/MM/yyyy"))</p>
+                                    <div class="mt-auto">
+                                        <a class="btn btn-sm btn-primary evn-btn-primary" asp-controller="Jobs" asp-action="Details" asp-route-id="@job.Id">Xem chi tiết</a>
+                                    </div>
+                                </article>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </section>
     </div>
-</section>
+</div>

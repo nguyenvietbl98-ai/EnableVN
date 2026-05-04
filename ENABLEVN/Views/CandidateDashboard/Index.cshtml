@@ -1,0 +1,41 @@
+@model Presentation.ViewModels.Dashboard.CandidateDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard ứng viên";
+    var crumb = new BreadcrumbModel { CurrentText = "Dashboard" };
+}
+
+<div class="evn-page">
+    <div class="container">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Candidate</span>
+            <h1 class="evn-page-head__title">Dashboard ứng viên</h1>
+            <p class="evn-page-head__lead">Theo dõi đơn ứng tuyển, phỏng vấn và thông báo.</p>
+        </header>
+
+        <div class="evn-stat-grid">
+            <article class="evn-stat">
+                <span class="evn-stat__label">Tổng đơn đã nộp</span>
+                <span class="evn-stat__value">@Model.TotalApplications</span>
+            </article>
+            <article class="evn-stat">
+                <span class="evn-stat__label">Đơn đang phỏng vấn</span>
+                <span class="evn-stat__value">@Model.InterviewApplications</span>
+            </article>
+            <article class="evn-stat">
+                <span class="evn-stat__label">Thông báo chưa đọc</span>
+                <span class="evn-stat__value">@Model.UnreadNotifications</span>
+            </article>
+        </div>
+
+        <div class="evn-card p-4">
+            <h2 class="h6 fw-bold mb-3">Lối tắt</h2>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary evn-btn-primary" asp-controller="Jobs" asp-action="Index"><i class="bi bi-search me-1" aria-hidden="true"></i> Tìm việc</a>
+                <a class="btn btn-outline-secondary" asp-controller="CandidateProfile" asp-action="Index"><i class="bi bi-person-badge me-1" aria-hidden="true"></i> Hồ sơ</a>
+                <a class="btn btn-outline-secondary" asp-controller="JobApplications" asp-action="MyApplications"><i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i> Đơn ứng tuyển</a>
+                <a class="btn btn-outline-secondary" asp-controller="Notifications" asp-action="Index"><i class="bi bi-bell me-1" aria-hidden="true"></i> Thông báo</a>
+            </div>
+        </div>
+    </div>
+</div>

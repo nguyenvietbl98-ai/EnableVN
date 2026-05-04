@@ -1,4 +1,5 @@
 ﻿using Application.Common;
+using Domain.Users;
 using Microsoft.AspNetCore.Mvc;
 using Ports.Inbound;
 using Ports.Models.Candidates;
@@ -18,6 +19,15 @@ namespace Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(SearchPublicCandidatesQuery query)
         {
+            if (!string.Equals(
+                    HttpContext.Session.GetString("UserRole"),
+                    nameof(UserRole.Employer),
+                    StringComparison.Ordinal))
+            {
+                TempData["Error"] = "Chỉ nhà tuyển dụng mới truy cập được trang tìm ứng viên.";
+                return RedirectToAction("Index", "Home");
+            }
+
             try
             {
                 var candidates = await _searchUseCase.SearchAsync(query);

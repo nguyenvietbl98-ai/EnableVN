@@ -2,30 +2,33 @@
 
 @{
     ViewData["Title"] = "Hồ sơ doanh nghiệp";
+    var crumb = new BreadcrumbModel { MiddleText = "Dashboard", MiddleController = "EmployerDashboard", MiddleAction = "Index", CurrentText = "Hồ sơ doanh nghiệp" };
 }
 
-<section class="evn-section">
-    <div class="container">
-        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
-            <div>
-                <span class="evn-badge mb-3">Employer Profile</span>
-                <h1 class="fw-bold display-6 mb-2">@Model.CompanyName</h1>
-                <p class="evn-muted mb-0">
-                    Hồ sơ doanh nghiệp và thông tin môi trường làm việc bao trùm.
-                </p>
-            </div>
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <div class="evn-card p-4 p-lg-5 mb-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-start">
+                <div>
+                    <span class="evn-badge mb-2">Employer profile</span>
+                    <h1 class="evn-page-head__title mb-2">@Model.CompanyName</h1>
+                    <p class="evn-page-head__lead mb-0">
+                        Hồ sơ doanh nghiệp và thông tin môi trường làm việc hòa nhập.
+                    </p>
+                </div>
 
-            <div class="d-flex align-items-start">
-                <a class="btn btn-primary evn-btn-primary" asp-action="Edit">
-                    Cập nhật hồ sơ
-                </a>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-primary evn-btn-primary" asp-action="Edit">Cập nhật hồ sơ</a>
+                    <a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@Model.Id">Xem trang public</a>
+                </div>
             </div>
         </div>
 
         <div class="row g-4">
             <div class="col-lg-7">
                 <div class="evn-card p-4 h-100">
-                    <h4 class="fw-bold mb-3">Thông tin doanh nghiệp</h4>
+                    <h2 class="h5 fw-bold mb-3">Thông tin doanh nghiệp</h2>
 
                     <div class="d-grid gap-3">
                         <div>
@@ -38,7 +41,7 @@
                             @if (!string.IsNullOrWhiteSpace(Model.WebsiteUrl))
                             {
                                 <a href="@Model.WebsiteUrl" target="_blank" rel="noopener">
-                                    @Model.WebsiteUrl
+                                    @Model.WebsiteUrl <span class="visually-hidden">(mở tab mới)</span>
                                 </a>
                             }
                             else
@@ -61,7 +64,7 @@
 
             <div class="col-lg-5">
                 <div class="evn-card p-4 h-100">
-                    <h4 class="fw-bold mb-3">Môi trường tiếp cận</h4>
+                    <h2 class="h5 fw-bold mb-3">Môi trường tiếp cận</h2>
 
                     <ul class="list-unstyled d-grid gap-3 mb-0">
                         <li class="d-flex justify-content-between">
@@ -93,4 +96,4 @@
             </div>
         </div>
     </div>
-</section>
+</div>

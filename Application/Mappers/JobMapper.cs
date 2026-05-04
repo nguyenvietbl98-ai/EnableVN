@@ -11,12 +11,13 @@ namespace Application.Mappers
     /// </summary>
     public static class JobMapper
     {
-        public static JobResult ToResult(JobPost job)
+        public static JobResult ToResult(JobPost job, Guid? employerUserId = null)
         {
             return new JobResult
             {
                 Id = job.Id,
                 EmployerId = job.EmployerId,
+                EmployerUserId = employerUserId,
 
                 Title = job.Title.Value,
                 Description = job.Description,

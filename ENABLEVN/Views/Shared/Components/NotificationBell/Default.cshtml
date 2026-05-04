@@ -1,16 +1,12 @@
 @model int
 
-<a class="btn btn-outline-dark btn-sm evn-notification-bell"
+<a class="btn btn-outline-secondary btn-sm evn-notification-bell d-inline-flex d-md-none"
    asp-controller="Notifications"
    asp-action="Index"
-   aria-label="Thông báo">
-    <span aria-hidden="true">Thông báo</span>
-
+   aria-label="Thông báo, @Model chưa đọc">
+    <i class="bi bi-bell" aria-hidden="true"></i>
     @if (Model > 0)
     {
-        <span class="evn-notification-badge" aria-label="@Model thông báo chưa đọc">
-            @Model
-        </span>
+        <span class="evn-notification-badge" aria-hidden="true">@Model</span>
     }
 </a>
-

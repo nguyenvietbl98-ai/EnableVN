@@ -1,0 +1,36 @@
+@model Presentation.ViewModels.Dashboard.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin dashboard";
+    var crumb = new BreadcrumbModel { CurrentText = "Admin dashboard" };
+}
+
+<div class="evn-page">
+    <div class="container">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Admin</span>
+            <h1 class="evn-page-head__title">Bảng điều khiển quản trị</h1>
+            <p class="evn-page-head__lead">Danh mục hệ thống và xử lý báo cáo vi phạm.</p>
+        </header>
+
+        <div class="evn-stat-grid">
+            <article class="evn-stat">
+                <span class="evn-stat__label">Báo cáo chờ xử lý</span>
+                <span class="evn-stat__value">@Model.PendingReports</span>
+            </article>
+            <article class="evn-stat">
+                <span class="evn-stat__label">Thông báo chưa đọc</span>
+                <span class="evn-stat__value">@Model.UnreadNotifications</span>
+            </article>
+        </div>
+
+        <div class="evn-card p-4">
+            <h2 class="h6 fw-bold mb-3">Lối tắt</h2>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary evn-btn-primary" asp-controller="ViolationReports" asp-action="Index">Báo cáo vi phạm</a>
+                <a class="btn btn-outline-secondary" asp-controller="Catalog" asp-action="Index">Danh mục</a>
+                <a class="btn btn-outline-secondary" asp-controller="Notifications" asp-action="Index">Thông báo</a>
+            </div>
+        </div>
+    </div>
+</div>

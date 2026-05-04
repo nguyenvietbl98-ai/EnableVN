@@ -3,20 +3,23 @@
 @{
     ViewData["Title"] = ViewBag.Title;
     var postAction = (string)ViewBag.PostAction;
+    var crumb = new BreadcrumbModel { MiddleText = "Danh mục", MiddleController = "Catalog", MiddleAction = "Index", CurrentText = (string)ViewBag.Title };
 }
 
-<section class="evn-section">
-    <div class="container">
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
         <div class="row justify-content-center">
             <div class="col-lg-7">
-                <div class="evn-card evn-form">
-                    <span class="evn-badge mb-3">Admin Catalog</span>
+                <div class="evn-card evn-form p-4 p-lg-5">
+                    <span class="evn-badge mb-3">Admin catalog</span>
                     <h1 class="h3 fw-bold mb-2">@ViewBag.Title</h1>
                     <p class="evn-muted mb-4">
                         Thêm dữ liệu danh mục mới vào hệ thống.
                     </p>
 
                     <form asp-controller="Catalog" asp-action="@postAction" method="post">
+                        @Html.AntiForgeryToken()
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label">Tên</label>
                             <input asp-for="Name" class="form-control" placeholder="Nhập tên danh mục" />
@@ -31,7 +34,7 @@
                             Tạo mới
                         </button>
 
-                        <a class="btn btn-outline-dark" asp-controller="Catalog" asp-action="Index">
+                        <a class="btn btn-outline-secondary" asp-controller="Catalog" asp-action="Index">
                             Hủy
                         </a>
                     </form>
@@ -39,4 +42,4 @@
             </div>
         </div>
     </div>
-</section>
+</div>

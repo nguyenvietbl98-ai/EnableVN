@@ -15,6 +15,11 @@ namespace Ports.Models.Jobs
 
         public Guid EmployerId { get; init; }
 
+        /// <summary>
+        /// UserId của tài khoản nhà tuyển dụng sở hữu tin (để ẩn nút ứng tuyển khi trùng người đăng).
+        /// </summary>
+        public Guid? EmployerUserId { get; init; }
+
         public string Title { get; init; } = string.Empty;
 
         public string Description { get; init; } = string.Empty;

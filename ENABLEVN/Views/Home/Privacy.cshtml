@@ -1,6 +1,17 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Chính sách quyền riêng tư";
+    var crumb = new BreadcrumbModel { CurrentText = "Quyền riêng tư" };
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <article class="evn-card p-4 p-lg-5">
+            <h1 class="evn-page-head__title mb-3">@ViewData["Title"]</h1>
+            <p class="evn-muted mb-0">
+                Trang này dùng để mô tả cách EnableVN thu thập, sử dụng và bảo vệ dữ liệu cá nhân.
+                Nội dung chi tiết sẽ được bổ sung theo yêu cầu pháp lý và sản phẩm.
+            </p>
+        </article>
+    </div>
+</div>

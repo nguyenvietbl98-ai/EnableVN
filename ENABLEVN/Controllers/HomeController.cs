@@ -1,6 +1,9 @@
 namespace Presentation.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
+using Ports.Inbound;
+using Ports.Models.Jobs;
+using Presentation.ViewModels.Home;
 
 /// <summary>
 /// Controller trang chủ.
@@ -8,9 +11,22 @@ using Microsoft.AspNetCore.Mvc;
 /// </summary>
 public sealed class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly IJobUseCase _jobUseCase;
+
+    public HomeController(IJobUseCase jobUseCase)
     {
-        return View();
+        _jobUseCase = jobUseCase;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var jobs = await _jobUseCase.SearchPublishedJobsAsync(new SearchJobQuery());
+        var viewModel = new HomeIndexViewModel
+        {
+            LatestJobs = jobs.Take(6).ToList()
+        };
+
+        return View(viewModel);
     }
 
     public IActionResult Error()

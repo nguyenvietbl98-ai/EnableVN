@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<ICatalogUseCase, CatalogUseCase>();
         services.AddScoped<INotificationUseCase, NotificationUseCase>();
         services.AddScoped<IEmployerCandidateSearchUseCase, EmployerCandidateSearchUseCase>();
+        services.AddScoped<ICompanyReviewUseCase, CompanyReviewUseCase>();
 
         return services;
     }

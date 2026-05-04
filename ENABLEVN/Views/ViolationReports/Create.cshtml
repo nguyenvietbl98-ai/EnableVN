@@ -1,0 +1,39 @@
+@model CreateViolationReportCommand
+@{
+    ViewData["Title"] = "Báo cáo vi phạm";
+    var crumb = new BreadcrumbModel { CurrentText = "Báo cáo vi phạm" };
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="evn-card evn-form p-4 p-lg-5">
+                    <span class="evn-badge mb-3">An toàn cộng đồng</span>
+                    <h1 class="h3 fw-bold mb-2">Gửi báo cáo vi phạm</h1>
+                    <p class="evn-muted mb-4">Báo cáo được gửi tới quản trị viên để xem xét.</p>
+
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <input asp-for="TargetId" type="hidden" />
+                        <input asp-for="TargetType" type="hidden" />
+
+                        <div class="mb-3">
+                            <label class="form-label" for="report-target-display">Đối tượng bị báo cáo</label>
+                            <input id="report-target-display" class="form-control" value="@Model.TargetType · @Model.TargetId" disabled readonly aria-readonly="true" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Reason" class="form-label">Lý do báo cáo</label>
+                            <textarea asp-for="Reason" class="form-control" rows="5" required></textarea>
+                        </div>
+
+                        <button class="btn btn-primary evn-btn-primary" type="submit">Gửi báo cáo</button>
+                        <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="Index">Hủy</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

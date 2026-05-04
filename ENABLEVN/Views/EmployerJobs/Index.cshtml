@@ -3,102 +3,180 @@
 
 @{
     ViewData["Title"] = "Tin tuyển dụng của tôi";
+
+    var totalJobs = Model.Count;
+    var draftJobs = Model.Count(x => x.Status == JobStatus.Draft);
+    var publishedJobs = Model.Count(x => x.Status == JobStatus.Published);
+    var closedJobs = Model.Count(x => x.Status == JobStatus.Closed);
 }
 
-<section class="page-section">
-    <div class="page-header">
-        <p class="eyebrow">Employer</p>
-        <h1>Tin tuyển dụng của tôi</h1>
-        <p>Quản lý các tin nháp, tin đang đăng và tin đã đóng.</p>
+<section class="employer-jobs-page">
+    <div class="page-shell">
+        <header class="page-hero">
+            <div class="page-hero__content">
+                <span class="page-hero__eyebrow">Employer Dashboard</span>
+                <h1 class="page-hero__title">Tin tuyển dụng của tôi</h1>
+                <p class="page-hero__subtitle">
+                    Quản lý các tin nháp, tin đang đăng và tin đã đóng.
+                    Theo dõi nhanh trạng thái tin tuyển dụng và hồ sơ ứng tuyển.
+                </p>
+            </div>
+
+            <div class="page-hero__actions">
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    + Tạo tin mới
+                </a>
+            </div>
+        </header>
+
+        <section class="stats-row" aria-label="Tổng quan tin tuyển dụng">
+            <article class="stat-card">
+                <span class="stat-card__label">Tổng số tin</span>
+                <strong class="stat-card__value">@totalJobs</strong>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-card__label">Tin nháp</span>
+                <strong class="stat-card__value">@draftJobs</strong>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-card__label">Đang đăng</span>
+                <strong class="stat-card__value">@publishedJobs</strong>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-card__label">Đã đóng</span>
+                <strong class="stat-card__value">@closedJobs</strong>
+            </article>
+        </section>
+
+        @if (Model.Count == 0)
+        {
+            <section class="empty-state modern-empty-state">
+                <div class="empty-state__icon" aria-hidden="true">📄</div>
+                <h2>Bạn chưa có tin tuyển dụng nào</h2>
+                <p>
+                    Hãy tạo tin đầu tiên để ứng viên có thể tìm thấy doanh nghiệp của bạn
+                    và bắt đầu ứng tuyển.
+                </p>
+                <a asp-action="Create" class="btn btn-primary btn-lg">Tạo tin đầu tiên</a>
+            </section>
+        }
+        else
+        {
+            <section class="jobs-grid" aria-label="Danh sách tin tuyển dụng">
+                @foreach (var job in Model)
+                {
+                    var shortDescription = string.IsNullOrWhiteSpace(job.Description)
+                        ? "Chưa có mô tả cho tin tuyển dụng này."
+                        : (job.Description.Length > 160 ? job.Description[..160] + "..." : job.Description);
+
+                    var statusClass = job.Status switch
+                    {
+                        JobStatus.Draft => "status-badge status-badge--draft",
+                        JobStatus.Published => "status-badge status-badge--published",
+                        JobStatus.Closed => "status-badge status-badge--closed",
+                        _ => "status-badge"
+                    };
+
+                    <article class="job-card-modern">
+                        <div class="job-card-modern__top">
+                            <div class="job-card-modern__title-wrap">
+                                <h2 class="job-card-modern__title">@job.Title</h2>
+                                <p class="job-card-modern__meta">@job.WorkMode</p>
+                            </div>
+
+                            <span class="@statusClass">@job.Status</span>
+                        </div>
+
+                        <p class="job-card-modern__description">
+                            @shortDescription
+                        </p>
+
+                        <div class="job-card-modern__tags" aria-label="Các hỗ trợ tiếp cận">
+                            @if (job.SupportsRemoteWork)
+                            {
+                                <span class="feature-tag">Remote</span>
+                            }
+                            @if (job.SupportsWheelchairAccess)
+                            {
+                                <span class="feature-tag">Xe lăn</span>
+                            }
+                            @if (job.SupportsFlexibleTime)
+                            {
+                                <span class="feature-tag">Linh hoạt</span>
+                            }
+                            @if (job.ProvidesAssistiveDevices)
+                            {
+                                <span class="feature-tag">Thiết bị hỗ trợ</span>
+                            }
+
+                            @if (!job.SupportsRemoteWork && !job.SupportsWheelchairAccess && !job.SupportsFlexibleTime && !job.ProvidesAssistiveDevices)
+                            {
+                                <span class="feature-tag feature-tag--muted">Chưa có thông tin hỗ trợ tiếp cận</span>
+                            }
+                        </div>
+
+                        <div class="job-card-modern__footer">
+                            <div class="job-card-modern__actions-main">
+                                <a asp-action="Details" asp-route-id="@job.Id" class="btn btn-outline-secondary">
+                                    Xem
+                                </a>
+
+                                <a asp-action="Edit" asp-route-id="@job.Id" class="btn btn-outline-secondary">
+                                    Sửa
+                                </a>
+
+                                <a asp-controller="JobApplications"
+                                       asp-action="ByJob"
+                                       asp-route-jobId="@job.Id"
+                                       class="btn btn-outline-primary">
+                                    Hồ sơ ứng tuyển
+                                </a>
+                            </div>
+
+                            <div class="job-card-modern__actions-secondary">
+                                @if (job.Status == JobStatus.Draft)
+                                {
+                                    <form asp-action="Publish" method="post" class="inline-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@job.Id" />
+                                        <button type="submit" class="btn btn-success">
+                                            Đăng tin
+                                        </button>
+                                    </form>
+                                }
+
+                                @if (job.Status == JobStatus.Published)
+                                {
+                                    <form asp-action="Close" method="post" class="inline-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@job.Id" />
+                                        <button type="submit" class="btn btn-warning">
+                                            Đóng tin
+                                        </button>
+                                    </form>
+                                }
+
+                                <form asp-action="Delete"
+                                      method="post"
+                                      class="inline-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@job.Id" />
+                                    <label class="d-flex align-items-center gap-2 small text-danger mb-2">
+                                        <input type="checkbox" required aria-required="true" />
+                                        Xác nhận xóa tin này
+                                    </label>
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </section>
+        }
     </div>
-
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Tạo tin mới</a>
-    </p>
-
-    @if (Model.Count == 0)
-    {
-        <div class="empty-state">
-            <h2>Bạn chưa có tin tuyển dụng</h2>
-            <p>Hãy tạo tin đầu tiên để ứng viên có thể tìm thấy.</p>
-            <a asp-action="Create" class="btn btn-primary">Tạo tin</a>
-        </div>
-    }
-    else
-    {
-        <div class="card-grid">
-            @foreach (var job in Model)
-            {
-                <article class="job-card">
-                    <div class="job-card-header">
-                        <h2>@job.Title</h2>
-                        <span class="badge">@job.Status</span>
-                    </div>
-
-                    <p class="muted">@job.WorkMode</p>
-
-                    <p>
-                        @(job.Description.Length > 150
-                            ? job.Description[..150] + "..."
-                            : job.Description)
-                    </p>
-
-                    <div class="tag-row" aria-label="Các hỗ trợ tiếp cận">
-                        @if (job.SupportsRemoteWork)
-                        {
-                            <span class="tag">Remote</span>
-                        }
-                        @if (job.SupportsWheelchairAccess)
-                        {
-                            <span class="tag">Xe lăn</span>
-                        }
-                        @if (job.SupportsFlexibleTime)
-                        {
-                            <span class="tag">Linh hoạt</span>
-                        }
-                        @if (job.ProvidesAssistiveDevices)
-                        {
-                            <span class="tag">Thiết bị hỗ trợ</span>
-                        }
-                    </div>
-
-                    <div class="card-actions">
-                        <a asp-action="Details" asp-route-id="@job.Id" class="btn btn-secondary">Xem</a>
-                        <a asp-action="Edit" asp-route-id="@job.Id" class="btn btn-secondary">Sửa</a>
-                        <a asp-controller="JobApplications"
-                               asp-action="ByJob"
-                               asp-route-jobId="@job.Id"
-                               class="btn btn-secondary">
-                            Hồ sơ ứng tuyển
-                        </a>
-
-                        @if (job.Status == JobStatus.Draft)
-                        {
-                            <form asp-action="Publish" method="post" class="inline-form">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@job.Id" />
-                                <button type="submit" class="btn btn-success">Đăng tin</button>
-                            </form>
-                        }
-
-                        @if (job.Status == JobStatus.Published)
-                        {
-                            <form asp-action="Close" method="post" class="inline-form">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@job.Id" />
-                                <button type="submit" class="btn btn-warning">Đóng tin</button>
-                            </form>
-                        }
-
-                        <form asp-action="Delete" method="post" class="inline-form"
-                              onsubmit="return confirm('Bạn có chắc muốn xóa tin này không?');">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@job.Id" />
-                            <button type="submit" class="btn btn-danger">Xóa</button>
-                        </form>
-                    </div>
-                </article>
-            }
-        </div>
-    }
 </section>

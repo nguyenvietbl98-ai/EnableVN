@@ -1,79 +1,76 @@
 ﻿@model IReadOnlyList<JobApplicationResult>
-
 @{
     ViewData["Title"] = "Hồ sơ đã ứng tuyển";
+    var crumb = new BreadcrumbModel { MiddleText = "Dashboard", MiddleController = "CandidateDashboard", MiddleAction = "Index", CurrentText = "Đơn ứng tuyển" };
+    string StatusVi(ApplicationStatus s) => s switch
+    {
+        ApplicationStatus.Pending => "Chờ xử lý",
+        ApplicationStatus.Reviewing => "Đang xem xét",
+        ApplicationStatus.Interview => "Phỏng vấn",
+        ApplicationStatus.Rejected => "Từ chối",
+        ApplicationStatus.Accepted => "Đã nhận",
+        ApplicationStatus.Withdrawn => "Đã rút",
+        _ => s.ToString()
+    };
 }
 
-<section class="evn-section">
-    <div class="container">
-        <div class="mb-4">
-            <span class="evn-badge mb-3">Candidate</span>
-            <h1 class="fw-bold display-6 mb-2">Hồ sơ đã ứng tuyển</h1>
-            <p class="evn-muted mb-0">
-                Theo dõi các hồ sơ bạn đã nộp và trạng thái hiện tại.
-            </p>
-        </div>
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Candidate</span>
+            <h1 class="evn-page-head__title">Hồ sơ đã ứng tuyển</h1>
+            <p class="evn-page-head__lead mb-0">Theo dõi trạng thái và liên kết tới tin tuyển dụng.</p>
+        </header>
 
         @if (Model.Count == 0)
         {
-            <div class="evn-card p-5 text-center">
-                <h4 class="fw-bold">Bạn chưa nộp hồ sơ nào</h4>
-                <p class="evn-muted">Hãy tìm công việc phù hợp và ứng tuyển.</p>
-                <a class="btn btn-primary evn-btn-primary" asp-controller="Jobs" asp-action="Index">
-                    Tìm việc
-                </a>
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Bạn chưa nộp hồ sơ nào</h2>
+                <p class="evn-empty__text">Tìm việc phù hợp và ứng tuyển ngay trên EnableVN.</p>
+                <a class="btn btn-primary evn-btn-primary" asp-controller="Jobs" asp-action="Index">Tìm việc</a>
             </div>
         }
         else
         {
-            <div class="evn-card p-0 overflow-hidden">
+            <div class="evn-table-wrap">
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0">
+                    <table class="table evn-data-table align-middle mb-0">
                         <thead>
                             <tr>
-                                <th class="p-4">Application ID</th>
-                                <th>Job ID</th>
-                                <th>Trạng thái</th>
-                                <th>Ngày nộp</th>
-                                <th class="text-end p-4">Thao tác</th>
+                                <th scope="col">Việc làm</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Ngày nộp</th>
+                                <th scope="col" class="text-end">Thao tác</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             @foreach (var item in Model)
                             {
                                 <tr>
-                                    <td class="p-4">
-                                        <code>@item.Id</code>
-                                    </td>
-
                                     <td>
-                                        <a asp-controller="Jobs" asp-action="Details" asp-route-id="@item.JobId">
-                                            @item.JobId
-                                        </a>
+                                        <a asp-controller="Jobs" asp-action="Details" asp-route-id="@item.JobId">Xem tin tuyển dụng</a>
+                                        <div class="small evn-muted mt-1">Mã hồ sơ: <code>@item.Id</code></div>
                                     </td>
-
                                     <td>
-                                        <span class="evn-badge">@item.Status</span>
+                                        <span class="evn-tag">@StatusVi(item.Status)</span>
+                                        <span class="visually-hidden"> (@item.Status)</span>
                                     </td>
-
                                     <td>@item.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</td>
-
-                                    <td class="text-end p-4">
+                                    <td class="text-end">
                                         @if (item.Status != ApplicationStatus.Withdrawn &&
                                              item.Status != ApplicationStatus.Accepted &&
                                              item.Status != ApplicationStatus.Rejected)
                                         {
                                             <form asp-action="Withdraw" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
                                                 <input type="hidden" name="applicationId" value="@item.Id" />
-                                                <button class="btn btn-outline-dark btn-sm" type="submit">
-                                                    Rút hồ sơ
-                                                </button>
+                                                <button class="btn btn-outline-secondary btn-sm" type="submit">Rút hồ sơ</button>
                                             </form>
                                         }
                                         else
                                         {
-                                            <span class="evn-muted small">Không có thao tác</span>
+                                            <span class="evn-muted small">—</span>
                                         }
                                     </td>
                                 </tr>
@@ -84,4 +81,4 @@
             </div>
         }
     </div>
-</section>
+</div>

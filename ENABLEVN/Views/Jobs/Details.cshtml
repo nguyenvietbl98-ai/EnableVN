@@ -1,59 +1,125 @@
-﻿@model JobResult
-
+﻿@using Domain.Users
+@model JobResult
 @{
     ViewData["Title"] = Model.Title;
+    var userIdStr = Context.Session.GetString("UserId");
+    var userRole = Context.Session.GetString("UserRole");
+    _ = Guid.TryParse(userIdStr, out var sessionUserId);
+    var isCandidate = userRole == nameof(UserRole.Candidate);
+    var isOwnEmployerJob = Model.EmployerUserId.HasValue && Model.EmployerUserId.Value == sessionUserId;
+    var canShowApply = isCandidate && !isOwnEmployerJob;
+    string WorkModeVi(WorkMode w) => w switch
+    {
+        WorkMode.Onsite => "Tại văn phòng",
+        WorkMode.Remote => "Làm từ xa",
+        WorkMode.Hybrid => "Kết hợp",
+        _ => w.ToString()
+    };
+    var crumb = new BreadcrumbModel { MiddleText = "Việc làm", MiddleController = "Jobs", MiddleAction = "Index", CurrentText = Model.Title };
 }
 
-<section class="evn-section">
-    <div class="container">
-        <div class="evn-card p-4 p-lg-5">
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+
+        <div class="evn-card p-4 p-lg-5 mb-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
                 <div>
-                    <span class="evn-badge mb-3">@Model.WorkMode</span>
-                    <h1 class="fw-bold display-6 mb-2">@Model.Title</h1>
-                    <p class="evn-muted mb-0">
+                    <span class="evn-badge mb-2">@WorkModeVi(Model.WorkMode)</span>
+                    <h1 class="evn-page-head__title mb-2">@Model.Title</h1>
+                    <p class="evn-muted small mb-0">
                         Đăng lúc: @(Model.PublishedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa rõ")
                     </p>
+                    <p class="mt-2 mb-0">
+                        <a asp-controller="EmployerProfile" asp-action="Details" asp-route-id="@Model.EmployerId">Xem hồ sơ doanh nghiệp</a>
+                    </p>
                 </div>
-
-                <form asp-action="Apply" method="post">
-                    <input type="hidden" name="jobId" value="@Model.Id" />
-                    <button class="btn btn-primary btn-lg evn-btn-primary" type="submit">
-                        Nộp hồ sơ
-                    </button>
-                </form>
+                <div class="align-self-start text-lg-end" style="min-width: 12rem;">
+                    @if (canShowApply)
+                    {
+                        <form asp-action="Apply" method="post" class="d-inline-block">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="jobId" value="@Model.Id" />
+                            <button class="btn btn-primary btn-lg evn-btn-primary" type="submit">Nộp hồ sơ</button>
+                        </form>
+                    }
+                    else if (isOwnEmployerJob)
+                    {
+                        <p class="small text-muted mb-0">Đây là tin của doanh nghiệp bạn — không thể tự nộp hồ sơ ứng tuyển.</p>
+                    }
+                    else if (!string.IsNullOrEmpty(userIdStr) && !isCandidate)
+                    {
+                        <p class="small text-muted mb-2">Chỉ tài khoản <strong>ứng viên</strong> mới có thể nộp hồ sơ.</p>
+                        <a class="btn btn-outline-secondary btn-sm" asp-controller="Jobs" asp-action="Index">Xem việc làm</a>
+                    }
+                    else
+                    {
+                        <p class="small text-muted mb-2">Đăng nhập bằng tài khoản ứng viên để nộp hồ sơ.</p>
+                        <a class="btn btn-primary evn-btn-primary" asp-controller="Auth" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "Jobs", new { id = Model.Id })">Đăng nhập</a>
+                    }
+                </div>
             </div>
+
+            <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Hỗ trợ tiếp cận">
+                @if (Model.SupportsRemoteWork)
+                {
+                    <span class="evn-tag">Remote</span>
+                }
+                @if (Model.SupportsWheelchairAccess)
+                {
+                    <span class="evn-tag">Xe lăn</span>
+                }
+                @if (Model.SupportsFlexibleTime)
+                {
+                    <span class="evn-tag">Thời gian linh hoạt</span>
+                }
+                @if (Model.ProvidesAssistiveDevices)
+                {
+                    <span class="evn-tag">Thiết bị hỗ trợ</span>
+                }
+            </div>
+
+            @if (Model.MinSalary.HasValue || Model.MaxSalary.HasValue)
+            {
+                <p class="mb-4">
+                    <strong>Mức lương:</strong>
+                    @(Model.MinSalary?.ToString("N0") ?? "—") – @(Model.MaxSalary?.ToString("N0") ?? "—") <span class="evn-muted">VNĐ</span>
+                </p>
+            }
 
             <hr />
 
             <div class="row g-4">
                 <div class="col-lg-8">
-                    <h4 class="fw-bold">Mô tả công việc</h4>
+                    <h2 class="h5 fw-bold">Mô tả công việc</h2>
                     <p class="evn-muted">@Model.Description</p>
-
-                    <h4 class="fw-bold mt-4">Yêu cầu</h4>
+                    <h2 class="h5 fw-bold mt-4">Yêu cầu</h2>
                     <p class="evn-muted">@Model.Requirement</p>
                 </div>
-
                 <div class="col-lg-4">
                     <div class="evn-card-soft p-4">
-                        <h5 class="fw-bold mb-3">Thông tin tiếp cận</h5>
-
-                        <ul class="list-unstyled d-grid gap-2 mb-0">
+                        <h2 class="h6 fw-bold mb-3">Chi tiết hỗ trợ tiếp cận</h2>
+                        <ul class="list-unstyled d-grid gap-2 small mb-0">
                             <li>Xe lăn: <strong>@(Model.SupportsWheelchairAccess ? "Có" : "Không")</strong></li>
                             <li>Remote: <strong>@(Model.SupportsRemoteWork ? "Có" : "Không")</strong></li>
                             <li>Thời gian linh hoạt: <strong>@(Model.SupportsFlexibleTime ? "Có" : "Không")</strong></li>
                             <li>Thiết bị hỗ trợ: <strong>@(Model.ProvidesAssistiveDevices ? "Có" : "Không")</strong></li>
                         </ul>
-
                         @if (!string.IsNullOrWhiteSpace(Model.AdditionalSupportDescription))
                         {
                             <hr />
-                            <p class="evn-muted mb-0">@Model.AdditionalSupportDescription</p>
+                            <p class="evn-muted small mb-0">@Model.AdditionalSupportDescription</p>
                         }
+                        <a class="btn btn-outline-danger mt-3 w-100"
+                           asp-controller="ViolationReports"
+                           asp-action="Create"
+                           asp-route-targetType="@ReportTargetType.JobPost"
+                           asp-route-targetId="@Model.Id">
+                            Báo cáo vi phạm
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>

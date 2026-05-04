@@ -18,5 +18,10 @@ namespace Ports.Models.Auth
         /// Mật khẩu plain text để verify với password hash.
         /// </summary>
         public string Password { get; init; } = string.Empty;
+
+        /// <summary>
+        /// Đường dẫn nội bộ sau khi đăng nhập (tùy chọn).
+        /// </summary>
+        public string? ReturnUrl { get; set; }
     }
 }

@@ -79,6 +79,13 @@ namespace Application.UseCases
             if (!job.CanReceiveApplication())
                 throw new UseCaseException("Tin tuyển dụng hiện không nhận hồ sơ.");
 
+            var jobEmployerProfile = await _employerProfileRepository.GetByIdAsync(
+                job.EmployerId,
+                cancellationToken);
+
+            if (jobEmployerProfile is not null && jobEmployerProfile.UserId == userId)
+                throw new UseCaseException("Bạn không thể nộp hồ sơ vào tin do chính doanh nghiệp của bạn đăng.");
+
             var alreadyApplied = await _jobApplicationRepository.ExistsByJobIdAndCandidateIdAsync(
                 job.Id,
                 candidateProfile.Id,
@@ -103,16 +110,12 @@ namespace Application.UseCases
                 application,
                 cancellationToken
             );
-            var employerProfile = await _employerProfileRepository.GetByIdAsync(
-    job.EmployerId,
-    cancellationToken
-);
-            // Job đang lưu EmployerId là Id của EmployerProfile.
 
-            if (employerProfile is not null)
+            // Job đang lưu EmployerId là Id của EmployerProfile.
+            if (jobEmployerProfile is not null)
             {
                 var notification = Notification.Create(
-                    employerProfile.UserId,
+                    jobEmployerProfile.UserId,
                     "Có hồ sơ ứng tuyển mới",
                     $"Một ứng viên vừa nộp hồ sơ vào tin: {job.Title.Value}.",
                     NotificationType.ApplicationSubmitted
@@ -125,7 +128,7 @@ namespace Application.UseCases
                 );
 
                 await SendNotificationEmailBestEffortAsync(
-                    employerProfile.UserId,
+                    jobEmployerProfile.UserId,
                     notification,
                     cancellationToken
                 );

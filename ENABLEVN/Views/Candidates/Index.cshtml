@@ -1,0 +1,86 @@
+@model IReadOnlyList<CandidateProfileResult>
+@{
+    ViewData["Title"] = "Tìm ứng viên";
+    var query = ViewBag.Query as SearchPublicCandidatesQuery ?? new SearchPublicCandidatesQuery();
+    var crumb = new BreadcrumbModel { MiddleText = "Dashboard", MiddleController = "EmployerDashboard", MiddleAction = "Index", CurrentText = "Tìm ứng viên" };
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Employer</span>
+            <h1 class="evn-page-head__title">Tìm ứng viên công khai</h1>
+            <p class="evn-page-head__lead mb-0">Chỉ hiển thị hồ sơ đã công khai. Thông tin nhạy cảm tuân theo cài đặt quyền riêng tư của ứng viên.</p>
+        </header>
+
+        <div class="evn-card p-4 mb-4">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-lg-6">
+                    <label class="form-label" for="cand-keyword">Từ khóa</label>
+                    <input id="cand-keyword" name="Keyword" value="@query.Keyword" class="form-control" placeholder="Tên hoặc mô tả năng lực" />
+                </div>
+                <div class="col-lg-3">
+                    <label class="form-label" for="cand-hascv">Có CV</label>
+                    <select id="cand-hascv" name="HasCv" class="form-select">
+                        @if (!query.HasCv.HasValue)
+                        {
+                            <option value="" selected>Tất cả</option>
+                        }
+                        else
+                        {
+                            <option value="">Tất cả</option>
+                        }
+                        @if (query.HasCv == true)
+                        {
+                            <option value="true" selected>Có CV</option>
+                        }
+                        else
+                        {
+                            <option value="true">Có CV</option>
+                        }
+                        @if (query.HasCv == false)
+                        {
+                            <option value="false" selected>Chưa có CV</option>
+                        }
+                        else
+                        {
+                            <option value="false">Chưa có CV</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-3 d-flex align-items-end">
+                    <button class="btn btn-primary evn-btn-primary w-100" type="submit">Tìm kiếm</button>
+                </div>
+            </form>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Không tìm thấy ứng viên phù hợp</h2>
+                <p class="evn-empty__text">Thử đổi từ khóa hoặc bỏ bớt điều kiện lọc.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var candidate in Model)
+                {
+                    <div class="col-lg-6">
+                        <article class="evn-card evn-candidate-card p-4 h-100">
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                <h2 class="h5 fw-bold mb-0">@candidate.FullName</h2>
+                                <span class="evn-tag">@(candidate.IsPublicProfile ? "Công khai" : "Riêng tư")</span>
+                            </div>
+                            <p class="evn-muted">@(string.IsNullOrWhiteSpace(candidate.Bio) ? "Ứng viên chưa cập nhật mô tả hồ sơ." : candidate.Bio)</p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="evn-tag evn-tag--neutral">@(string.IsNullOrWhiteSpace(candidate.CvUrl) ? "Chưa có CV" : "Có CV")</span>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

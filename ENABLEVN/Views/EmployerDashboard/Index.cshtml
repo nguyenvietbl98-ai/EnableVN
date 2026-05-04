@@ -1,0 +1,45 @@
+@model Presentation.ViewModels.Dashboard.EmployerDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard nhà tuyển dụng";
+    var crumb = new BreadcrumbModel { CurrentText = "Dashboard" };
+}
+
+<div class="evn-page">
+    <div class="container">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Employer</span>
+            <h1 class="evn-page-head__title">Dashboard nhà tuyển dụng</h1>
+            <p class="evn-page-head__lead">Quản lý tin tuyển dụng, ứng viên và thông báo.</p>
+        </header>
+
+        <div class="evn-stat-grid">
+            <article class="evn-stat">
+                <span class="evn-stat__label">Tổng tin</span>
+                <span class="evn-stat__value">@Model.TotalJobs</span>
+            </article>
+            <article class="evn-stat">
+                <span class="evn-stat__label">Tin đang mở</span>
+                <span class="evn-stat__value">@Model.OpenJobs</span>
+            </article>
+            <article class="evn-stat">
+                <span class="evn-stat__label">Tổng hồ sơ ứng tuyển</span>
+                <span class="evn-stat__value">@Model.TotalApplications</span>
+            </article>
+            <article class="evn-stat">
+                <span class="evn-stat__label">Thông báo chưa đọc</span>
+                <span class="evn-stat__value">@Model.UnreadNotifications</span>
+            </article>
+        </div>
+
+        <div class="evn-card p-4">
+            <h2 class="h6 fw-bold mb-3">Lối tắt</h2>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary evn-btn-primary" asp-controller="EmployerJobs" asp-action="Create"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Đăng tin</a>
+                <a class="btn btn-outline-secondary" asp-controller="EmployerJobs" asp-action="Index">Tin tuyển dụng</a>
+                <a class="btn btn-outline-secondary" asp-controller="Candidates" asp-action="Index">Tìm ứng viên</a>
+                <a class="btn btn-outline-secondary" asp-controller="Notifications" asp-action="Index">Thông báo</a>
+            </div>
+        </div>
+    </div>
+</div>

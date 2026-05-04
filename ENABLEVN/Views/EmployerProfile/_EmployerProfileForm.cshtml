@@ -1,67 +1,67 @@
 ﻿@model dynamic
 
 <div class="mb-3">
-    <label class="form-label">Tên doanh nghiệp</label>
-    <input name="CompanyName" value="@Model.CompanyName" class="form-control" placeholder="VD: Công ty TNHH EnableVN" />
+    <label class="form-label" for="employer-company-name">Tên doanh nghiệp</label>
+    <input id="employer-company-name" name="CompanyName" value="@Model.CompanyName" class="form-control" placeholder="VD: Công ty TNHH EnableVN" autocomplete="organization" />
 </div>
 
 <div class="mb-3">
-    <label class="form-label">Website</label>
-    <input name="WebsiteUrl" value="@Model.WebsiteUrl" class="form-control" placeholder="https://example.com" />
+    <label class="form-label" for="employer-website">Website</label>
+    <input id="employer-website" name="WebsiteUrl" value="@Model.WebsiteUrl" class="form-control" placeholder="https://example.com" type="url" />
 </div>
 
 <div class="mb-4">
-    <label class="form-label">Mô tả doanh nghiệp</label>
-    <textarea name="Description" class="form-control" rows="4">@Model.Description</textarea>
+    <label class="form-label" for="employer-description">Mô tả doanh nghiệp</label>
+    <textarea id="employer-description" name="Description" class="form-control" rows="4">@Model.Description</textarea>
 </div>
 
 <hr class="my-4" />
 
-<h5 class="fw-bold mb-3">Thông tin môi trường tiếp cận</h5>
+<h2 class="h5 fw-bold mb-3">Thông tin môi trường tiếp cận</h2>
 
 <div class="row g-3 mb-4">
     <div class="col-md-6">
-        <label class="form-check">
-            <input name="HasWheelchairAccess" class="form-check-input" type="checkbox" value="true"
-            @(Model.HasWheelchairAccess == true ? "checked" : "") />
+        <div class="form-check">
             <input name="HasWheelchairAccess" type="hidden" value="false" />
-            <span class="form-check-label">Có hỗ trợ xe lăn</span>
-        </label>
+            <input id="employer-wheelchair" name="HasWheelchairAccess" class="form-check-input" type="checkbox" value="true"
+                   @(Model.HasWheelchairAccess == true ? "checked" : "") />
+            <label class="form-check-label" for="employer-wheelchair">Có hỗ trợ xe lăn</label>
+        </div>
     </div>
 
     <div class="col-md-6">
-        <label class="form-check">
-            <input name="HasAccessibleRestroom" class="form-check-input" type="checkbox" value="true"
-            @(Model.HasAccessibleRestroom == true ? "checked" : "") />
+        <div class="form-check">
             <input name="HasAccessibleRestroom" type="hidden" value="false" />
-            <span class="form-check-label">Có nhà vệ sinh tiếp cận</span>
-        </label>
+            <input id="employer-restroom" name="HasAccessibleRestroom" class="form-check-input" type="checkbox" value="true"
+                   @(Model.HasAccessibleRestroom == true ? "checked" : "") />
+            <label class="form-check-label" for="employer-restroom">Có nhà vệ sinh tiếp cận</label>
+        </div>
     </div>
 
     <div class="col-md-6">
-        <label class="form-check">
-            <input name="SupportsFlexibleWorkingTime" class="form-check-input" type="checkbox" value="true"
-            @(Model.SupportsFlexibleWorkingTime == true ? "checked" : "") />
+        <div class="form-check">
             <input name="SupportsFlexibleWorkingTime" type="hidden" value="false" />
-            <span class="form-check-label">Hỗ trợ thời gian linh hoạt</span>
-        </label>
+            <input id="employer-flex" name="SupportsFlexibleWorkingTime" class="form-check-input" type="checkbox" value="true"
+                   @(Model.SupportsFlexibleWorkingTime == true ? "checked" : "") />
+            <label class="form-check-label" for="employer-flex">Hỗ trợ thời gian linh hoạt</label>
+        </div>
     </div>
 
     <div class="col-md-6">
-        <label class="form-check">
-            <input name="SupportsRemoteWork" class="form-check-input" type="checkbox" value="true"
-            @(Model.SupportsRemoteWork == true ? "checked" : "") />
+        <div class="form-check">
             <input name="SupportsRemoteWork" type="hidden" value="false" />
-            <span class="form-check-label">Hỗ trợ làm việc từ xa</span>
-        </label>
+            <input id="employer-remote" name="SupportsRemoteWork" class="form-check-input" type="checkbox" value="true"
+                   @(Model.SupportsRemoteWork == true ? "checked" : "") />
+            <label class="form-check-label" for="employer-remote">Hỗ trợ làm việc từ xa</label>
+        </div>
     </div>
 
     <div class="col-md-6">
-        <label class="form-check">
-            <input name="ProvidesAssistiveDevices" class="form-check-input" type="checkbox" value="true"
-            @(Model.ProvidesAssistiveDevices == true ? "checked" : "") />
+        <div class="form-check">
             <input name="ProvidesAssistiveDevices" type="hidden" value="false" />
-            <span class="form-check-label">Có thiết bị hỗ trợ</span>
-        </label>
+            <input id="employer-assistive" name="ProvidesAssistiveDevices" class="form-check-input" type="checkbox" value="true"
+                   @(Model.ProvidesAssistiveDevices == true ? "checked" : "") />
+            <label class="form-check-label" for="employer-assistive">Có thiết bị hỗ trợ</label>
+        </div>
     </div>
 </div>

@@ -1,0 +1,92 @@
+@using Domain.Users
+@{
+    var userId = Context.Session.GetString("UserId");
+    var userEmail = Context.Session.GetString("UserEmail");
+    var userRole = Context.Session.GetString("UserRole");
+    var isLoggedIn = !string.IsNullOrWhiteSpace(userId);
+}
+
+<header class="evn-navbar">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand evn-brand" asp-controller="Home" asp-action="Index">
+                <span class="evn-brand-mark" aria-hidden="true">E</span>
+                EnableVN
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Mở menu điều hướng">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Jobs" asp-action="Index">Việc làm</a>
+                    </li>
+                    @if (isLoggedIn && userRole == nameof(UserRole.Candidate))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="CandidateDashboard" asp-action="Index">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="CandidateProfile" asp-action="Index">Hồ sơ của tôi</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="JobApplications" asp-action="MyApplications">Đơn ứng tuyển</a>
+                        </li>
+                    }
+                    @if (isLoggedIn && userRole == nameof(UserRole.Employer))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="EmployerDashboard" asp-action="Index">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="EmployerProfile" asp-action="Index">Hồ sơ doanh nghiệp</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="EmployerJobs" asp-action="Index">Tin tuyển dụng</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Candidates" asp-action="Index">Tìm ứng viên</a>
+                        </li>
+                    }
+                    @if (isLoggedIn && userRole == nameof(UserRole.Admin))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="AdminDashboard" asp-action="Index">Admin</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Catalog" asp-action="Index">Danh mục</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="ViolationReports" asp-action="Index">Báo cáo vi phạm</a>
+                        </li>
+                    }
+                </ul>
+                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-lg-end">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-evn-contrast-toggle aria-pressed="false">
+                        <i class="bi bi-circle-half me-1" aria-hidden="true"></i> Tương phản cao
+                    </button>
+                    @if (isLoggedIn)
+                    {
+                        <a class="btn btn-outline-secondary btn-sm d-none d-md-inline-flex" asp-controller="Notifications" asp-action="Index">
+                            <i class="bi bi-bell me-1" aria-hidden="true"></i> Thông báo
+                        </a>
+                        @await Component.InvokeAsync("NotificationBell")
+                        <span class="evn-user-pill d-none d-lg-inline-flex" title="@userEmail">
+                            <span class="evn-brand-mark" style="width:1.75rem;height:1.75rem;font-size:0.75rem;" aria-hidden="true">@((userEmail?.Length > 0) ? userEmail![0].ToString().ToUpperInvariant() : "?")</span>
+                            <span class="evn-user-pill__email">@userEmail</span>
+                        </span>
+                        <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-outline-secondary btn-sm" type="submit">Đăng xuất</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-secondary btn-sm" asp-controller="Auth" asp-action="Login">Đăng nhập</a>
+                        <a class="btn btn-primary btn-sm evn-btn-primary" asp-controller="Auth" asp-action="Register">Đăng ký</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>

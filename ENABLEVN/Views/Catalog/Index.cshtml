@@ -1,27 +1,29 @@
 ﻿@{
     ViewData["Title"] = "Quản lý danh mục";
+    var crumb = new BreadcrumbModel { MiddleText = "Admin", MiddleController = "AdminDashboard", MiddleAction = "Index", CurrentText = "Danh mục" };
 }
 
-<section class="evn-section">
-    <div class="container">
-        <div class="mb-4">
-            <span class="evn-badge mb-3">Admin</span>
-            <h1 class="fw-bold display-6 mb-2">Quản lý danh mục hệ thống</h1>
-            <p class="evn-muted mb-0">
-                Quản lý các dữ liệu nền tảng dùng trong hồ sơ ứng viên và tin tuyển dụng.
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Admin</span>
+            <h1 class="evn-page-head__title">Quản lý danh mục hệ thống</h1>
+            <p class="evn-page-head__lead mb-0">
+                Dữ liệu nền tảng dùng trong hồ sơ ứng viên và tin tuyển dụng.
             </p>
-        </div>
+        </header>
 
         <div class="row g-4">
             <div class="col-lg-4">
                 <div class="evn-card p-4 h-100">
-                    <h3 class="h5 fw-bold">Loại khuyết tật</h3>
+                    <h2 class="h5 fw-bold">Loại khuyết tật</h2>
                     <p class="evn-muted">
-                        Danh mục loại khuyết tật để ứng viên chọn trong hồ sơ.
+                        Danh mục để ứng viên chọn trong hồ sơ.
                     </p>
                     <a class="btn btn-primary evn-btn-primary"
-                           asp-controller="Catalog"
-                           asp-action="DisabilityTypes">
+                       asp-controller="Catalog"
+                       asp-action="DisabilityTypes">
                         Quản lý
                     </a>
                 </div>
@@ -29,13 +31,13 @@
 
             <div class="col-lg-4">
                 <div class="evn-card p-4 h-100">
-                    <h3 class="h5 fw-bold">Thiết bị hỗ trợ</h3>
+                    <h2 class="h5 fw-bold">Thiết bị hỗ trợ</h2>
                     <p class="evn-muted">
-                        Danh mục thiết bị hỗ trợ như screen reader, xe lăn, thiết bị trợ thính.
+                        Danh mục thiết bị hỗ trợ (screen reader, xe lăn…).
                     </p>
                     <a class="btn btn-primary evn-btn-primary"
-                           asp-controller="Catalog"
-                           asp-action="AssistiveDevices">
+                       asp-controller="Catalog"
+                       asp-action="AssistiveDevices">
                         Quản lý
                     </a>
                 </div>
@@ -43,17 +45,17 @@
 
             <div class="col-lg-4">
                 <div class="evn-card p-4 h-100">
-                    <h3 class="h5 fw-bold">Ngành nghề</h3>
+                    <h2 class="h5 fw-bold">Ngành nghề</h2>
                     <p class="evn-muted">
-                        Danh mục nhóm công việc để phục vụ tìm kiếm và lọc việc làm.
+                        Nhóm công việc phục vụ tìm kiếm và lọc.
                     </p>
                     <a class="btn btn-primary evn-btn-primary"
-                           asp-controller="Catalog"
-                           asp-action="JobCategories">
+                       asp-controller="Catalog"
+                       asp-action="JobCategories">
                         Quản lý
                     </a>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>

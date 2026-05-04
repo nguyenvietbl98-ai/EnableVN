@@ -1,65 +1,61 @@
-﻿@model IReadOnlyList<Ports.Models.Notifications.NotificationResult>
-@using Domain.Notifications
-
+﻿@model IReadOnlyList<NotificationResult>
 @{
     ViewData["Title"] = "Thông báo";
+    var crumb = new BreadcrumbModel { CurrentText = "Thông báo" };
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-2 mb-3">
-        <div>
-            <h1 class="mb-1">Thông báo</h1>
-            <p class="evn-muted mb-0">Cập nhật mới nhất dành cho tài khoản của bạn.</p>
-        </div>
-    </div>
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="evn-page-head mb-4">
+            <h1 class="evn-page-head__title">Thông báo</h1>
+            <p class="evn-page-head__lead mb-0">Cập nhật dành cho tài khoản của bạn.</p>
+        </header>
 
-    @if (!Model.Any())
-    {
-        <div class="evn-card p-4">
-            <p class="mb-1 fw-semibold">Chưa có thông báo</p>
-            <p class="evn-muted mb-0">
-                Khi có cập nhật (nộp hồ sơ, đổi trạng thái, v.v.), bạn sẽ thấy thông báo ở đây.
-            </p>
-        </div>
-    }
-    else
-    {
-        <div class="notification-list">
-            @foreach (var item in Model)
-            {
-                <article class="evn-card mb-3"
-                         aria-label="Thông báo @item.Title">
-                    <div class="card-body">
-                        <h2 class="h5 d-flex align-items-center gap-2">
-                            <span>@item.Title</span>
-
-                            @if (item.Status == NotificationStatus.Unread)
-                            {
-                                <span class="badge bg-warning text-dark">Chưa đọc</span>
-                            }
-                        </h2>
-
+        @if (!Model.Any())
+        {
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Chưa có thông báo</h2>
+                <p class="evn-empty__text">Khi có cập nhật (ứng tuyển, đổi trạng thái…), bạn sẽ thấy tại đây.</p>
+            </div>
+        }
+        else
+        {
+            <div class="d-grid gap-3">
+                @foreach (var item in Model)
+                {
+                    <article class="evn-card evn-notification-card" aria-labelledby="notif-title-@item.Id">
+                        <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-2">
+                            <h2 id="notif-title-@item.Id" class="h6 fw-bold mb-0">@item.Title</h2>
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <span class="evn-tag">@item.Type</span>
+                                @if (item.Status == NotificationStatus.Unread)
+                                {
+                                    <span class="evn-status evn-status--warning"><span class="visually-hidden">Trạng thái: </span>Chưa đọc</span>
+                                }
+                                else if (item.Status == NotificationStatus.Read)
+                                {
+                                    <span class="evn-status evn-status--muted"><span class="visually-hidden">Trạng thái: </span>Đã đọc</span>
+                                }
+                                else
+                                {
+                                    <span class="evn-status evn-status--muted">@item.Status</span>
+                                }
+                            </div>
+                        </div>
                         <p class="mb-2">@item.Message</p>
-
-                        <p class="text-muted mb-3">
-                            @item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-                        </p>
-
+                        <p class="evn-muted small mb-3">@item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
                         @if (item.Status == NotificationStatus.Unread)
                         {
                             <form asp-action="MarkAsRead" method="post">
                                 @Html.AntiForgeryToken()
-
                                 <input type="hidden" name="id" value="@item.Id" />
-
-                                <button type="submit" class="btn btn-primary evn-btn-primary">
-                                    Đánh dấu đã đọc
-                                </button>
+                                <button type="submit" class="btn btn-primary btn-sm evn-btn-primary">Đánh dấu đã đọc</button>
                             </form>
                         }
-                    </div>
-                </article>
-            }
-        </div>
-    }
+                    </article>
+                }
+            </div>
+        }
+    </div>
 </div>

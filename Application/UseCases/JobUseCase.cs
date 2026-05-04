@@ -185,7 +185,11 @@ namespace Application.UseCases
             if (job is null)
                 return null;
 
-            return JobMapper.ToResult(job);
+            var employerProfile = await _employerProfileRepository.GetByIdAsync(
+                job.EmployerId,
+                cancellationToken);
+
+            return JobMapper.ToResult(job, employerProfile?.UserId);
         }
 
         public async Task<IReadOnlyList<JobResult>> GetMyJobsAsync(
@@ -208,7 +212,7 @@ namespace Application.UseCases
             );
 
             return jobs
-                .Select(JobMapper.ToResult)
+                .Select(j => JobMapper.ToResult(j))
                 .ToList();
         }
 
@@ -228,7 +232,7 @@ namespace Application.UseCases
             );
 
             return jobs
-                .Select(JobMapper.ToResult)
+                .Select(j => JobMapper.ToResult(j))
                 .ToList();
         }
 

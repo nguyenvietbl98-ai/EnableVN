@@ -53,9 +53,9 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
-            return View(new LoginCommand());
+            return View(new LoginCommand { ReturnUrl = returnUrl });
         }
 
         [HttpPost]
@@ -69,6 +69,9 @@ namespace Presentation.Controllers
                 SignInToSession(result);
 
                 TempData["Success"] = "Đăng nhập thành công.";
+
+                if (!string.IsNullOrWhiteSpace(command.ReturnUrl) && Url.IsLocalUrl(command.ReturnUrl))
+                    return LocalRedirect(command.ReturnUrl);
 
                 return RedirectToAction("Index", "Home");
             }

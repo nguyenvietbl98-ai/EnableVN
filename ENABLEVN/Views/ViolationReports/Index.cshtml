@@ -1,0 +1,72 @@
+@model IReadOnlyList<Ports.Models.Reports.ViolationReportResult>
+@{
+    ViewData["Title"] = "Báo cáo vi phạm";
+    var crumb = new BreadcrumbModel { MiddleText = "Admin", MiddleController = "AdminDashboard", MiddleAction = "Index", CurrentText = "Báo cáo vi phạm" };
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Admin moderation</span>
+            <h1 class="evn-page-head__title">Báo cáo đang chờ xử lý</h1>
+            <p class="evn-page-head__lead mb-0">Chỉ quản trị viên mới có quyền xác nhận hoặc từ chối báo cáo.</p>
+        </header>
+
+        @if (!Model.Any())
+        {
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Không có báo cáo chờ xử lý</h2>
+                <p class="evn-empty__text">Hệ thống hiện không có vi phạm cần duyệt.</p>
+            </div>
+        }
+        else
+        {
+            <div class="evn-table-wrap">
+                <div class="table-responsive">
+                    <table class="table evn-data-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Đối tượng</th>
+                                <th scope="col">Lý do</th>
+                                <th scope="col">Thời gian</th>
+                                <th scope="col" class="text-end">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var report in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@report.TargetType</strong><br />
+                                        <span class="small evn-muted">@report.TargetId</span>
+                                    </td>
+                                    <td>@report.Reason</td>
+                                    <td>@report.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex flex-column gap-2 align-items-end">
+                                            <form asp-action="Resolve" method="post" class="d-flex flex-wrap gap-2 justify-content-end">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="ReportId" value="@report.Id" />
+                                                <label class="visually-hidden" for="note-resolve-@report.Id">Ghi chú xử lý</label>
+                                                <input id="note-resolve-@report.Id" type="text" name="AdminNote" class="form-control form-control-sm" style="max-width:12rem;" placeholder="Ghi chú" />
+                                                <button type="submit" class="btn btn-success btn-sm">Xử lý</button>
+                                            </form>
+                                            <form asp-action="Reject" method="post" class="d-flex flex-wrap gap-2 justify-content-end">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="ReportId" value="@report.Id" />
+                                                <label class="visually-hidden" for="note-reject-@report.Id">Lý do từ chối</label>
+                                                <input id="note-reject-@report.Id" type="text" name="AdminNote" class="form-control form-control-sm" style="max-width:12rem;" placeholder="Lý do từ chối" />
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Từ chối</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>

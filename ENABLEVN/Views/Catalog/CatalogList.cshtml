@@ -5,60 +5,57 @@
     var createAction = (string)ViewBag.CreateAction;
     var editAction = (string)ViewBag.EditAction;
     var deactivateAction = (string)ViewBag.DeactivateAction;
+    var crumb = new BreadcrumbModel { MiddleText = "Danh mục", MiddleController = "Catalog", MiddleAction = "Index", CurrentText = (string)ViewBag.CatalogTitle };
 }
 
-<section class="evn-section">
-    <div class="container">
-        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
             <div>
-                <span class="evn-badge mb-3">Admin Catalog</span>
-                <h1 class="fw-bold display-6 mb-2">@ViewBag.CatalogTitle</h1>
-                <p class="evn-muted mb-0">
-                    Quản lý dữ liệu danh mục đang hoạt động trong hệ thống.
-                </p>
+                <span class="evn-badge mb-2">Admin catalog</span>
+                <h1 class="evn-page-head__title mb-2">@ViewBag.CatalogTitle</h1>
+                <p class="evn-page-head__lead mb-0">Quản lý dữ liệu danh mục đang hoạt động trong hệ thống.</p>
             </div>
 
-            <div class="d-flex align-items-start gap-2">
-                <a class="btn btn-outline-dark"
-                       asp-controller="Catalog"
-                       asp-action="Index">
+            <div class="d-flex align-items-start gap-2 flex-wrap">
+                <a class="btn btn-outline-secondary"
+                   asp-controller="Catalog"
+                   asp-action="Index">
                     Quay lại
                 </a>
 
                 <a class="btn btn-primary evn-btn-primary"
-                       asp-controller="Catalog"
-                       asp-action="@createAction">
+                   asp-controller="Catalog"
+                   asp-action="@createAction">
                     Tạo mới
                 </a>
             </div>
-        </div>
+        </header>
 
         @if (Model.Count == 0)
         {
-            <div class="evn-card p-5 text-center">
-                <h4 class="fw-bold">Chưa có dữ liệu</h4>
-                <p class="evn-muted">
-                    Hãy tạo danh mục đầu tiên để hệ thống có dữ liệu sử dụng.
-                </p>
-
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Chưa có dữ liệu</h2>
+                <p class="evn-empty__text">Tạo danh mục đầu tiên để hệ thống có dữ liệu sử dụng.</p>
                 <a class="btn btn-primary evn-btn-primary"
-                       asp-controller="Catalog"
-                       asp-action="@createAction">
+                   asp-controller="Catalog"
+                   asp-action="@createAction">
                     Tạo mới
                 </a>
             </div>
         }
         else
         {
-            <div class="evn-card p-0 overflow-hidden">
+            <div class="evn-table-wrap">
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0">
+                    <table class="table evn-data-table align-middle mb-0">
                         <thead>
                             <tr>
-                                <th class="p-4">Tên</th>
-                                <th>Mô tả</th>
-                                <th>Trạng thái</th>
-                                <th class="text-end p-4">Thao tác</th>
+                                <th scope="col">Tên</th>
+                                <th scope="col">Mô tả</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col" class="text-end">Thao tác</th>
                             </tr>
                         </thead>
 
@@ -66,7 +63,7 @@
                             @foreach (var item in Model)
                             {
                                 <tr>
-                                    <td class="p-4 fw-semibold">
+                                    <td class="fw-semibold">
                                         @item.Name
                                     </td>
 
@@ -77,16 +74,16 @@
                                     </td>
 
                                     <td>
-                                        <span class="evn-badge">@item.Status</span>
+                                        <span class="evn-tag">@item.Status</span>
                                     </td>
 
-                                    <td class="text-end p-4">
-                                        <a class="btn btn-outline-dark btn-sm"
-                                               asp-controller="Catalog"
-                                               asp-action="@editAction"
-                                               asp-route-id="@item.Id"
-                                               asp-route-name="@item.Name"
-                                               asp-route-description="@item.Description">
+                                    <td class="text-end">
+                                        <a class="btn btn-outline-secondary btn-sm"
+                                           asp-controller="Catalog"
+                                           asp-action="@editAction"
+                                           asp-route-id="@item.Id"
+                                           asp-route-name="@item.Name"
+                                           asp-route-description="@item.Description">
                                             Sửa
                                         </a>
 
@@ -94,6 +91,7 @@
                                               asp-action="@deactivateAction"
                                               method="post"
                                               class="d-inline">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@item.Id" />
                                             <button class="btn btn-outline-danger btn-sm" type="submit">
                                                 Tắt
@@ -108,4 +106,4 @@
             </div>
         }
     </div>
-</section>
+</div>

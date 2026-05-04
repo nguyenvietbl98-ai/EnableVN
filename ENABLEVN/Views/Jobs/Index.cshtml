@@ -3,80 +3,115 @@
 @{
     ViewData["Title"] = "Việc làm";
     var query = ViewBag.Query as SearchJobQuery ?? new SearchJobQuery();
+    var jobsBreadcrumb = new BreadcrumbModel { CurrentText = "Danh sách việc làm" };
 }
 
-<section class="evn-section">
+<div class="evn-page">
     <div class="container">
-        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
-            <div>
-                <span class="evn-badge mb-3">Danh sách việc làm</span>
-                <h1 class="fw-bold display-6 mb-2">Tìm công việc phù hợp</h1>
-                <p class="evn-muted mb-0">
-                    Lọc theo hình thức làm việc và các tiêu chí hỗ trợ tiếp cận.
-                </p>
-            </div>
-        </div>
+        <partial name="_Breadcrumb" model="jobsBreadcrumb" />
 
-        <div class="evn-card p-4 mb-4">
-            <form method="get" asp-action="Index">
+        <header class="evn-page-head">
+            <div class="evn-page-head__icon" aria-hidden="true"><i class="bi bi-briefcase-fill"></i></div>
+            <h1 class="evn-page-head__title">Tìm công việc phù hợp</h1>
+            <p class="evn-page-head__lead">
+                Lọc theo từ khóa, hình thức làm việc và các tiêu chí hỗ trợ tiếp cận — phù hợp với năng lực và nhu cầu của bạn.
+            </p>
+        </header>
+
+        <div class="evn-card evn-filter-card">
+            <form method="get" asp-action="Index" novalidate>
                 <div class="row g-3">
-                    <div class="col-lg-4">
-                        <label class="form-label">Từ khóa</label>
-                        <input name="Keyword" value="@query.Keyword" class="form-control" placeholder="VD: developer, kế toán..." />
-                    </div>
-
-                    <div class="col-lg-3">
-                        <label class="form-label">Hình thức</label>
-                        <select name="WorkMode" class="form-select">
-                            <option value="">Tất cả</option>
-                            <option value="Onsite">Onsite</option>
-                            <option value="Remote">Remote</option>
-                            <option value="Hybrid">Hybrid</option>
-                        </select>
-                    </div>
-
-                    <div class="col-lg-5 d-flex align-items-end">
-                        <div class="d-flex flex-wrap gap-3">
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" name="SupportsRemoteWork" value="true" />
-                                <span class="form-check-label">Remote</span>
-                            </label>
-
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" name="SupportsWheelchairAccess" value="true" />
-                                <span class="form-check-label">Xe lăn</span>
-                            </label>
-
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" name="SupportsFlexibleTime" value="true" />
-                                <span class="form-check-label">Linh hoạt</span>
-                            </label>
-
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" name="ProvidesAssistiveDevices" value="true" />
-                                <span class="form-check-label">Thiết bị hỗ trợ</span>
-                            </label>
+                    <div class="col-lg-5">
+                        <label class="form-label" for="job-keyword">Từ khóa</label>
+                        <div class="evn-input-icon-wrap">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            <input id="job-keyword"
+                                   name="Keyword"
+                                   value="@query.Keyword"
+                                   class="form-control"
+                                   placeholder="VD: kế toán, lập trình viên…"
+                                   autocomplete="off" />
                         </div>
                     </div>
-
-                    <div class="col-12">
-                        <button class="btn btn-primary evn-btn-primary" type="submit">
-                            Tìm kiếm
+                    <div class="col-lg-3">
+                        <label class="form-label" for="job-workmode">Hình thức</label>
+                        <select id="job-workmode" name="WorkMode" class="form-select">
+                            @if (!query.WorkMode.HasValue)
+                            {
+                                <option value="" selected>Tất cả</option>
+                            }
+                            else
+                            {
+                                <option value="">Tất cả</option>
+                            }
+                            @if (query.WorkMode == WorkMode.Onsite)
+                            {
+                                <option value="Onsite" selected>Tại văn phòng</option>
+                            }
+                            else
+                            {
+                                <option value="Onsite">Tại văn phòng</option>
+                            }
+                            @if (query.WorkMode == WorkMode.Remote)
+                            {
+                                <option value="Remote" selected>Làm từ xa</option>
+                            }
+                            else
+                            {
+                                <option value="Remote">Làm từ xa</option>
+                            }
+                            @if (query.WorkMode == WorkMode.Hybrid)
+                            {
+                                <option value="Hybrid" selected>Kết hợp</option>
+                            }
+                            else
+                            {
+                                <option value="Hybrid">Kết hợp</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-lg-4 d-flex align-items-end gap-2 flex-wrap">
+                        <button class="btn btn-primary evn-btn-primary flex-grow-1" type="submit">
+                            <i class="bi bi-search me-1" aria-hidden="true"></i> Tìm kiếm
                         </button>
-
-                        <a class="btn btn-outline-dark" asp-action="Index">
-                            Xóa lọc
+                        <a class="btn btn-outline-secondary evn-btn-outline flex-grow-1" asp-action="Index" aria-label="Xóa bộ lọc tìm kiếm">
+                            <i class="bi bi-x-lg me-1" aria-hidden="true"></i> Xóa lọc
                         </a>
                     </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top evn-filter-card__legend">Hỗ trợ tiếp cận</div>
+                <div class="evn-pill-row" role="group" aria-label="Bộ lọc hỗ trợ tiếp cận">
+                    <label class="evn-pill">
+                        <input type="checkbox" name="SupportsRemoteWork" value="true" @(query.SupportsRemoteWork == true ? "checked" : null) />
+                        <i class="bi bi-house-door" aria-hidden="true"></i>
+                        <span>Remote</span>
+                    </label>
+                    <label class="evn-pill">
+                        <input type="checkbox" name="SupportsWheelchairAccess" value="true" @(query.SupportsWheelchairAccess == true ? "checked" : null) />
+                        <i class="bi bi-universal-access" aria-hidden="true"></i>
+                        <span>Xe lăn</span>
+                    </label>
+                    <label class="evn-pill">
+                        <input type="checkbox" name="SupportsFlexibleTime" value="true" @(query.SupportsFlexibleTime == true ? "checked" : null) />
+                        <i class="bi bi-clock-history" aria-hidden="true"></i>
+                        <span>Linh hoạt</span>
+                    </label>
+                    <label class="evn-pill">
+                        <input type="checkbox" name="ProvidesAssistiveDevices" value="true" @(query.ProvidesAssistiveDevices == true ? "checked" : null) />
+                        <i class="bi bi-tools" aria-hidden="true"></i>
+                        <span>Thiết bị hỗ trợ</span>
+                    </label>
                 </div>
             </form>
         </div>
 
         @if (Model.Count == 0)
         {
-            <div class="evn-card p-5 text-center">
-                <h4 class="fw-bold">Chưa có công việc phù hợp</h4>
-                <p class="evn-muted mb-0">Hãy thử thay đổi bộ lọc hoặc quay lại sau.</p>
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Chưa có công việc phù hợp</h2>
+                <p class="evn-empty__text">Hãy thử thay đổi từ khóa hoặc nới lỏng bộ lọc hỗ trợ tiếp cận.</p>
+                <a class="btn btn-primary evn-btn-primary" asp-action="Index">Xem tất cả tin</a>
             </div>
         }
         else
@@ -84,50 +119,78 @@
             <div class="row g-4">
                 @foreach (var job in Model)
                 {
+                    var excerpt = string.IsNullOrWhiteSpace(job.Description)
+                        ? ""
+                        : (job.Description.Length > 160 ? job.Description[..160] + "…" : job.Description);
+                    var salaryText = (job.MinSalary, job.MaxSalary) switch
+                    {
+                        (null, null) => "Lương: thỏa thuận",
+                        (not null, null) => $"Từ {job.MinSalary:N0}",
+                        (null, not null) => $"Đến {job.MaxSalary:N0}",
+                        _ => $"{job.MinSalary:N0} – {job.MaxSalary:N0}"
+                    };
                     <div class="col-lg-6">
-                        <div class="evn-card evn-job-card p-4 h-100">
-                            <div class="d-flex justify-content-between gap-3 mb-3">
+                        <article class="evn-job-card-public evn-card--interactive h-100">
+                            <div class="evn-job-card-public__top">
                                 <div>
-                                    <h3 class="h5 fw-bold mb-1">@job.Title</h3>
-                                    <p class="evn-muted mb-0">@job.WorkMode</p>
+                                    <h2 class="evn-job-card-public__title">@job.Title</h2>
+                                    <p class="evn-job-card-public__company">
+                                        <i class="bi bi-building me-1" aria-hidden="true"></i>
+                                        Tin tuyển dụng · @job.WorkMode
+                                    </p>
                                 </div>
-
-                                <span class="evn-badge">@job.Status</span>
+                                @if (job.Status == JobStatus.Published)
+                                {
+                                    <span class="evn-status evn-status--success"><span class="visually-hidden">Trạng thái: </span>Đang tuyển</span>
+                                }
+                                else if (job.Status == JobStatus.Draft)
+                                {
+                                    <span class="evn-status evn-status--muted"><span class="visually-hidden">Trạng thái: </span>Nháp</span>
+                                }
+                                else
+                                {
+                                    <span class="evn-status evn-status--warning"><span class="visually-hidden">Trạng thái: </span>Đã đóng</span>
+                                }
                             </div>
-
-                            <p class="evn-muted">
-                                @(job.Description.Length > 160 ? job.Description[..160] + "..." : job.Description)
-                            </p>
-
-                            <div class="d-flex flex-wrap gap-2 mb-4">
+                            @if (!string.IsNullOrEmpty(excerpt))
+                            {
+                                <p class="evn-job-card-public__excerpt">@excerpt</p>
+                            }
+                            <div class="d-flex flex-wrap gap-2 mb-2" aria-label="Tiêu chí hỗ trợ tiếp cận">
                                 @if (job.SupportsRemoteWork)
                                 {
-                                    <span class="badge text-bg-light">Remote</span>
+                                    <span class="evn-tag"><i class="bi bi-house-door me-1" aria-hidden="true"></i>Remote</span>
                                 }
-
                                 @if (job.SupportsWheelchairAccess)
                                 {
-                                    <span class="badge text-bg-light">Xe lăn</span>
+                                    <span class="evn-tag"><i class="bi bi-universal-access me-1" aria-hidden="true"></i>Xe lăn</span>
                                 }
-
                                 @if (job.SupportsFlexibleTime)
                                 {
-                                    <span class="badge text-bg-light">Linh hoạt</span>
+                                    <span class="evn-tag"><i class="bi bi-clock-history me-1" aria-hidden="true"></i>Linh hoạt</span>
                                 }
-
                                 @if (job.ProvidesAssistiveDevices)
                                 {
-                                    <span class="badge text-bg-light">Thiết bị hỗ trợ</span>
+                                    <span class="evn-tag"><i class="bi bi-tools me-1" aria-hidden="true"></i>Thiết bị</span>
                                 }
                             </div>
-
-                            <a class="btn btn-outline-dark" asp-action="Details" asp-route-id="@job.Id">
-                                Xem chi tiết
-                            </a>
-                        </div>
+                            <div class="evn-job-card-public__meta" aria-label="Thông tin tin đăng">
+                                <span><i class="bi bi-geo-alt" aria-hidden="true"></i>@job.WorkMode</span>
+                                <span><i class="bi bi-cash" aria-hidden="true"></i>@salaryText</span>
+                                <span>
+                                    <i class="bi bi-calendar3" aria-hidden="true"></i>
+                                    Đăng: @(job.PublishedAt?.ToString("dd/MM/yyyy") ?? job.CreatedAt.ToString("dd/MM/yyyy"))
+                                </span>
+                            </div>
+                            <div class="evn-job-card-public__footer">
+                                <a class="btn btn-primary evn-btn-primary w-100" asp-action="Details" asp-route-id="@job.Id">
+                                    Xem chi tiết <i class="bi bi-chevron-right ms-1" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </article>
                     </div>
                 }
             </div>
         }
     </div>
-</section>
+</div>

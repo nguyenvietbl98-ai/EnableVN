@@ -1,0 +1,98 @@
+@model EmployerProfileResult
+@using Ports.Models.Reviews
+@{
+    ViewData["Title"] = Model.CompanyName;
+    var reviews = ViewBag.Reviews as IReadOnlyList<CompanyReviewResult> ?? new List<CompanyReviewResult>();
+    var crumb = new BreadcrumbModel { MiddleText = "Việc làm", MiddleController = "Jobs", MiddleAction = "Index", CurrentText = Model.CompanyName };
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Hồ sơ doanh nghiệp</span>
+            <h1 class="evn-page-head__title">@Model.CompanyName</h1>
+            <p class="evn-page-head__lead mb-0">Môi trường làm việc hòa nhập và các hỗ trợ tiếp cận dành cho ứng viên.</p>
+        </header>
+
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <article class="evn-card p-4 h-100">
+                    <h2 class="h5 fw-bold mb-3">Giới thiệu doanh nghiệp</h2>
+                    <p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Doanh nghiệp chưa cập nhật mô tả chi tiết." : Model.Description)</p>
+                    @if (!string.IsNullOrWhiteSpace(Model.WebsiteUrl))
+                    {
+                        <p class="mb-0"><strong>Website:</strong> <a href="@Model.WebsiteUrl" target="_blank" rel="noopener">@Model.WebsiteUrl <span class="visually-hidden">(mở tab mới)</span></a></p>
+                    }
+                </article>
+            </div>
+            <div class="col-lg-5">
+                <aside class="evn-card p-4 h-100">
+                    <h2 class="h5 fw-bold mb-3">Cam kết tiếp cận</h2>
+                    <ul class="list-unstyled d-grid gap-2 mb-4">
+                        <li>Hỗ trợ xe lăn: <strong>@(Model.HasWheelchairAccess ? "Có" : "Không")</strong></li>
+                        <li>Nhà vệ sinh tiếp cận: <strong>@(Model.HasAccessibleRestroom ? "Có" : "Không")</strong></li>
+                        <li>Làm việc linh hoạt: <strong>@(Model.SupportsFlexibleWorkingTime ? "Có" : "Không")</strong></li>
+                        <li>Làm việc từ xa: <strong>@(Model.SupportsRemoteWork ? "Có" : "Không")</strong></li>
+                        <li>Thiết bị hỗ trợ: <strong>@(Model.ProvidesAssistiveDevices ? "Có" : "Không")</strong></li>
+                    </ul>
+                    <a class="btn btn-outline-danger w-100" asp-controller="ViolationReports" asp-action="Create" asp-route-targetType="@ReportTargetType.EmployerProfile" asp-route-targetId="@Model.Id">
+                        Báo cáo vi phạm
+                    </a>
+                </aside>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+            <div class="col-lg-7">
+                <div class="evn-card p-4">
+                    <h2 class="h5 fw-bold mb-3">Đánh giá từ ứng viên</h2>
+                    @if (!reviews.Any())
+                    {
+                        <p class="evn-muted mb-0">Chưa có đánh giá nào cho doanh nghiệp này.</p>
+                    }
+                    else
+                    {
+                        <div class="d-grid gap-3">
+                            @foreach (var review in reviews)
+                            {
+                                <article class="evn-card-soft p-3">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>Đánh giá: @review.Rating/5</strong>
+                                        <span class="evn-muted small">@review.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <p class="mb-0 mt-2">@review.Comment</p>
+                                </article>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="evn-card p-4">
+                    <h2 class="h5 fw-bold mb-3">Gửi đánh giá</h2>
+                    <form asp-controller="CompanyReviews" asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="EmployerId" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label class="form-label" for="Rating">Điểm đánh giá</label>
+                            <select class="form-select" id="Rating" name="Rating" required>
+                                <option value="">Chọn điểm</option>
+                                <option value="5">5 — Rất tốt</option>
+                                <option value="4">4 — Tốt</option>
+                                <option value="3">3 — Trung bình</option>
+                                <option value="2">2 — Cần cải thiện</option>
+                                <option value="1">1 — Không hài lòng</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="Comment">Nhận xét</label>
+                            <textarea class="form-control" id="Comment" name="Comment" rows="4" required></textarea>
+                        </div>
+                        <button class="btn btn-primary evn-btn-primary" type="submit">Gửi đánh giá</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

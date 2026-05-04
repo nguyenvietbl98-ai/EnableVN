@@ -16,10 +16,14 @@ namespace Presentation.Controllers
     public sealed class EmployerProfileController : Controller
     {
         private readonly IEmployerProfileUseCase _employerProfileUseCase;
+        private readonly ICompanyReviewUseCase _companyReviewUseCase;
 
-        public EmployerProfileController(IEmployerProfileUseCase employerProfileUseCase)
+        public EmployerProfileController(
+            IEmployerProfileUseCase employerProfileUseCase,
+            ICompanyReviewUseCase companyReviewUseCase)
         {
             _employerProfileUseCase = employerProfileUseCase;
+            _companyReviewUseCase = companyReviewUseCase;
         }
 
         /// <summary>
@@ -132,6 +136,27 @@ namespace Presentation.Controllers
             {
                 TempData["Error"] = ex.Message;
                 return View(command);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            try
+            {
+                var profile = await _employerProfileUseCase.GetByIdAsync(id);
+                if (profile is null)
+                    return NotFound();
+
+                var reviews = await _companyReviewUseCase.GetByEmployerIdAsync(id);
+                ViewBag.Reviews = reviews;
+
+                return View(profile);
+            }
+            catch (UseCaseException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "Home");
             }
         }
     }

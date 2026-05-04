@@ -2,17 +2,18 @@
 
 @{
     ViewData["Title"] = "Thông tin khuyết tật";
-
+    var crumb = new BreadcrumbModel { MiddleText = "Hồ sơ", MiddleController = "CandidateProfile", MiddleAction = "Index", CurrentText = "Thông tin khuyết tật" };
     var disabilityTypes = ViewBag.DisabilityTypes as IReadOnlyList<CatalogItemResult>
         ?? new List<CatalogItemResult>();
 }
 
-<section class="evn-section">
-    <div class="container">
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
         <div class="row justify-content-center">
             <div class="col-lg-7">
-                <div class="evn-card evn-form">
-                    <span class="evn-badge mb-3">Privacy by Design</span>
+                <div class="evn-card evn-form p-4 p-lg-5">
+                    <span class="evn-badge mb-3">Privacy by design</span>
 
                     <h1 class="h3 fw-bold mb-2">Thông tin khuyết tật</h1>
 
@@ -22,13 +23,14 @@
 
                     @if (disabilityTypes.Count == 0)
                     {
-                        <div class="alert alert-warning evn-alert">
+                        <div class="alert alert-warning evn-alert" role="alert">
                             Hiện chưa có danh mục loại khuyết tật.
                             Admin cần tạo danh mục trước trong phần Quản lý danh mục.
                         </div>
                     }
 
                     <form asp-action="Disability" method="post">
+                        @Html.AntiForgeryToken()
                         <div class="mb-3">
                             <label asp-for="DisabilityTypeId" class="form-label">
                                 Loại khuyết tật
@@ -62,13 +64,12 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-check">
+                            <div class="form-check">
                                 <input asp-for="IsVisibleToEmployer" class="form-check-input" />
-
-                                <span class="form-check-label">
+                                <label asp-for="IsVisibleToEmployer" class="form-check-label">
                                     Cho phép nhà tuyển dụng xem thông tin này
-                                </span>
-                            </label>
+                                </label>
+                            </div>
 
                             <div class="form-text">
                                 Nếu không bật, nhà tuyển dụng sẽ không thấy loại khuyết tật và mô tả này.
@@ -79,7 +80,7 @@
                             Lưu thông tin
                         </button>
 
-                        <a class="btn btn-outline-dark" asp-action="Index">
+                        <a class="btn btn-outline-secondary" asp-action="Index">
                             Hủy
                         </a>
                     </form>
@@ -87,4 +88,4 @@
             </div>
         </div>
     </div>
-</section>
+</div>

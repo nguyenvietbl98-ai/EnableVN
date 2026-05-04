@@ -1,33 +1,39 @@
 ﻿@model IReadOnlyList<JobApplicationResult>
-
 @{
     ViewData["Title"] = "Hồ sơ ứng tuyển";
     var jobId = (Guid)ViewBag.JobId;
+    var crumb = new BreadcrumbModel { MiddleText = "Tin tuyển dụng", MiddleController = "EmployerJobs", MiddleAction = "Index", CurrentText = "Hồ sơ ứng tuyển" };
+    string StatusVi(ApplicationStatus s) => s switch
+    {
+        ApplicationStatus.Pending => "Chờ xử lý",
+        ApplicationStatus.Reviewing => "Đang xem xét",
+        ApplicationStatus.Interview => "Phỏng vấn",
+        ApplicationStatus.Rejected => "Từ chối",
+        ApplicationStatus.Accepted => "Đã nhận",
+        ApplicationStatus.Withdrawn => "Đã rút",
+        _ => s.ToString()
+    };
 }
 
-<section class="evn-section">
-    <div class="container">
-        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <header class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
             <div>
-                <span class="evn-badge mb-3">Employer</span>
-                <h1 class="fw-bold display-6 mb-2">Hồ sơ ứng tuyển</h1>
-                <p class="evn-muted mb-0">
-                    Quản lý trạng thái ứng tuyển cho tin tuyển dụng.
-                </p>
+                <span class="evn-badge mb-2">Employer</span>
+                <h1 class="evn-page-head__title mb-2">Hồ sơ ứng tuyển</h1>
+                <p class="evn-page-head__lead mb-0">Quản lý trạng thái cho tin tuyển dụng của bạn.</p>
             </div>
-
             <div>
-                <a class="btn btn-outline-dark" asp-controller="EmployerJobs" asp-action="Index">
-                    Quay lại tin của tôi
-                </a>
+                <a class="btn btn-outline-secondary" asp-controller="EmployerJobs" asp-action="Index">Quay lại danh sách tin</a>
             </div>
-        </div>
+        </header>
 
         @if (Model.Count == 0)
         {
-            <div class="evn-card p-5 text-center">
-                <h4 class="fw-bold">Chưa có ứng viên nộp hồ sơ</h4>
-                <p class="evn-muted mb-0">Khi có ứng viên ứng tuyển, hồ sơ sẽ xuất hiện tại đây.</p>
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Chưa có ứng viên nộp hồ sơ</h2>
+                <p class="evn-empty__text">Khi có ứng viên ứng tuyển, hồ sơ sẽ hiển thị tại đây.</p>
             </div>
         }
         else
@@ -35,16 +41,14 @@
             <div class="d-grid gap-4">
                 @foreach (var item in Model)
                 {
-                    <div class="evn-card p-4">
+                    <article class="evn-card p-4">
                         <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
                             <div>
-                                <h3 class="h5 fw-bold mb-1">Ứng viên: @item.CandidateId</h3>
-                                <p class="evn-muted mb-0">
-                                    Nộp lúc @item.SubmittedAt.ToString("dd/MM/yyyy HH:mm")
-                                </p>
+                                <h2 class="h6 fw-bold mb-1">Ứng viên</h2>
+                                <p class="evn-muted small mb-0">Mã hồ sơ: <code>@item.Id</code> · Ứng viên: <code>@item.CandidateId</code></p>
+                                <p class="evn-muted small mb-0">Nộp lúc @item.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</p>
                             </div>
-
-                            <span class="evn-badge">@item.Status</span>
+                            <span class="evn-tag">@StatusVi(item.Status)</span>
                         </div>
 
                         @if (!string.IsNullOrWhiteSpace(item.CoverLetter))
@@ -57,42 +61,36 @@
 
                         @if (!string.IsNullOrWhiteSpace(item.CvUrl))
                         {
-                            <p>
+                            <p class="mb-3">
                                 <strong>CV:</strong>
-                                <a href="@item.CvUrl" target="_blank" rel="noopener">
-                                    Xem CV
-                                </a>
+                                <a href="@item.CvUrl" target="_blank" rel="noopener">Xem CV <span class="visually-hidden">(mở tab mới)</span></a>
                             </p>
                         }
 
                         <form asp-action="ChangeStatus" method="post" class="row g-3 align-items-end">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="applicationId" value="@item.Id" />
                             <input type="hidden" name="jobId" value="@jobId" />
-
-                            <div class="col-lg-3">
-                                <label class="form-label">Trạng thái mới</label>
-                                <select name="newStatus" class="form-select">
-                                    <option value="@ApplicationStatus.Reviewing">Reviewing</option>
-                                    <option value="@ApplicationStatus.Interview">Interview</option>
-                                    <option value="@ApplicationStatus.Rejected">Rejected</option>
-                                    <option value="@ApplicationStatus.Accepted">Accepted</option>
+                            <div class="col-lg-4">
+                                <label class="form-label" for="status-@item.Id">Trạng thái mới</label>
+                                <select id="status-@item.Id" name="newStatus" class="form-select">
+                                    <option value="@ApplicationStatus.Reviewing">@StatusVi(ApplicationStatus.Reviewing)</option>
+                                    <option value="@ApplicationStatus.Interview">@StatusVi(ApplicationStatus.Interview)</option>
+                                    <option value="@ApplicationStatus.Rejected">@StatusVi(ApplicationStatus.Rejected)</option>
+                                    <option value="@ApplicationStatus.Accepted">@StatusVi(ApplicationStatus.Accepted)</option>
                                 </select>
                             </div>
-
-                            <div class="col-lg-6">
-                                <label class="form-label">Ghi chú</label>
-                                <input name="note" class="form-control" placeholder="VD: Mời phỏng vấn vòng 1" />
+                            <div class="col-lg-5">
+                                <label class="form-label" for="note-@item.Id">Ghi chú</label>
+                                <input id="note-@item.Id" name="note" class="form-control" placeholder="VD: Mời phỏng vấn vòng 1" />
                             </div>
-
                             <div class="col-lg-3">
-                                <button class="btn btn-primary evn-btn-primary w-100" type="submit">
-                                    Cập nhật
-                                </button>
+                                <button class="btn btn-primary evn-btn-primary w-100" type="submit">Cập nhật</button>
                             </div>
                         </form>
-                    </div>
+                    </article>
                 }
             </div>
         }
     </div>
-</section>
+</div>

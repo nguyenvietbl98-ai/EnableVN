@@ -2,13 +2,15 @@
 
 @{
     ViewData["Title"] = "Cập nhật hồ sơ doanh nghiệp";
+    var crumb = new BreadcrumbModel { MiddleText = "Hồ sơ NTD", MiddleController = "EmployerProfile", MiddleAction = "Index", CurrentText = "Chỉnh sửa" };
 }
 
-<section class="evn-section">
-    <div class="container">
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="evn-card evn-form">
+                <div class="evn-card evn-form p-4 p-lg-5">
                     <span class="evn-badge mb-3">Employer</span>
                     <h1 class="h3 fw-bold mb-2">Cập nhật hồ sơ doanh nghiệp</h1>
                     <p class="evn-muted mb-4">
@@ -16,13 +18,14 @@
                     </p>
 
                     <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
                         <partial name="_EmployerProfileForm" model="Model" />
 
                         <button class="btn btn-primary evn-btn-primary" type="submit">
                             Lưu thay đổi
                         </button>
 
-                        <a class="btn btn-outline-dark" asp-action="Index">
+                        <a class="btn btn-outline-secondary" asp-action="Index">
                             Hủy
                         </a>
                     </form>
@@ -30,4 +33,4 @@
             </div>
         </div>
     </div>
-</section>
+</div>
