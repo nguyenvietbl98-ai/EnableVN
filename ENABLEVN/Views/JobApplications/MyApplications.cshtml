@@ -43,6 +43,7 @@
                                 <th scope="col">Trạng thái</th>
                                 <th scope="col">Phản hồi từ NTD</th>
                                 <th scope="col">Ngày nộp</th>
+                                <th scope="col">Chat</th>
                                 <th scope="col" class="text-end">Thao tác</th>
                             </tr>
                         </thead>
@@ -73,6 +74,19 @@
                                         }
                                     </td>
                                     <td>@item.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @if (item.Status != ApplicationStatus.Withdrawn)
+                                        {
+                                            <a class="btn btn-outline-primary btn-sm"
+                                               asp-controller="ApplicationChat"
+                                               asp-action="Thread"
+                                               asp-route-applicationId="@item.Id">Mở chat</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="evn-muted small">—</span>
+                                        }
+                                    </td>
                                     <td class="text-end">
                                         @if (item.Status != ApplicationStatus.Withdrawn &&
                                              item.Status != ApplicationStatus.Accepted &&

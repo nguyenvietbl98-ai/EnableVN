@@ -2,8 +2,10 @@
 using Application.Mappers;
 using Domain.Applications;
 using Domain.Notifications;
+using Domain.Users;
 using Ports.Inbound;
 using Ports.Models.Applications;
+using Ports.Models.Chat;
 using Ports.Outbound.Repositories;
 using Ports.Outbound.Services;
 using System;
@@ -338,6 +340,121 @@ namespace Application.UseCases
                 return null;
 
             return JobApplicationMapper.ToResult(application);
+        }
+
+        public async Task<Guid?> TryGetCurrentCandidateApplicationIdForJobAsync(
+            Guid jobId,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var userId = AuthorizationGuard.RequireCandidate(_currentUser);
+
+            var candidateProfile = await _candidateProfileRepository.GetByUserIdAsync(
+                userId,
+                cancellationToken
+            );
+
+            if (candidateProfile is null)
+                return null;
+
+            var applications = await _jobApplicationRepository.GetByCandidateIdAsync(
+                candidateProfile.Id,
+                cancellationToken
+            );
+
+            var match = applications.FirstOrDefault(a => a.JobId == jobId);
+            if (match is null || match.Status == ApplicationStatus.Withdrawn)
+                return null;
+
+            return match.Id;
+        }
+
+        public async Task EnsureCurrentUserCanChatOnApplicationAsync(
+            Guid applicationId,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var userId = AuthorizationGuard.RequireAuthenticatedUser(_currentUser);
+            var role = _currentUser.Role
+                ?? throw new UseCaseException("Bạn cần đăng nhập để thực hiện thao tác này.");
+
+            var application = await _jobApplicationRepository.GetByIdAsync(
+                applicationId,
+                cancellationToken
+            );
+
+            if (application is null)
+                throw new UseCaseException("Không tìm thấy hồ sơ ứng tuyển.");
+
+            if (application.Status == ApplicationStatus.Withdrawn)
+                throw new UseCaseException("Hồ sơ đã rút — không thể tiếp tục trò chuyện.");
+
+            if (role == UserRole.Candidate)
+            {
+                var candidateProfile = await _candidateProfileRepository.GetByUserIdAsync(
+                    userId,
+                    cancellationToken
+                );
+
+                if (candidateProfile is null || application.CandidateId != candidateProfile.Id)
+                    throw new UseCaseException("Bạn không có quyền mở cuộc trò chuyện này.");
+
+                return;
+            }
+
+            if (role == UserRole.Employer)
+            {
+                var employerProfile = await _employerProfileRepository.GetByUserIdAsync(
+                    userId,
+                    cancellationToken
+                );
+
+                if (employerProfile is null)
+                    throw new UseCaseException("Bạn chưa có hồ sơ doanh nghiệp.");
+
+                var job = await _jobRepository.GetByIdAsync(
+                    application.JobId,
+                    cancellationToken
+                );
+
+                if (job is null || job.EmployerId != employerProfile.Id)
+                    throw new UseCaseException("Bạn không có quyền mở cuộc trò chuyện này.");
+
+                return;
+            }
+
+            throw new UseCaseException("Chỉ ứng viên hoặc nhà tuyển dụng liên quan mới dùng được chat.");
+        }
+
+        public async Task<ApplicationChatThreadDto> GetChatThreadForCurrentUserAsync(
+            Guid applicationId,
+            CancellationToken cancellationToken = default
+        )
+        {
+            await EnsureCurrentUserCanChatOnApplicationAsync(applicationId, cancellationToken);
+
+            var application = await _jobApplicationRepository.GetByIdAsync(
+                applicationId,
+                cancellationToken
+            );
+
+            if (application is null)
+                throw new UseCaseException("Không tìm thấy hồ sơ ứng tuyển.");
+
+            var job = await _jobRepository.GetByIdAsync(
+                application.JobId,
+                cancellationToken
+            );
+
+            if (job is null)
+                throw new UseCaseException("Không tìm thấy tin tuyển dụng.");
+
+            return new ApplicationChatThreadDto
+            {
+                ApplicationId = application.Id,
+                JobId = application.JobId,
+                JobTitle = job.Title.Value
+            };
         }
 
         private async Task SendNotificationEmailBestEffortAsync(

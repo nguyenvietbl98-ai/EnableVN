@@ -1,8 +1,11 @@
 using Application;
 using InfrastructureInMemory;
+using InfrastructureSqlite.Persistence;
 using InfrastructureSqlite.SeedData;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Ports.Outbound.Services;
+using Presentation.Hubs;
 using Presentation.Options;
 using Presentation.Services;
 using InfrastructureSqlite;
@@ -13,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection(GeminiOptions.SectionName));
+builder.Services.Configure<ChatModerationOptions>(builder.Configuration.GetSection(ChatModerationOptions.SectionName));
 builder.Services.AddAntiforgery(options =>
 {
     // Fetch / XMLHttpRequest thường gửi token qua header này (khớp với wwwroot/js/ai-recruitment.js).
@@ -24,6 +28,10 @@ builder.Services.AddHttpClient<GeminiClient>((sp, http) =>
     http.Timeout = TimeSpan.FromSeconds(Math.Clamp(opt.RequestTimeoutSeconds, 30, 180));
 });
 builder.Services.AddScoped<AiRecruitmentService>();
+builder.Services.AddSingleton<ToxicCommentMlClassifier>();
+builder.Services.AddScoped<ChatModerationService>();
+
+builder.Services.AddSignalR();
 
 // Session dùng để lưu UserId, Email, Role sau khi login/register.
 builder.Services.AddSession(options =>
@@ -55,6 +63,12 @@ var app = builder.Build();
 // Seed Admin + Catalog mặc định cho môi trường Development.
 if (app.Environment.IsDevelopment())
 {
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<EnableVnDbContext>();
+        await db.Database.MigrateAsync();
+    }
+
     await SqliteAdminSeeder.SeedAsync(app.Services);
     await SqliteCatalogSeeder.SeedAsync(app.Services);
 }
@@ -73,5 +87,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllers();
+app.MapHub<RecruiterChatHub>(RecruiterChatHub.HubPath);
 
 app.Run();

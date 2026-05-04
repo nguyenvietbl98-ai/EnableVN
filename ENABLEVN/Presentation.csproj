@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="MLModels\TextClassifierModel.zip" CopyToOutputDirectory="PreserveNewest" Link="MLModels\TextClassifierModel.zip" Condition="Exists('MLModels\TextClassifierModel.zip')" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\InfrastructureInMemory\InfrastructureInMemory.csproj" />
     <ProjectReference Include="..\InfrastructureSqlite\InfrastructureSqlite.csproj" />
@@ -14,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.ML" Version="3.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

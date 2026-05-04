@@ -6,7 +6,8 @@ using Presentation.Services;
 namespace Presentation.Controllers;
 
 /// <summary>
-/// API nội bộ cho tính năng Gemini (API key chỉ dùng server-side).
+/// API Trợ lý AI (mục 1) và bóc tách JD (mục 2): Gemini server-side, model <c>Gemini:Model</c> (mặc định gemini-flash-latest).
+/// Không dùng cho chat ứng tuyển real-time (mục 3 — xem SignalR + <c>ChatModeration</c>).
 /// </summary>
 [Route("api/ai")]
 [ApiController]

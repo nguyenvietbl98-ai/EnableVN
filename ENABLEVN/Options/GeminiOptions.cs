@@ -13,9 +13,9 @@ public sealed class GeminiOptions
     public string ApiKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// Tên model, ví dụ: gemini-2.5-flash-lite, gemini-2.0-flash-lite, ...
+    /// Tên model cho Trợ lý AI (ứng viên/NTD) và bóc tách JD — mặc định theo spec dự án.
     /// </summary>
-    public string Model { get; set; } = "gemini-2.0-flash-lite";
+    public string Model { get; set; } = "gemini-flash-latest";
 
     public int RequestTimeoutSeconds { get; set; } = 90;
 }

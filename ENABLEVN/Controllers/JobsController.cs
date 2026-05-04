@@ -1,5 +1,6 @@
 ﻿using Application.Common;
 using Domain.Common;
+using Domain.Users;
 using Microsoft.AspNetCore.Mvc;
 using Ports.Inbound;
 using Ports.Models.Applications;
@@ -42,6 +43,23 @@ namespace Presentation.Controllers
 
             if (job is null)
                 return NotFound();
+
+            Guid? myApplicationIdForChat = null;
+            var role = HttpContext.Session.GetString("UserRole");
+            if (role == nameof(UserRole.Candidate))
+            {
+                try
+                {
+                    myApplicationIdForChat =
+                        await _jobApplicationUseCase.TryGetCurrentCandidateApplicationIdForJobAsync(id);
+                }
+                catch (UseCaseException)
+                {
+                    myApplicationIdForChat = null;
+                }
+            }
+
+            ViewBag.MyApplicationIdForChat = myApplicationIdForChat;
 
             return View(job);
         }

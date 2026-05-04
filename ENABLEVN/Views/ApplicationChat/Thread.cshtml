@@ -1,0 +1,59 @@
+@using Domain.Users
+@model ApplicationChatThreadDto
+@{
+    ViewData["Title"] = "Chat — " + Model.JobTitle;
+    var roleStr = Context.Session.GetString("UserRole");
+    BreadcrumbModel crumb = roleStr == nameof(UserRole.Employer)
+        ? new BreadcrumbModel
+        {
+            CurrentText = "Chat ứng tuyển",
+            MiddleText = "Hồ sơ ứng tuyển",
+            MiddleController = "JobApplications",
+            MiddleAction = "ByJob",
+            MiddleRoute = new Dictionary<string, string> { ["jobId"] = Model.JobId.ToString() }
+        }
+        : new BreadcrumbModel
+        {
+            CurrentText = "Chat ứng tuyển",
+            MiddleText = "Đơn ứng tuyển",
+            MiddleController = "JobApplications",
+            MiddleAction = "MyApplications"
+        };
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+
+        <div class="evn-card p-4 p-lg-5 evn-app-chat" data-evn-app-chat-root
+             data-application-id="@Model.ApplicationId"
+             data-job-title="@Model.JobTitle">
+            <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+                <div>
+                    <span class="evn-badge mb-2"><i class="bi bi-chat-dots" aria-hidden="true"></i> Chat</span>
+                    <h1 class="h4 fw-bold mb-1">@Model.JobTitle</h1>
+                    <p class="evn-muted small mb-0">Cuộc trò chuyện gắn với hồ sơ ứng tuyển. Kiểm duyệt theo <code>ChatModeration</code> (mặc định model ML zip — tách khỏi Trợ lý Gemini).</p>
+                </div>
+                <a class="btn btn-outline-secondary btn-sm" asp-controller="Jobs" asp-action="Details" asp-route-id="@Model.JobId">Xem tin</a>
+            </div>
+
+            <div id="evn-app-chat-log" class="evn-app-chat__log mb-3" role="log" aria-live="polite" aria-relevant="additions"></div>
+            <div id="evn-app-chat-status" class="small evn-muted mb-2" role="status"></div>
+            <div class="d-flex flex-column flex-md-row gap-2 align-items-stretch">
+                <label for="evn-app-chat-input" class="visually-hidden">Nội dung tin nhắn</label>
+                <textarea id="evn-app-chat-input" class="form-control" rows="3" maxlength="4000" placeholder="Viết tin nhắn lịch sự, rõ ràng…"></textarea>
+                <button type="button" id="evn-app-chat-send" class="btn btn-primary evn-btn-primary px-4 align-self-md-end">Gửi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@@8.0.7/dist/browser/signalr.min.js" crossorigin="anonymous"></script>
+    <script src="~/js/application-chat.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.evnApplicationChatInit) window.evnApplicationChatInit();
+        });
+    </script>
+}

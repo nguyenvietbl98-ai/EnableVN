@@ -8,6 +8,7 @@
     var isCandidate = userRole == nameof(UserRole.Candidate);
     var isOwnEmployerJob = Model.EmployerUserId.HasValue && Model.EmployerUserId.Value == sessionUserId;
     var canShowApply = isCandidate && !isOwnEmployerJob;
+    var myApplicationIdForChat = ViewBag.MyApplicationIdForChat as Guid?;
     string WorkModeVi(WorkMode w) => w switch
     {
         WorkMode.Onsite => "Tại văn phòng",
@@ -37,11 +38,26 @@
                 <div class="align-self-start text-lg-end" style="min-width: 12rem;">
                     @if (canShowApply)
                     {
-                        <form asp-action="Apply" method="post" class="d-inline-block">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="jobId" value="@Model.Id" />
-                            <button class="btn btn-primary btn-lg evn-btn-primary" type="submit">Nộp hồ sơ</button>
-                        </form>
+                        <div class="d-flex flex-column gap-2 align-items-lg-end">
+                            <form asp-action="Apply" method="post" class="d-inline-block">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="jobId" value="@Model.Id" />
+                                <button class="btn btn-primary btn-lg evn-btn-primary" type="submit">Nộp hồ sơ</button>
+                            </form>
+                            @if (myApplicationIdForChat.HasValue)
+                            {
+                                <a class="btn btn-outline-primary btn-sm"
+                                   asp-controller="ApplicationChat"
+                                   asp-action="Thread"
+                                   asp-route-applicationId="@myApplicationIdForChat.Value">
+                                    <i class="bi bi-chat-dots" aria-hidden="true"></i> Nhắn tin nhà tuyển dụng
+                                </a>
+                            }
+                            else
+                            {
+                                <p class="small text-muted mb-0 text-lg-end">Sau khi nộp hồ sơ, bạn có thể mở chat trực tiếp với nhà tuyển dụng tại đây.</p>
+                            }
+                        </div>
                     }
                     else if (isOwnEmployerJob)
                     {

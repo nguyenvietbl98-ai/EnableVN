@@ -8,7 +8,8 @@ using Presentation.Options;
 namespace Presentation.Services;
 
 /// <summary>
-/// Gọi Gemini generateContent (REST v1beta). API key không bao giờ trả về client.
+/// Gọi Gemini generateContent (REST v1beta) cho Trợ lý AI + bóc JD (mục 1–2). Model: <c>Gemini:Model</c>.
+/// Chat real-time (mục 3) không đi qua lớp này trừ khi cấu hình <c>ChatModeration:Mode</c> = gemini hoặc ml_then_gemini.
 /// </summary>
 public sealed class GeminiClient
 {

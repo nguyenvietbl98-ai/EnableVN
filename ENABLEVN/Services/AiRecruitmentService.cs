@@ -8,6 +8,9 @@ using Presentation.Models.Ai;
 
 namespace Presentation.Services;
 
+/// <summary>
+/// Mục 1 (gợi ý việc / ứng viên) và mục 2 (bóc JD) — chỉ qua <see cref="GeminiClient"/> + <c>Gemini:Model</c> (vd. gemini-flash-latest).
+/// </summary>
 public sealed class AiRecruitmentService
 {
     private readonly GeminiClient _gemini;

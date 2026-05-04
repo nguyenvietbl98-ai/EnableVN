@@ -59,7 +59,22 @@
                                 <p class="evn-muted small mb-0">Mã hồ sơ: <code>@item.Id</code> · Ứng viên: <code>@item.CandidateId</code></p>
                                 <p class="evn-muted small mb-0">Nộp lúc @item.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</p>
                             </div>
-                            <span class="evn-tag">@StatusVi(item.Status)</span>
+                            <div class="d-flex flex-column align-items-lg-end gap-2">
+                                <span class="evn-tag">@StatusVi(item.Status)</span>
+                                @if (item.Status != ApplicationStatus.Withdrawn)
+                                {
+                                    <a class="btn btn-outline-primary btn-sm"
+                                       asp-controller="ApplicationChat"
+                                       asp-action="Thread"
+                                       asp-route-applicationId="@item.Id">
+                                        <i class="bi bi-chat-dots" aria-hidden="true"></i> Chat với ứng viên
+                                    </a>
+                                }
+                                @if (item.Status == ApplicationStatus.Accepted)
+                                {
+                                    <span class="small text-success">Đã nhận — trao đổi qua chat để phối hợp tiếp.</span>
+                                }
+                            </div>
                         </div>
 
                         @if (!string.IsNullOrWhiteSpace(item.CoverLetter))

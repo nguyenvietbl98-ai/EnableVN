@@ -1,4 +1,5 @@
 ﻿using Ports.Models.Applications;
+using Ports.Models.Chat;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -67,6 +68,30 @@ namespace Ports.Inbound
         /// Xem chi tiết một hồ sơ ứng tuyển.
         /// </summary>
         Task<JobApplicationResult?> GetByIdAsync(
+            Guid applicationId,
+            CancellationToken cancellationToken = default
+        );
+
+        /// <summary>
+        /// Ứng viên: trả về Id hồ sơ đã nộp cho tin này, hoặc null nếu chưa nộp.
+        /// </summary>
+        Task<Guid?> TryGetCurrentCandidateApplicationIdForJobAsync(
+            Guid jobId,
+            CancellationToken cancellationToken = default
+        );
+
+        /// <summary>
+        /// Đảm bảo user hiện tại (ứng viên hoặc NTD của tin) được phép chat trên hồ sơ này.
+        /// </summary>
+        Task EnsureCurrentUserCanChatOnApplicationAsync(
+            Guid applicationId,
+            CancellationToken cancellationToken = default
+        );
+
+        /// <summary>
+        /// Lấy tiêu đề tin và mã hồ sơ cho trang chat (đã kiểm tra quyền).
+        /// </summary>
+        Task<ApplicationChatThreadDto> GetChatThreadForCurrentUserAsync(
             Guid applicationId,
             CancellationToken cancellationToken = default
         );

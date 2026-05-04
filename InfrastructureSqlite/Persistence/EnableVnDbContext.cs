@@ -32,6 +32,8 @@ namespace InfrastructureSqlite.Persistence
         public DbSet<JobCategoryRecord> JobCategories => Set<JobCategoryRecord>();
         public DbSet<NotificationRecord> Notifications => Set<NotificationRecord>();
 
+        public DbSet<ApplicationChatMessageRecord> ApplicationChatMessages => Set<ApplicationChatMessageRecord>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -78,6 +80,31 @@ namespace InfrastructureSqlite.Persistence
 
                 entity.HasIndex(x => new { x.UserId, x.Status });
                 // Tối ưu đếm thông báo chưa đọc.
+            });
+
+            modelBuilder.Entity<ApplicationChatMessageRecord>(entity =>
+            {
+                entity.ToTable("ApplicationChatMessages");
+
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.JobApplicationId).IsRequired();
+
+                entity.Property(x => x.SenderUserId).IsRequired();
+
+                entity.Property(x => x.Body)
+                    .IsRequired()
+                    .HasMaxLength(4000);
+
+                entity.Property(x => x.ModerationOutcome)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.Property(x => x.ModerationReasonVi).HasMaxLength(500);
+
+                entity.Property(x => x.SentAtUtc).IsRequired();
+
+                entity.HasIndex(x => x.JobApplicationId);
             });
         }
 

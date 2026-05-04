@@ -1293,3 +1293,63 @@ a:hover {
   text-align: left;
   border-radius: var(--evn-radius-md);
 }
+
+/* --- Application chat (ứng viên ↔ NTD) --- */
+.evn-app-chat__log {
+  min-height: 14rem;
+  max-height: min(52vh, 28rem);
+  overflow-y: auto;
+  padding: 0.75rem;
+  border-radius: var(--evn-radius-md);
+  background: var(--evn-surface-muted);
+  border: 1px solid var(--evn-border);
+}
+
+.evn-app-chat__row {
+  display: flex;
+  margin-bottom: 0.65rem;
+}
+
+.evn-app-chat__row--mine {
+  justify-content: flex-end;
+}
+
+.evn-app-chat__row--other {
+  justify-content: flex-start;
+}
+
+.evn-app-chat__bubble {
+  max-width: 88%;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--evn-radius-md);
+  background: var(--evn-surface);
+  border: 1px solid var(--evn-border);
+  box-shadow: var(--evn-shadow-sm);
+}
+
+.evn-app-chat__row--mine .evn-app-chat__bubble {
+  background: var(--evn-primary-soft);
+  border-color: var(--evn-primary-border);
+}
+
+.evn-app-chat__warn {
+  color: var(--evn-warning-text);
+  background: var(--evn-warning-soft);
+  border: 1px solid var(--evn-warning-border);
+  border-radius: var(--evn-radius-sm);
+  padding: 0.35rem 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.evn-app-chat__text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.evn-app-chat__meta {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--evn-text-muted);
+}
