@@ -74,8 +74,9 @@
                                 <span class="evn-tag">@(candidate.IsPublicProfile ? "Công khai" : "Riêng tư")</span>
                             </div>
                             <p class="evn-muted">@(string.IsNullOrWhiteSpace(candidate.Bio) ? "Ứng viên chưa cập nhật mô tả hồ sơ." : candidate.Bio)</p>
-                            <div class="d-flex flex-wrap gap-2">
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
                                 <span class="evn-tag evn-tag--neutral">@(string.IsNullOrWhiteSpace(candidate.CvUrl) ? "Chưa có CV" : "Có CV")</span>
+                                <a class="btn btn-sm btn-primary evn-btn-primary ms-auto" asp-action="Details" asp-route-id="@candidate.Id">Xem chi tiết</a>
                             </div>
                         </article>
                     </div>

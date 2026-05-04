@@ -81,24 +81,30 @@ namespace Domain.Applications
             string? note
         )
         {
-            ApplicationStatusPolicy.EnsureCanChangeStatus(Status, newStatus);
+            ApplicationStatusPolicy.EnsureCanChangeStatus(Status, newStatus, note);
 
             var oldStatus = Status;
-            Status = newStatus;
+            var noteTrimmed = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+
+            if (oldStatus != newStatus)
+                Status = newStatus;
 
             _statusHistories.Add(
-                ApplicationStatusHistory.Create(newStatus, note)
+                ApplicationStatusHistory.Create(newStatus, noteTrimmed)
             );
 
-            AddDomainEvent(
-                new JobApplicationStatusChangedEvent(
-                    Id,
-                    JobId,
-                    CandidateId,
-                    oldStatus,
-                    newStatus
-                )
-            );
+            if (oldStatus != newStatus)
+            {
+                AddDomainEvent(
+                    new JobApplicationStatusChangedEvent(
+                        Id,
+                        JobId,
+                        CandidateId,
+                        oldStatus,
+                        newStatus
+                    )
+                );
+            }
         }
 
         public void Withdraw()

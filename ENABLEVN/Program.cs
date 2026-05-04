@@ -1,7 +1,9 @@
 using Application;
 using InfrastructureInMemory;
 using InfrastructureSqlite.SeedData;
+using Microsoft.Extensions.Options;
 using Ports.Outbound.Services;
+using Presentation.Options;
 using Presentation.Services;
 using InfrastructureSqlite;
 
@@ -9,6 +11,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // MVC + Razor View.
 builder.Services.AddControllersWithViews();
+
+builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection(GeminiOptions.SectionName));
+builder.Services.AddAntiforgery(options =>
+{
+    // Fetch / XMLHttpRequest thường gửi token qua header này (khớp với wwwroot/js/ai-recruitment.js).
+    options.HeaderName = "X-XSRF-TOKEN";
+});
+builder.Services.AddHttpClient<GeminiClient>((sp, http) =>
+{
+    var opt = sp.GetRequiredService<IOptions<GeminiOptions>>().Value;
+    http.Timeout = TimeSpan.FromSeconds(Math.Clamp(opt.RequestTimeoutSeconds, 30, 180));
+});
+builder.Services.AddScoped<AiRecruitmentService>();
 
 // Session dùng để lưu UserId, Email, Role sau khi login/register.
 builder.Services.AddSession(options =>
@@ -57,5 +72,6 @@ app.UseSession();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllers();
 
 app.Run();

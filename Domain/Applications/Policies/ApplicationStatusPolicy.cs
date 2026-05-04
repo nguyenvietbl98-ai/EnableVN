@@ -9,7 +9,8 @@ namespace Domain.Applications.Policies
     {
         public static void EnsureCanChangeStatus(
             ApplicationStatus currentStatus,
-            ApplicationStatus newStatus
+            ApplicationStatus newStatus,
+            string? note
         )
         {
             if (currentStatus == ApplicationStatus.Withdrawn)
@@ -22,7 +23,12 @@ namespace Domain.Applications.Policies
                 throw new DomainException("Không thể đổi trạng thái hồ sơ đã được chấp nhận.");
 
             if (currentStatus == newStatus)
-                throw new DomainException("Trạng thái mới trùng với trạng thái hiện tại.");
+            {
+                if (string.IsNullOrWhiteSpace(note))
+                    throw new DomainException("Chọn trạng thái khác hoặc nhập nội dung phản hồi cho ứng viên (ghi chú).");
+
+                return;
+            }
         }
     }
 }

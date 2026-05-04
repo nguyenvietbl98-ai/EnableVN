@@ -1,0 +1,34 @@
+@model CandidateProfileResult
+@{
+    ViewData["Title"] = "Hồ sơ ứng viên — " + Model.FullName;
+    var crumb = new BreadcrumbModel { MiddleText = "Tìm ứng viên", MiddleController = "Candidates", MiddleAction = "Index", CurrentText = Model.FullName };
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+        <div class="evn-card p-4 p-lg-5">
+            <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+                <div>
+                    <span class="evn-badge mb-2">Ứng viên</span>
+                    <h1 class="h3 fw-bold mb-2">@Model.FullName</h1>
+                    <p class="evn-muted small mb-0">Mã hồ sơ: <code>@Model.Id</code></p>
+                </div>
+                <div>
+                    <a class="btn btn-outline-secondary" asp-action="Index">← Danh sách</a>
+                </div>
+            </div>
+            <p class="mb-4">@(string.IsNullOrWhiteSpace(Model.Bio) ? "Ứng viên chưa cập nhật mô tả." : Model.Bio)</p>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <span class="evn-tag">@(Model.IsPublicProfile ? "Hồ sơ công khai" : "Riêng tư")</span>
+                <span class="evn-tag evn-tag--neutral">@(string.IsNullOrWhiteSpace(Model.CvUrl) ? "Chưa có CV" : "Có CV")</span>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.CvUrl))
+            {
+                <p class="mb-0">
+                    <a class="btn btn-primary evn-btn-primary" href="@Model.CvUrl" target="_blank" rel="noopener">Mở CV</a>
+                </p>
+            }
+        </div>
+    </div>
+</div>

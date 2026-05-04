@@ -1205,3 +1205,91 @@ a:hover {
   padding: 0.1em 0.35em;
   border-radius: 4px;
 }
+
+/* AI chat — full page log + legacy modal (unused) */
+.evn-ai-page__log {
+  min-height: 16rem;
+  max-height: min(52vh, 32rem);
+  overflow-y: auto;
+  padding: 0.75rem;
+  border-radius: var(--evn-radius-lg);
+  background: var(--evn-surface-muted);
+  border: 1px solid var(--evn-border);
+}
+
+.evn-ai-modal .modal-content.evn-ai-modal__content {
+  border-radius: var(--evn-radius-xl);
+  overflow: hidden;
+}
+
+.evn-ai-modal__header {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--evn-primary) 12%, var(--evn-surface)) 0%,
+    var(--evn-surface) 55%
+  );
+}
+
+.evn-ai-modal__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--evn-radius-md);
+  background: var(--evn-primary-soft);
+  color: var(--evn-primary-dark);
+  font-size: 1.2rem;
+}
+
+.evn-ai-modal__log {
+  min-height: 10rem;
+  max-height: min(42vh, 22rem);
+  overflow-y: auto;
+  padding: 0.75rem;
+  border-radius: var(--evn-radius-lg);
+  background: var(--evn-surface-muted);
+  border: 1px solid var(--evn-border);
+}
+
+.evn-ai-bubble {
+  display: flex;
+  margin-bottom: 0.65rem;
+}
+
+.evn-ai-bubble--user {
+  justify-content: flex-end;
+}
+
+.evn-ai-bubble--assistant {
+  justify-content: flex-start;
+}
+
+.evn-ai-bubble__inner {
+  max-width: 92%;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--evn-radius-md);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.evn-ai-bubble--user .evn-ai-bubble__inner {
+  background: var(--evn-primary);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.evn-ai-bubble--assistant .evn-ai-bubble__inner {
+  background: var(--evn-surface);
+  border: 1px solid var(--evn-border);
+  color: var(--evn-text);
+  border-bottom-left-radius: 4px;
+}
+
+.evn-ai-modal__suggestions .evn-ai-suggest-btn {
+  white-space: normal;
+  text-align: left;
+  border-radius: var(--evn-radius-md);
+}

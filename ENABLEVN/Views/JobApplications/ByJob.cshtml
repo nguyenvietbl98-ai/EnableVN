@@ -13,6 +13,13 @@
         ApplicationStatus.Withdrawn => "Đã rút",
         _ => s.ToString()
     };
+    var employerStatusTargets = new[]
+    {
+        ApplicationStatus.Reviewing,
+        ApplicationStatus.Interview,
+        ApplicationStatus.Rejected,
+        ApplicationStatus.Accepted
+    };
 }
 
 <div class="evn-page">
@@ -41,6 +48,10 @@
             <div class="d-grid gap-4">
                 @foreach (var item in Model)
                 {
+                    var canEmployerEdit = item.Status != ApplicationStatus.Withdrawn
+                        && item.Status != ApplicationStatus.Rejected
+                        && item.Status != ApplicationStatus.Accepted;
+
                     <article class="evn-card p-4">
                         <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
                             <div>
@@ -67,27 +78,50 @@
                             </p>
                         }
 
-                        <form asp-action="ChangeStatus" method="post" class="row g-3 align-items-end">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="applicationId" value="@item.Id" />
-                            <input type="hidden" name="jobId" value="@jobId" />
-                            <div class="col-lg-4">
-                                <label class="form-label" for="status-@item.Id">Trạng thái mới</label>
-                                <select id="status-@item.Id" name="newStatus" class="form-select">
-                                    <option value="@ApplicationStatus.Reviewing">@StatusVi(ApplicationStatus.Reviewing)</option>
-                                    <option value="@ApplicationStatus.Interview">@StatusVi(ApplicationStatus.Interview)</option>
-                                    <option value="@ApplicationStatus.Rejected">@StatusVi(ApplicationStatus.Rejected)</option>
-                                    <option value="@ApplicationStatus.Accepted">@StatusVi(ApplicationStatus.Accepted)</option>
-                                </select>
+                        @if (!string.IsNullOrWhiteSpace(item.LatestHistoryNote) && item.LatestHistoryAt.HasValue)
+                        {
+                            <div class="evn-card-soft p-3 mb-3 small">
+                                <div class="evn-muted mb-1">Cập nhật gần nhất @item.LatestHistoryAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")@(item.LatestHistoryStatus.HasValue ? $" · {StatusVi(item.LatestHistoryStatus.Value)}" : "")</div>
+                                <p class="mb-0">@item.LatestHistoryNote</p>
                             </div>
-                            <div class="col-lg-5">
-                                <label class="form-label" for="note-@item.Id">Ghi chú</label>
-                                <input id="note-@item.Id" name="note" class="form-control" placeholder="VD: Mời phỏng vấn vòng 1" />
-                            </div>
-                            <div class="col-lg-3">
-                                <button class="btn btn-primary evn-btn-primary w-100" type="submit">Cập nhật</button>
-                            </div>
-                        </form>
+                        }
+
+                        @if (canEmployerEdit)
+                        {
+                            <form asp-action="ChangeStatus" method="post" class="row g-3 align-items-end">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="applicationId" value="@item.Id" />
+                                <input type="hidden" name="jobId" value="@jobId" />
+                                <div class="col-lg-4">
+                                    <label class="form-label" for="status-@item.Id">Trạng thái</label>
+                                    <select id="status-@item.Id" name="newStatus" class="form-select" required>
+                                        @foreach (var s in employerStatusTargets)
+                                        {
+                                            if (item.Status == s)
+                                            {
+                                                <option value="@((int)s)" selected>@StatusVi(s)</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@((int)s)">@StatusVi(s)</option>
+                                            }
+                                        }
+                                    </select>
+                                    <div class="form-text">Giữ nguyên trạng thái và chỉ điền ghi chú nếu bạn muốn gửi phản hồi thêm cho ứng viên.</div>
+                                </div>
+                                <div class="col-lg-5">
+                                    <label class="form-label" for="note-@item.Id">Ghi chú / phản hồi</label>
+                                    <textarea id="note-@item.Id" name="note" class="form-control" rows="2" maxlength="2000" placeholder="VD: Mời phỏng vấn vòng 1, hoặc lý do từ chối…"></textarea>
+                                </div>
+                                <div class="col-lg-3">
+                                    <button class="btn btn-primary evn-btn-primary w-100" type="submit">Cập nhật</button>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <p class="small text-muted mb-0">Hồ sơ ở trạng thái cuối — không thể chỉnh sửa thêm.</p>
+                        }
                     </article>
                 }
             </div>

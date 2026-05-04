@@ -1,8 +1,13 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var evnCsrf = Antiforgery.GetAndStoreTokens(Context);
+}
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="@evnCsrf.RequestToken" />
 
     <title>@ViewData["Title"] - EnableVN</title>
 
@@ -58,6 +63,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/enablevn-accessibility.js" asp-append-version="true"></script>
+    <script src="~/js/ai-recruitment.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

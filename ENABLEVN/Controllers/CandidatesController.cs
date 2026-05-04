@@ -42,5 +42,32 @@ namespace Presentation.Controllers
                 return RedirectToAction("Index", "Home");
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            if (!string.Equals(
+                    HttpContext.Session.GetString("UserRole"),
+                    nameof(UserRole.Employer),
+                    StringComparison.Ordinal))
+            {
+                TempData["Error"] = "Chỉ nhà tuyển dụng mới xem được hồ sơ ứng viên.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            try
+            {
+                var profile = await _searchUseCase.GetPublicProfileByIdAsync(id);
+                if (profile is null)
+                    return NotFound();
+
+                return View(profile);
+            }
+            catch (UseCaseException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
     }
 }

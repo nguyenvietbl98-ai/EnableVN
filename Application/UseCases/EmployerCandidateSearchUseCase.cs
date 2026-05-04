@@ -79,5 +79,23 @@ namespace Application.UseCases
                 )
                 .ToList();
         }
+
+        public async Task<CandidateProfileResult?> GetPublicProfileByIdAsync(
+            Guid candidateProfileId,
+            CancellationToken cancellationToken = default)
+        {
+            AuthorizationGuard.RequireEmployer(_currentUser);
+
+            var profile = await _candidateProfileRepository.GetByIdAsync(
+                candidateProfileId,
+                cancellationToken);
+
+            if (profile is null || !profile.IsPublicProfile)
+                return null;
+
+            return CandidateProfileMapper.ToResult(
+                profile,
+                canViewDisabilityInfo: profile.DisabilityInfo is not null && profile.DisabilityInfo.IsVisibleToEmployer);
+        }
     }
 }

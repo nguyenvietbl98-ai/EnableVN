@@ -12,6 +12,7 @@
         ApplicationStatus.Withdrawn => "Đã rút",
         _ => s.ToString()
     };
+
 }
 
 <div class="evn-page">
@@ -40,6 +41,7 @@
                             <tr>
                                 <th scope="col">Việc làm</th>
                                 <th scope="col">Trạng thái</th>
+                                <th scope="col">Phản hồi từ NTD</th>
                                 <th scope="col">Ngày nộp</th>
                                 <th scope="col" class="text-end">Thao tác</th>
                             </tr>
@@ -55,6 +57,20 @@
                                     <td>
                                         <span class="evn-tag">@StatusVi(item.Status)</span>
                                         <span class="visually-hidden"> (@item.Status)</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(item.EmployerFeedbackNote))
+                                        {
+                                            <p class="small mb-1">@item.EmployerFeedbackNote</p>
+                                            @if (item.EmployerFeedbackAt.HasValue)
+                                            {
+                                                <p class="evn-muted small mb-0">@item.EmployerFeedbackAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="evn-muted small">—</span>
+                                        }
                                     </td>
                                     <td>@item.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td class="text-end">

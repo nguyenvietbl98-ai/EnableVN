@@ -12,5 +12,13 @@ namespace Ports.Inbound
             SearchPublicCandidatesQuery query,
             CancellationToken cancellationToken = default
         );
+
+        /// <summary>
+        /// Employer xem một hồ sơ công khai theo Id (dùng cho trang chi tiết / AI gợi ý).
+        /// </summary>
+        Task<CandidateProfileResult?> GetPublicProfileByIdAsync(
+            Guid candidateProfileId,
+            CancellationToken cancellationToken = default
+        );
     }
 }

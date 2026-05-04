@@ -177,6 +177,8 @@ namespace Application.UseCases
             if (job.EmployerId != employerProfile.Id)
                 throw new UseCaseException("Bạn không có quyền đổi trạng thái hồ sơ này.");
 
+            var previousStatus = application.Status;
+
             application.ChangeStatus(
                 command.NewStatus,
                 command.Note
@@ -194,10 +196,15 @@ namespace Application.UseCases
 
             if (candidateProfile is not null)
             {
+                var statusChanged = previousStatus != application.Status;
+                var notificationMessage = statusChanged
+                    ? $"Hồ sơ của bạn đã được cập nhật sang trạng thái: {application.Status}."
+                    : "Nhà tuyển dụng vừa gửi phản hồi (ghi chú) cho hồ sơ ứng tuyển của bạn — xem trong mục Đơn ứng tuyển.";
+
                 var notification = Notification.Create(
                     candidateProfile.UserId,
-                    "Trạng thái hồ sơ đã thay đổi",
-                    $"Hồ sơ của bạn đã được cập nhật sang trạng thái: {application.Status}.",
+                    statusChanged ? "Trạng thái hồ sơ đã thay đổi" : "Phản hồi từ nhà tuyển dụng",
+                    notificationMessage,
                     NotificationType.ApplicationStatusChanged
                 );
                 // Tạo thông báo cho Candidate.
