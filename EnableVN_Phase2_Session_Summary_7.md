@@ -139,29 +139,46 @@ NotificationType.cs
 NotificationStatus.cs
 ```
 
-Trong đó:
+Trong đó (khớp code hiện tại):
 
 ```csharp
 public enum NotificationType
 {
-    ApplicationSubmitted = 1,
-    ApplicationStatusChanged = 2,
-    ReportHandled = 3
+    Unknown = 0,
+    System = 1,
+    JobApplication = 2,
+    ApplicationSubmitted = 3,
+    ApplicationStatusChanged = 4,
+    Message = 5
 }
 ```
 
 ```csharp
 public enum NotificationStatus
 {
-    Unread = 1,
-    Read = 2
+    Unread = 0,
+    Read = 1,
+    Archived = 2
 }
 ```
 
-`Notification` là Domain Entity, kế thừa đúng kiểu generic:
+`Notification` là Domain Entity (khớp SQLite persistence), kế thừa đúng kiểu generic:
 
 ```csharp
 public sealed class Notification : Entity<Guid>
+{
+    public Guid UserId { get; private set; }
+    public string Title { get; private set; }
+    public string Message { get; private set; }
+    public NotificationType Type { get; private set; }
+    public NotificationStatus Status { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public DateTime? ReadAt { get; private set; }
+
+    public static Notification Create(Guid userId, string title, string message, NotificationType type);
+    public static Notification Restore(Guid id, Guid userId, string title, string message, NotificationType type, NotificationStatus status, DateTime createdAt, DateTime? readAt);
+    public void MarkAsRead();
+}
 ```
 
 Lý do: trong project hiện tại, `Entity` là generic `Entity<TId>`, nên nếu viết `Entity` sẽ lỗi:
@@ -186,18 +203,18 @@ Tạo file:
 NotificationResult.cs
 ```
 
-Yêu cầu class phải là `public`:
+Yêu cầu class phải là `public` (khớp code hiện tại dùng init-only):
 
 ```csharp
 public sealed class NotificationResult
 {
-    public Guid Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Message { get; set; } = string.Empty;
-    public NotificationType Type { get; set; }
-    public NotificationStatus Status { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? ReadAt { get; set; }
+    public Guid Id { get; init; }
+    public string Title { get; init; } = string.Empty;
+    public string Message { get; init; } = string.Empty;
+    public NotificationType Type { get; init; }
+    public NotificationStatus Status { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset? ReadAt { get; init; }
 }
 ```
 
@@ -364,6 +381,12 @@ Khi restore:
 Enum.Parse<NotificationType>(record.Type)
 Enum.Parse<NotificationStatus>(record.Status)
 ```
+
+Ghi chú quan trọng (khớp code hiện tại):
+
+- `NotificationRecord.CreatedAt/ReadAt` dùng `DateTime/DateTime?`.
+- Domain `Notification.CreatedAt/ReadAt` cũng dùng `DateTime/DateTime?`.
+- `NotificationResult` dùng `DateTimeOffset/DateTimeOffset?` để Presentation hiển thị timezone dễ hơn; mapper hiện map trực tiếp từ `DateTime` sang `DateTimeOffset` (implicit conversion).
 
 ---
 
@@ -580,7 +603,7 @@ Lỗi:
 CS0305: Using the generic type 'Entity<TId>' requires 1 type arguments
 ```
 
-Nguyên nhân:
+Nguyên nhân (đã gặp với `Notification`, `CompanyReview`, `ViolationReport`):
 
 ```csharp
 public sealed class Notification : Entity
