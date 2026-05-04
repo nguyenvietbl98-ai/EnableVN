@@ -1,0 +1,16 @@
+@model int
+
+<a class="btn btn-outline-dark btn-sm evn-notification-bell"
+   asp-controller="Notifications"
+   asp-action="Index"
+   aria-label="Thông báo">
+    <span aria-hidden="true">Thông báo</span>
+
+    @if (Model > 0)
+    {
+        <span class="evn-notification-badge" aria-label="@Model thông báo chưa đọc">
+            @Model
+        </span>
+    }
+</a>
+

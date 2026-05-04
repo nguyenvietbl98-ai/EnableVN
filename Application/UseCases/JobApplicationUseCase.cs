@@ -24,27 +24,33 @@ namespace Application.UseCases
         private readonly IJobRepository _jobRepository;
         private readonly ICandidateProfileRepository _candidateProfileRepository;
         private readonly IEmployerProfileRepository _employerProfileRepository;
+        private readonly IUserRepository _userRepository;
         private readonly ICurrentUserService _currentUser;
         private readonly IDomainEventDispatcher _domainEventDispatcher;
         private readonly INotificationRepository _notificationRepository;
+        private readonly IEmailService _emailService;
 
         public JobApplicationUseCase(
             IJobApplicationRepository jobApplicationRepository,
             IJobRepository jobRepository,
             ICandidateProfileRepository candidateProfileRepository,
             IEmployerProfileRepository employerProfileRepository,
+            IUserRepository userRepository,
             ICurrentUserService currentUser,
             IDomainEventDispatcher domainEventDispatcher,
-            INotificationRepository notificationRepository
+            INotificationRepository notificationRepository,
+            IEmailService emailService
         )
         {
             _jobApplicationRepository = jobApplicationRepository;
             _jobRepository = jobRepository;
             _candidateProfileRepository = candidateProfileRepository;
             _employerProfileRepository = employerProfileRepository;
+            _userRepository = userRepository;
             _currentUser = currentUser;
             _domainEventDispatcher = domainEventDispatcher;
-                _notificationRepository = notificationRepository;
+            _notificationRepository = notificationRepository;
+            _emailService = emailService;
         }
 
         public async Task<Guid> SubmitAsync(
@@ -114,6 +120,12 @@ namespace Application.UseCases
                 // Tạo thông báo cho tài khoản Employer sở hữu công việc này.
 
                 await _notificationRepository.AddAsync(
+                    notification,
+                    cancellationToken
+                );
+
+                await SendNotificationEmailBestEffortAsync(
+                    employerProfile.UserId,
                     notification,
                     cancellationToken
                 );
@@ -188,6 +200,12 @@ namespace Application.UseCases
                 // Tạo thông báo cho Candidate.
 
                 await _notificationRepository.AddAsync(
+                    notification,
+                    cancellationToken
+                );
+
+                await SendNotificationEmailBestEffortAsync(
+                    candidateProfile.UserId,
                     notification,
                     cancellationToken
                 );
@@ -310,6 +328,29 @@ namespace Application.UseCases
                 return null;
 
             return JobApplicationMapper.ToResult(application);
+        }
+
+        private async Task SendNotificationEmailBestEffortAsync(
+            Guid userId,
+            Notification notification,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+                if (user is null) return;
+
+                await _emailService.SendAsync(
+                    user.Email.Value,
+                    notification.Title,
+                    notification.Message,
+                    cancellationToken
+                );
+            }
+            catch
+            {
+                // MVP: email fail không được làm fail nghiệp vụ chính.
+            }
         }
     }
 }

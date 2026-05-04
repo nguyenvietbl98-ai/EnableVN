@@ -1,4 +1,5 @@
 ﻿using InfrastructureInMemory.Repositories;
+using InfrastructureInMemory.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Ports.Outbound.Repositories;
 using Ports.Outbound.Services;
@@ -54,6 +55,9 @@ namespace InfrastructureInMemory
             services.AddSingleton<ITokenService, SimpleTokenService>();
 
             services.AddSingleton<IDomainEventDispatcher, InMemoryDomainEventDispatcher>();
+
+            // SMTP email sender (dùng Gmail SMTP qua app password).
+            services.AddSingleton<IEmailService, SmtpEmailService>();
 
             return services;
         }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Ports.Outbound.Services
+﻿namespace Ports.Outbound.Services
 {
     /// <summary>
     /// Outbound Port cho gửi email.
@@ -13,7 +9,7 @@ namespace Ports.Outbound.Services
     public interface IEmailService
     {
         /// <summary>
-        /// Gửi email đơn giản.
+        /// Gửi email đơn giản (plain text).
         /// </summary>
         Task SendAsync(
             string to,

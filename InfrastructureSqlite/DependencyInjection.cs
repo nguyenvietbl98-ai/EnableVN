@@ -1,12 +1,12 @@
 ﻿using InfrastructureSqlite.Persistence;
 using InfrastructureSqlite.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ports.Outbound.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 
 namespace InfrastructureSqlite
 {
@@ -56,6 +56,7 @@ namespace InfrastructureSqlite
 
             services.AddScoped<IJobCategoryRepository, SqliteJobCategoryRepository>();
             services.AddScoped<INotificationRepository, SqliteNotificationRepository>();
+          
 
             return services;
         }

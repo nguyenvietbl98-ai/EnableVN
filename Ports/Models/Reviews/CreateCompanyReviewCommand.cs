@@ -6,6 +6,7 @@ namespace Ports.Models.Reviews
 {
     public sealed class CreateCompanyReviewCommand
     {
+        public Guid CandidateId { get; set; }
         public Guid EmployerId { get; set; }
         // Id của EmployerProfile được đánh giá.
 

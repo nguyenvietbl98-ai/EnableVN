@@ -1,0 +1,52 @@
+:root[data-theme="contrast"] {
+  --evn-bg: #000000;
+  --evn-surface: #0f0f0f;
+  --evn-text: #ffffff;
+  --evn-muted: #f5f5f5;
+  --evn-primary: #ffff00;
+  --evn-primary-dark: #ffff00;
+  --evn-border: #ffffff;
+}
+
+.evn-skip-link {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 9999;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--evn-surface);
+  border: 2px solid var(--evn-border);
+  color: var(--evn-text);
+  transform: translateY(-140%);
+  transition: transform 0.12s ease;
+}
+
+.evn-skip-link:focus {
+  transform: translateY(0);
+}
+
+.evn-notification-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.evn-notification-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--evn-primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+:root[data-theme="contrast"] .evn-notification-badge {
+  color: #000;
+}
+
