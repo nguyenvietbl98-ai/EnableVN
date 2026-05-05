@@ -1,5 +1,7 @@
 # EnableVN_Application_Summary.md
 
+> **Đồng bộ code:** Mục trạng thái dự án và cây thư mục §4 đã cập nhật — toàn bộ layer dưới đây **đã có** trong repo; xem `EnableVN_Final_Project_Summary_8.md` cho DI còn thiếu (`IViolationReportUseCase`).
+
 Tài liệu này dùng để gửi lại cho ChatGPT ở phiên làm việc mới nhằm tiếp tục phát triển dự án EnableVN mà không bị mất ngữ cảnh.
 
 ---
@@ -26,21 +28,18 @@ EnableVN.InfrastructureSqlite
 EnableVN.Presentation
 ```
 
-Hiện tại đã làm:
+Hiện tại đã làm (đồng bộ code):
 
 ```txt
-EnableVN.Domain       ✅ Đã thiết kế xong nền tảng Domain
-EnableVN.Ports        ✅ Đã thiết kế xong hợp đồng Inbound/Outbound/Models
-EnableVN.Application  ✅ Đã viết code UseCase nền tảng
+EnableVN.Domain                    ✅
+EnableVN.Ports                   ✅
+EnableVN.Application             ✅ (UseCase + Mapper + DI)
+EnableVN.InfrastructureInMemory    ✅ (Singleton + SMTP + services)
+EnableVN.InfrastructureSqlite    ✅ (EF Core, migration, seed)
+EnableVN.Presentation (ENABLEVN/) ✅ MVC + Session + SignalR + AI/moderation
 ```
 
-Chưa làm:
-
-```txt
-EnableVN.InfrastructureInMemory   ❌
-EnableVN.InfrastructureSqlite     ❌
-EnableVN.Presentation             ❌
-```
+**Nợ kỹ thuật (DI):** `ViolationReportUseCase` có trong code nhưng **`IViolationReportUseCase` chưa `AddScoped` trong `Application/DependencyInjection.cs`**; **`IViolationReportRepository` chưa đăng ký** trong `InfrastructureInMemory/DependencyInjection.cs` — xem Summary 8 mục 10.
 
 ---
 
@@ -113,7 +112,7 @@ EnableVN.Ports.Outbound.Services
 # 4. Cấu trúc EnableVN.Application đã thiết kế
 
 ```txt
-EnableVN.Application
+Application/
 │
 ├── Common
 │   ├── UseCaseException.cs
@@ -125,7 +124,8 @@ EnableVN.Application
 │   ├── CandidateProfileMapper.cs
 │   ├── JobMapper.cs
 │   ├── JobApplicationMapper.cs
-│   └── CatalogMapper.cs
+│   ├── CatalogMapper.cs
+│   └── NotificationMapper.cs
 │
 └── UseCases
     ├── AuthUseCase.cs
@@ -134,7 +134,11 @@ EnableVN.Application
     ├── CandidateProfileUseCase.cs
     ├── JobUseCase.cs
     ├── JobApplicationUseCase.cs
-    └── CatalogUseCase.cs
+    ├── CatalogUseCase.cs
+    ├── NotificationUseCase.cs
+    ├── EmployerCandidateSearchUseCase.cs
+    ├── CompanyReviewUseCase.cs
+    └── ViolationReportUseCase.cs
 ```
 
 ---

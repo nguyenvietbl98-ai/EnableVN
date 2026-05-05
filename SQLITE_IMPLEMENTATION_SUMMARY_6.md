@@ -1,34 +1,37 @@
 # EnableVN SQLite Implementation Summary
 
 **Ngày:** 05/05/2026  
-**Status:** ✅ Hoàn thành  
+**Đồng bộ tài liệu (cập nhật):** Số file / DbSet / migration / bảng trong file này đã chỉnh khớp code hiện tại (thêm Notifications + ApplicationChat). Tổng hợp luồng: `EnableVN_Final_Project_Summary_8.md`.  
+**Status:** ✅ Hoàn thành (MVP SQLite + mở rộng)  
 **Build:** ✅ Success  
-**Database:** ✅ Created (enablevn.db)
+**Database:** ✅ `enablevn.db`
 
 ---
 
 ## 📋 Tổng Quan
 
-Hoàn thành triển khai **InfrastructureSqlite** để thay thế InfrastructureInMemory, lưu dữ liệu thực bằng SQLite đồng thời giữ đúng **Hexagonal Architecture + Domain-Driven Design**.
+Triển khai **InfrastructureSqlite** để **ghi đè** các repository lõi (User, Job, Application, …) bằng SQLite; **InfrastructureInMemory** vẫn dùng cho dịch vụ (password, token, email) và các repo **chưa** có bản Sqlite (vd. `ICompanyReviewRepository`, `IViolationReportRepository`).
 
 ---
 
-## 📁 Cấu Trúc Files Tạo Mới
+## 📁 Cấu Trúc Files (đồng bộ code)
 
-### 1. PersistenceModels (8 files)
+### 1. PersistenceModels (**11** file)
 Các model EF Core đại diện cho bảng database, tách riêng khỏi Domain Entities.
 
 ```
 InfrastructureSqlite/PersistenceModels/
-├── UserRecord.cs                           ✅ Đã có
-├── EmployerProfileRecord.cs                🆕 Mới tạo
-├── CandidateProfileRecord.cs               🆕 Mới tạo
-├── JobPostRecord.cs                        🆕 Mới tạo
-├── JobApplicationRecord.cs                 🆕 Mới tạo
-├── ApplicationStatusHistoryRecord.cs       🆕 Mới tạo
-├── DisabilityTypeRecord.cs                 🆕 Mới tạo
-├── AssistiveDeviceRecord.cs                🆕 Mới tạo
-└── JobCategoryRecord.cs                    🆕 Mới tạo
+├── UserRecord.cs
+├── EmployerProfileRecord.cs
+├── CandidateProfileRecord.cs
+├── JobPostRecord.cs
+├── JobApplicationRecord.cs
+├── ApplicationStatusHistoryRecord.cs
+├── DisabilityTypeRecord.cs
+├── AssistiveDeviceRecord.cs
+├── JobCategoryRecord.cs
+├── NotificationRecord.cs
+└── ApplicationChatMessageRecord.cs
 ```
 
 **Đặc điểm:**
@@ -36,18 +39,19 @@ InfrastructureSqlite/PersistenceModels/
 - ValueObjects flatten thành primitive types (Email → string, FullName → string)
 - Complex types split thành multiple columns (InclusiveWorkplaceInfo → 5 bool, DisabilityInfo → 3 columns)
 
-### 2. Mappers (6 files)
+### 2. Mappers (**8** file)
 Chuyển đổi hai chiều giữa Domain Entities ↔ PersistenceModels.
 
 ```
 InfrastructureSqlite/Mappers/
-├── UserPersistenceMapper.cs                ✅ Đã có
-├── EmployerProfilePersistenceMapper.cs     🆕 Mới tạo
-├── CandidateProfilePersistenceMapper.cs    🆕 Mới tạo
-├── JobPostPersistenceMapper.cs             🆕 Mới tạo
-├── JobApplicationPersistenceMapper.cs      🆕 Mới tạo
-├── ApplicationStatusHistoryPersistenceMapper.cs 🆕 Mới tạo
-└── CatalogPersistenceMapper.cs             🆕 Mới tạo
+├── UserPersistenceMapper.cs
+├── EmployerProfilePersistenceMapper.cs
+├── CandidateProfilePersistenceMapper.cs
+├── JobPostPersistenceMapper.cs
+├── JobApplicationPersistenceMapper.cs
+├── ApplicationStatusHistoryPersistenceMapper.cs
+├── CatalogPersistenceMapper.cs
+└── NotificationPersistenceMapper.cs
 ```
 
 **Pattern cho mỗi Mapper:**
@@ -57,20 +61,24 @@ ToDomain(record)           // Record → Domain
 UpdateRecord(record, domain) // Update existing record
 ```
 
-### 3. Repositories (7 files)
-Implement các Outbound Port interfaces từ Ports/, sử dụng EF Core DbContext.
+### 3. Repositories (**10** file — bản Sqlite)
+Implement Outbound Port từ `Ports/`, dùng EF Core `DbContext`.
 
 ```
 InfrastructureSqlite/Repositories/
-├── SqliteUserRepository.cs                 ✅ Đã có
-├── SqliteEmployerProfileRepository.cs      🆕 Mới tạo
-├── SqliteCandidateProfileRepository.cs     🆕 Mới tạo
-├── SqliteJobRepository.cs                  🆕 Mới tạo
-├── SqliteJobApplicationRepository.cs       🆕 Mới tạo
-├── SqliteDisabilityTypeRepository.cs       🆕 Mới tạo
-├── SqliteAssistiveDeviceRepository.cs      🆕 Mới tạo
-└── SqliteJobCategoryRepository.cs          🆕 Mới tạo
+├── SqliteUserRepository.cs
+├── SqliteEmployerProfileRepository.cs
+├── SqliteCandidateProfileRepository.cs
+├── SqliteJobRepository.cs
+├── SqliteJobApplicationRepository.cs
+├── SqliteDisabilityTypeRepository.cs
+├── SqliteAssistiveDeviceRepository.cs
+├── SqliteJobCategoryRepository.cs
+├── SqliteNotificationRepository.cs
+└── SqliteApplicationChatRepository.cs
 ```
+
+**Chưa có Sqlite:** `ICompanyReviewRepository`, `IViolationReportRepository` (vẫn InMemory / hoặc DI report chưa đủ — xem Summary 8).
 
 **Lifecycle:**
 - Scoped (not Singleton) - đi kèm DbContext Scoped lifecycle
@@ -82,20 +90,22 @@ DbContext + Factory cho EF Core migrations.
 
 ```
 InfrastructureSqlite/Persistence/
-├── EnableVnDbContext.cs                    🔄 Sửa (thêm 8 DbSets + configurations)
-└── EnableVnDbContextFactory.cs             🔄 Sửa (implement IDesignTimeDbContextFactory)
+├── EnableVnDbContext.cs
+└── EnableVnDbContextFactory.cs
 ```
 
-**DbSets (9 bảng):**
-1. Users
-2. EmployerProfiles
-3. CandidateProfiles
-4. JobPosts
-5. JobApplications
-6. ApplicationStatusHistories
-7. DisabilityTypes
-8. AssistiveDevices
-9. JobCategories
+**DbSets = 11 bảng SQLite:**
+1. Users  
+2. EmployerProfiles  
+3. CandidateProfiles  
+4. JobPosts  
+5. JobApplications  
+6. ApplicationStatusHistories  
+7. DisabilityTypes  
+8. AssistiveDevices  
+9. JobCategories  
+10. Notifications  
+11. ApplicationChatMessages  
 
 ### 5. SeedData (2 files)
 Automatic seed dữ liệu mặc định khi start Development environment.
@@ -166,6 +176,9 @@ ApplicationStatusHistories.JobApplicationId
 DisabilityTypes.Status                         
 AssistiveDevices.Status                        
 JobCategories.Status                           
+Notifications.UserId
+Notifications.(UserId, Status)
+ApplicationChatMessages.JobApplicationId
 ```
 
 ### Column Mappings
@@ -252,16 +265,16 @@ JobCategories.Status
 // 1. Đăng ký Application UseCases
 builder.Services.AddEnableVNApplication();
 
-// 2. Đăng ký InMemory services (mà chưa có SQLite version)
+// 2. InMemory: password hasher, token, email, dispatcher, … (và repo chưa có Sqlite)
 builder.Services.AddEnableVNInMemoryInfrastructure();
 
-// 3. Ghi đè repositories bằng SQLite
+// 3. Ghi đè repositories lõi bằng SQLite
 builder.Services.AddEnableVNSqliteInfrastructure(builder.Configuration);
 
-// 4. Ghi đè ICurrentUserService cho MVC Session
+// 4. MVC Session thay cho InMemoryCurrentUserService
 builder.Services.AddScoped<ICurrentUserService, SessionCurrentUserService>();
 
-// 5. Seed data khi Development
+// 5. Development: apply migrations + seed (chi tiết trong ENABLEVN/Program.cs — có thêm SignalR, Gemini, …)
 if (app.Environment.IsDevelopment())
 {
     await SqliteAdminSeeder.SeedAsync(app.Services);
@@ -315,17 +328,20 @@ public sealed class EnableVnDbContextFactory :
 
 ## 🗄️ Migrations
 
-### Created
+### Created (đồng bộ code)
 
-| Migration ID | Name | Status |
-|--------------|------|--------|
-| 20260504170824 | InitialSqliteCreate | ✅ Applied |
+| Migration ID | Name | Ghi chú |
+|--------------|------|----------|
+| 20260504170824 | InitialSqliteCreate | Schema lõi MVP |
+| 20260504181737 | AddNotifications | Bảng Notifications |
+| 20260504220206 | AddApplicationChatMessages | Bảng ApplicationChatMessages |
 
 ### Location
 ```
 InfrastructureSqlite/Migrations/
-├── 20260504170824_InitialSqliteCreate.cs
-├── 20260504170824_InitialSqliteCreate.Designer.cs
+├── 20260504170824_InitialSqliteCreate.cs (+ .Designer.cs)
+├── 20260504181737_AddNotifications.cs (+ .Designer.cs)
+├── 20260504220206_AddApplicationChatMessages.cs (+ .Designer.cs)
 └── EnableVnDbContextModelSnapshot.cs
 ```
 
@@ -346,8 +362,8 @@ Status: ✅ Created
 | Domain không phụ thuộc Database | ✅ | Không có DbContext references |
 | Application không gọi DbContext | ✅ | Chỉ dùng Repository interfaces |
 | Presentation không gọi Repository | ✅ | Chỉ gọi Application UseCases |
-| Tất cả interfaces ở Ports | ✅ | 8 Repositories, 6 Services |
-| InfrastructureSqlite implement Outbound Ports | ✅ | 8 Repository implementations |
+| Tất cả interfaces ở Ports | ✅ | 12 Repositories (interface), 6 Services — Sqlite implement **10** repo |
+| InfrastructureSqlite implement Outbound Ports | ✅ | 10 class `Sqlite*Repository` (2 repo còn InMemory / ngoài Sqlite) |
 | PersistenceModels tách riêng | ✅ | Không contaminate Domain |
 | Mapper bidirectional | ✅ | ToRecord/ToDomain/UpdateRecord |
 | Restore() không trigger events | ✅ | Chỉ dùng để rebuild aggregate |
@@ -476,7 +492,7 @@ ExistsByJobIdAndCandidateIdAsync(jobId, candidateId)
 ✅ enablevn.db created
    - Location: ENABLEVN/enablevn.db
    - Size: 151,552 bytes
-   - Schema: 9 tables
+   - Schema: 11 tables (sau đủ migration)
 ```
 
 ---
@@ -499,8 +515,9 @@ ExistsByJobIdAndCandidateIdAsync(jobId, candidateId)
 
 ## 📝 Notes & Known Issues
 
-### None
-✅ Không có issue nào. Build thành công, DB tạo ok, kiến trúc sạch.
+### Đã biết (đồng bộ code)
+- Cảnh báo **NU1903** (`System.Security.Cryptography.Xml`) — cần theo dõi dependency.
+- **DI:** `IViolationReportRepository` / `IViolationReportUseCase` có thể chưa đăng ký đầy đủ — xem `EnableVN_Final_Project_Summary_8.md` mục 10.
 
 ### Future Improvements (ngoài scope MVP)
 - [ ] Add logging to repositories
@@ -514,9 +531,9 @@ ExistsByJobIdAndCandidateIdAsync(jobId, candidateId)
 
 ## 📋 Checklist Hoàn Thành
 
-- [x] PersistenceModels (8 files)
-- [x] Mappers (6 files)
-- [x] Repositories (7 files)
+- [x] PersistenceModels (11 files)
+- [x] Mappers (8 files)
+- [x] Repositories Sqlite (10 files)
 - [x] DbContext + Factory
 - [x] Seeders (2 files)
 - [x] DependencyInjection registration

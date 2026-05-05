@@ -1,5 +1,7 @@
 # EnableVN Domain Summary
 
+> **Đồng bộ code (bản cập nhật):** Cây thư mục §2 và các chỗ nhắc `JobPostingPolicy` đã chỉnh cho khớp repo hiện tại (thư mục project: `Domain/`). Chi tiết tổng thể: `EnableVN_Final_Project_Summary_8.md`.
+
 ## 1. Mục tiêu của Domain Layer
 
 `EnableVN.Domain` là lõi nghiệp vụ của hệ thống EnableVN.
@@ -30,11 +32,12 @@ Domain **không phụ thuộc** vào database, API, UI, Entity Framework, SQLite
 ## 2. Cấu trúc Domain hiện tại
 
 ```txt
-EnableVN.Domain
+EnableVN.Domain   (thư mục: Domain/)
 │
 ├── Common
 │   ├── Entity.cs
 │   ├── AggregateRoot.cs
+│   ├── ValueObject.cs
 │   ├── IDomainEvent.cs
 │   └── DomainException.cs
 │
@@ -67,8 +70,6 @@ EnableVN.Domain
 │   ├── JobAccessibilityInfo.cs
 │   ├── WorkMode.cs
 │   ├── JobStatus.cs
-│   ├── Policies
-│   │   └── JobPostingPolicy.cs
 │   └── Events
 │       ├── JobPostedEvent.cs
 │       └── JobClosedEvent.cs
@@ -83,12 +84,27 @@ EnableVN.Domain
 │       ├── JobApplicationSubmittedEvent.cs
 │       └── JobApplicationStatusChangedEvent.cs
 │
-└── Catalogs
-    ├── DisabilityType.cs
-    ├── AssistiveDevice.cs
-    ├── JobCategory.cs
-    └── CatalogStatus.cs
+├── Catalogs
+│   ├── DisabilityType.cs
+│   ├── AssistiveDevice.cs
+│   ├── JobCategory.cs
+│   └── CatalogStatus.cs
+│
+├── Notifications
+│   ├── Notification.cs
+│   ├── NotificationType.cs
+│   └── NotificationStatus.cs
+│
+├── Reviews
+│   └── CompanyReview.cs
+│
+└── Reports
+    ├── ViolationReport.cs
+    ├── ReportStatus.cs
+    └── ReportTargetType.cs
 ```
+
+**Ghi chú (đồng bộ code):** Trước đây tài liệu có `Jobs/Policies/JobPostingPolicy.cs` — **không còn** trong repo; quy tắc đăng tin nằm trong `JobPost` và tầng Application/UseCase.
 
 ---
 
@@ -798,25 +814,15 @@ Enum xác định trạng thái của tin tuyển dụng.
 
 ---
 
-## 7.7. JobPostingPolicy
+## 7.7. JobPostingPolicy (lịch sử — không còn file riêng trong repo)
 
-### Mục đích
+**Trạng thái code hiện tại:** Không còn class `JobPostingPolicy` trong `Domain/Jobs/Policies/`. Các quy tắc đăng tin / publish / đóng tin được gói trong **`JobPost`** (và use case `JobUseCase` ở Application).
 
-Chứa quy tắc liên quan đến việc đăng tin tuyển dụng.
-
-### Rule hiện tại
+Nội dung dưới đây giữ như **mô tả rule nghiệp vụ** (vẫn hữu ích khi đọc `JobPost`):
 
 - Không được publish tin đã bị xóa
 - Tin phải có mô tả
 - Tin phải có yêu cầu công việc
-
-### Kỹ thuật áp dụng
-
-| Kỹ thuật | Ý nghĩa |
-|---|---|
-| Policy Pattern | Tách rule đăng tin ra khỏi Entity nếu rule phức tạp |
-| Single Responsibility | Entity không bị phình quá nhiều logic |
-| Reusability | Rule có thể dùng lại ở nhiều usecase |
 
 ---
 
@@ -1236,7 +1242,7 @@ Còn việc gửi email hoặc notification sẽ do Application Layer xử lý s
 Áp dụng cho:
 
 - ApplicationStatusPolicy
-- JobPostingPolicy
+- (Đăng tin) rule nằm trong `JobPost` — không còn file `JobPostingPolicy.cs` riêng
 
 Ý nghĩa:
 
@@ -1367,7 +1373,7 @@ Các phụ thuộc kỹ thuật sẽ nằm ở tầng Ports và Infrastructure.
 | Value Object Pattern | Email, SalaryRange, JobTitle | Bảo vệ rule dữ liệu |
 | Aggregate Root Pattern | User, JobPost, JobApplication | Kiểm soát thay đổi nghiệp vụ |
 | Factory Method Pattern | Create, Register, Submit | Tạo object hợp lệ |
-| Policy Pattern | ApplicationStatusPolicy, JobPostingPolicy | Tách rule nghiệp vụ |
+| Policy Pattern | ApplicationStatusPolicy; rule job trong `JobPost` | Tách rule nghiệp vụ |
 | Domain Event Pattern | Các file Event | Tách nghiệp vụ chính và nghiệp vụ phụ |
 | State Pattern nhẹ | JobStatus, ApplicationStatus | Quản lý trạng thái vòng đời |
 | Repository Pattern | Chưa nằm trong Domain, sẽ đặt ở Ports | Tách lưu trữ khỏi nghiệp vụ |
@@ -1389,19 +1395,23 @@ Các phụ thuộc kỹ thuật sẽ nằm ở tầng Ports và Infrastructure.
 | Làm việc từ xa | JobAccessibilityInfo.SupportsRemoteWork |
 | Thời gian linh hoạt | JobAccessibilityInfo.SupportsFlexibleTime |
 | Thiết bị chuyên biệt | JobAccessibilityInfo.ProvidesAssistiveDevices |
-| Thông báo tự động giai đoạn 2 | Domain Event |
+| Thông báo tự động giai đoạn 2 | Domain Event + **Notification** (entity `Notification`) |
 | Employer tìm ứng viên giai đoạn 2 | CandidateProfile.IsPublicProfile |
+| Đánh giá doanh nghiệp (Giai đoạn 2) | **CompanyReview** |
+| Báo cáo vi phạm (Giai đoạn 2) | **ViolationReport**, `ReportStatus`, `ReportTargetType` |
 
 ---
 
 # 14. Những phần cố ý chưa đưa vào Domain MVP
 
+> **Đồng bộ code:** Domain hiện **đã có** thêm Notifications / Reviews / Reports so với MVP ban đầu; bảng dưới vẫn giữ ý nghĩa “không nhét infrastructure vào Domain”.
+
 Các phần sau chưa nên đưa vào Domain giai đoạn đầu:
 
 | Tính năng | Lý do |
 |---|---|
-| AI bóc tách tin tuyển dụng | Thuộc phase 3, phụ thuộc API/LLM |
-| Gợi ý việc bằng AI | Cần nhiều dữ liệu trước |
+| AI bóc tách tin tuyển dụng | **Đồng bộ code:** đã có tích hợp ở Presentation (`/api/ai`) — **không** đặt logic LLM trong Domain; dòng này giữ để nhắc ranh giới Domain. |
+| Gợi ý việc bằng AI | Tương tự — orchestration ngoài Domain. |
 | Điều khiển bằng giọng nói | Thuộc Presentation/Application |
 | Chrome Extension | Là project riêng |
 | NGO verification | Cần quy trình vận hành/phối hợp bên thứ ba |

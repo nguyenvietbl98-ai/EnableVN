@@ -1,5 +1,7 @@
 # EnableVN_Ports_2.md
 
+> **Đồng bộ code:** Cây `Ports/Inbound`, `Ports/Outbound/Repositories`, `Ports/Models` và mục Jobs (bỏ `JobPostingPolicy`) đã cập nhật theo repo. Thư mục thực tế: `Ports/`. Tổng hợp: `EnableVN_Final_Project_Summary_8.md`.
+
 Tài liệu này dùng để gửi lại cho ChatGPT ở phiên làm việc mới nhằm tiếp tục phát triển dự án EnableVN mà không bị mất ngữ cảnh.
 
 ---
@@ -348,16 +350,17 @@ Thông tin khuyết tật mặc định nên ẩn.
 Các file đã có:
 
 ```txt
-EnableVN.Domain/Jobs/JobPost.cs
-EnableVN.Domain/Jobs/JobTitle.cs
-EnableVN.Domain/Jobs/SalaryRange.cs
-EnableVN.Domain/Jobs/JobAccessibilityInfo.cs
-EnableVN.Domain/Jobs/WorkMode.cs
-EnableVN.Domain/Jobs/JobStatus.cs
-EnableVN.Domain/Jobs/Policies/JobPostingPolicy.cs
-EnableVN.Domain/Jobs/Events/JobPostedEvent.cs
-EnableVN.Domain/Jobs/Events/JobClosedEvent.cs
+Domain/Jobs/JobPost.cs
+Domain/Jobs/JobTitle.cs
+Domain/Jobs/SalaryRange.cs
+Domain/Jobs/JobAccessibilityInfo.cs
+Domain/Jobs/WorkMode.cs
+Domain/Jobs/JobStatus.cs
+Domain/Jobs/Events/JobPostedEvent.cs
+Domain/Jobs/Events/JobClosedEvent.cs
 ```
+
+**Đồng bộ code:** Không còn `Domain/Jobs/Policies/JobPostingPolicy.cs` — rule đăng tin nằm trong `JobPost` + Application.
 
 ## JobPost
 
@@ -743,7 +746,7 @@ Outbound Ports cho Application gọi ra Infrastructure.
 Cấu trúc đề xuất:
 
 ```txt
-EnableVN.Ports
+Ports/   (project Ports)
 │
 ├── Inbound
 │   ├── IAuthUseCase.cs
@@ -752,7 +755,11 @@ EnableVN.Ports
 │   ├── ICandidateProfileUseCase.cs
 │   ├── IJobUseCase.cs
 │   ├── IJobApplicationUseCase.cs
-│   └── ICatalogUseCase.cs
+│   ├── ICatalogUseCase.cs
+│   ├── INotificationUseCase.cs
+│   ├── IEmployerCandidateSearchUseCase.cs
+│   ├── ICompanyReviewUseCase.cs
+│   └── IViolationReportUseCase.cs
 │
 ├── Outbound
 │   ├── Repositories
@@ -763,11 +770,18 @@ EnableVN.Ports
 │   │   ├── IJobApplicationRepository.cs
 │   │   ├── IDisabilityTypeRepository.cs
 │   │   ├── IAssistiveDeviceRepository.cs
-│   │   └── IJobCategoryRepository.cs
+│   │   ├── IJobCategoryRepository.cs
+│   │   ├── INotificationRepository.cs
+│   │   ├── IApplicationChatRepository.cs
+│   │   ├── ICompanyReviewRepository.cs
+│   │   ├── IViolationReportRepository.cs
+│   │   ├── InMemoryCompanyReviewRepository.cs
+│   │   └── InMemoryViolationReportRepository.cs
 │   │
 │   └── Services
 │       ├── ICurrentUserService.cs
 │       ├── IPasswordHasher.cs
+│       ├── ITokenService.cs
 │       ├── IEmailService.cs
 │       ├── IFileStorageService.cs
 │       └── IDomainEventDispatcher.cs
@@ -778,7 +792,11 @@ EnableVN.Ports
     ├── Candidates
     ├── Jobs
     ├── Applications
-    └── Catalogs
+    ├── Catalogs
+    ├── Notifications
+    ├── Reports
+    ├── Reviews
+    └── Chat
 ```
 
 ---
@@ -1632,6 +1650,9 @@ WithdrawAsync
 GetByJobIdAsync
 GetMyApplicationsAsync
 GetByIdAsync
+TryGetCurrentCandidateApplicationIdForJobAsync
+EnsureCurrentUserCanChatOnApplicationAsync
+GetChatThreadForCurrentUserAsync
 ```
 
 Rule cần xử lý trong Application khi Submit:
@@ -1692,6 +1713,19 @@ DeactivateJobCategoryAsync
 ActivateJobCategoryAsync
 GetActiveJobCategoriesAsync
 ```
+
+---
+
+## Các Inbound bổ sung (đồng bộ code — có trong `Ports/Inbound/`)
+
+| File | Vai trò ngắn gọn |
+|------|------------------|
+| `INotificationUseCase.cs` | Thông báo in-app (đọc/đếm/đánh dấu đã đọc). |
+| `IEmployerCandidateSearchUseCase.cs` | Employer tìm ứng viên public profile. |
+| `ICompanyReviewUseCase.cs` | Ứng viên đánh giá doanh nghiệp (rule trong Application). |
+| `IViolationReportUseCase.cs` | Gửi/xử lý báo cáo vi phạm (⚠️ **DI:** use case + repository cần đăng ký trong `Application` / `InfrastructureInMemory` — xem Summary 8 mục 10). |
+
+`IJobApplicationUseCase` đã mở rộng thêm method liên quan **chat** theo hồ sơ ứng tuyển (xem file trong repo).
 
 ---
 

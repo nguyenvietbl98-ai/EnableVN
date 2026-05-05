@@ -1,5 +1,7 @@
 # EnableVN_Presentation_Summary.md
 
+> **Đồng bộ code:** SQLite, Catalog admin, Seed, API `/api/ai/*`, SignalR chat, Notifications, v.v. **đã có** trong repo (`ENABLEVN/` + `Presentation.csproj`). Mục checklist “chưa làm” cũ đã sửa bên dưới. Chi tiết: `EnableVN_Final_Project_Summary_8.md`.
+
 Tài liệu này dùng để gửi lại cho ChatGPT ở phiên làm việc mới nhằm tiếp tục phát triển dự án EnableVN mà không bị mất ngữ cảnh.
 
 ---
@@ -27,23 +29,18 @@ EnableVN.InfrastructureSqlite
 EnableVN.Presentation
 ```
 
-Hiện tại đã làm:
+Hiện tại đã làm (đồng bộ code):
 
 ```txt
-EnableVN.Domain                 ✅
-EnableVN.Ports                  ✅
-EnableVN.Application            ✅
-EnableVN.InfrastructureInMemory ✅
-EnableVN.Presentation           🟡 Đang làm, đã có MVC nền tảng và các flow chính
+EnableVN.Domain                    ✅
+EnableVN.Ports                   ✅
+EnableVN.Application             ✅
+EnableVN.InfrastructureInMemory  ✅
+EnableVN.InfrastructureSqlite    ✅ (ghi đè repository core)
+EnableVN.Presentation (ENABLEVN/) ✅ MVC + Session + Catalog + Seed (Development) + SignalR + AI API
 ```
 
-Chưa làm:
-
-```txt
-EnableVN.InfrastructureSqlite   ❌
-Catalog Admin UI                ❌
-Seed Admin                      ❌
-```
+**Mở rộng so với bản thiết kế đầu:** Có **API** `AiRecruitmentController` (`/api/ai/*`) phục vụ trợ lý AI / JD — không mâu thuẫn kiến trúc (Controller → UseCase / Service), khác văn bản cũ “chưa làm API thuần”.
 
 ---
 
@@ -65,11 +62,12 @@ Presentation dùng:
 
 ```txt
 ASP.NET Core MVC
-Controller
-Razor View
-Session
+Controller + Razor View
+Session + HttpContextAccessor
 Bootstrap 5
-CSS custom trong wwwroot/css/site.css
+CSS: wwwroot/css/site.css, wwwroot/css/enablevn.css (và wwwroot/js tùy chỉnh: site.js, ai-*.js, application-chat.js, …)
+SignalR (chat ứng tuyển)
+API /api/ai/* (Gemini — AiRecruitmentController)
 ```
 
 ---
@@ -140,16 +138,28 @@ JobsController
 # 5. Cấu trúc Presentation đã thiết kế
 
 ```txt
-EnableVN.Presentation
+ENABLEVN/   (Presentation.csproj)
 │
-├── Controllers
+├── Controllers   (đồng bộ code — ví dụ; xem repo để đủ 19 file)
 │   ├── HomeController.cs
 │   ├── AuthController.cs
 │   ├── JobsController.cs
 │   ├── EmployerJobsController.cs
 │   ├── EmployerProfileController.cs
 │   ├── CandidateProfileController.cs
-│   └── JobApplicationsController.cs
+│   ├── JobApplicationsController.cs
+│   ├── CatalogController.cs
+│   ├── AdminDashboardController.cs
+│   ├── CandidateDashboardController.cs
+│   ├── EmployerDashboardController.cs
+│   ├── CandidatesController.cs
+│   ├── NotificationsController.cs
+│   ├── ViolationReportsController.cs
+│   ├── ApplicationChatController.cs
+│   ├── AiAssistantController.cs
+│   ├── AiRecruitmentController.cs
+│   ├── DiagnosticsController.cs
+│   └── CompanyReviewsController.cs
 │
 ├── Models
 │   └── ErrorViewModel.cs
@@ -1430,9 +1440,11 @@ Replace throw new ApplicationException(...) thành throw new UseCaseException(..
 
 # 21. Những phần còn thiếu trong Presentation
 
+> **Đồng bộ code:** `CatalogController` và các view dưới `Views/Catalog/` **đã có** trong repo; các mục dưới đây mang tính **lịch sử / tinh chỉnh UI** (đặt tên file view có thể khác, cần đối chiếu `ENABLEVN/Views/Catalog/`).
+
 ## 21.1. CatalogController cho Admin
 
-Chưa làm UI cho Admin quản lý:
+*(Lịch sử — trước đây ghi)* Chưa làm UI cho Admin quản lý:
 
 ```txt
 DisabilityType
@@ -1558,23 +1570,14 @@ MVP demo với Session là chấp nhận được.
 
 # 22. Bước tiếp theo khuyến nghị
 
-Nên làm tiếp theo thứ tự:
+**Lịch sử — các bước dưới đây đã được code bù:** SQLite, `CatalogController`, seed admin/catalog (Development), nhiều controller/view bổ sung.
+
+Gợi ý bước tiếp (phiên mới):
 
 ```txt
-1. Seed Admin cho InMemory
-2. CatalogController + Views cho Admin
-3. Dropdown DisabilityType trong CandidateProfile/Disability
-4. Edit/Delete Job UI
-5. Tạo file markdown tóm tắt Presentation
-6. Sau đó mới làm InfrastructureSqlite
-```
-
-Hiện tại bước 5 của danh sách này chính là file này.
-
-Sau file này, bước tiếp theo nên là:
-
-```txt
-Seed Admin + CatalogController
+1. Kiểm thử tay + accessibility
+2. Sửa đăng ký DI ViolationReport (nếu chưa)
+3. Bảo mật: secrets Gemini/SMTP, cập nhật package vulnerable
 ```
 
 ---
@@ -1593,15 +1596,7 @@ Dựa trên file EnableVN_Presentation_Summary.md này, hãy tiếp tục làm p
 - Có comment giải thích trong code
 ```
 
-Hoặc nếu muốn làm SQLite:
-
-```txt
-Dựa trên file EnableVN_Presentation_Summary.md này, hãy tiếp tục làm EnableVN.InfrastructureSqlite:
-- EF Core SQLite
-- Không để Domain phụ thuộc EF Core
-- Implement các repository từ Ports
-- Có PersistenceModel nếu cần
-```
+SQLite đã có — tham chiếu `SQLITE_IMPLEMENTATION_SUMMARY_6.md` (đã cập nhật số liệu) và `EnableVN_Final_Project_Summary_8.md`.
 
 ---
 
@@ -1628,23 +1623,21 @@ Employer applications by job
 Employer change application status
 ```
 
-Còn thiếu chính:
+**Đồng bộ code — có thể còn việc UI/nghiệp vụ nhỏ** (tùy roadmap, không còn “chưa có SQLite”):
 
 ```txt
-Admin seed
-Catalog admin UI
-Job edit/delete UI
-Dropdown catalog cho disability type
-SQLite infrastructure
+Hoàn thiện / tinh chỉnh UI (edit-delete job, dropdown, v.v. nếu cần)
+WCAG / kiểm thử tay toàn luồng
+Sửa DI ViolationReport (Summary 8 mục 10)
 ```
 
-Trạng thái tổng thể:
+Trạng thái tổng thể (đồng bộ code):
 
 ```txt
 Domain                 ✅
 Ports                  ✅
 Application            ✅
 InfrastructureInMemory ✅
-Presentation MVC       🟡 Gần đủ MVP, còn thiếu Admin/Catalog
-InfrastructureSqlite   ❌
+Presentation MVC       ✅
+InfrastructureSqlite   ✅
 ```

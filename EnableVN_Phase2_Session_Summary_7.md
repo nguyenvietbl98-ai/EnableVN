@@ -1,5 +1,7 @@
 # EnableVN — Tóm tắt phiên làm việc: Giai đoạn 1 → bắt đầu Giai đoạn 2
 
+> **Đồng bộ code (cập nhật):** Mục §1 (thứ tự ưu tiên), §2 và **§15** đã chỉnh để phản ánh repo hiện tại + `EnableVN_Final_Project_Summary_8.md`. Nội dung kỹ thuật phía trên (notification, migration, `Entity<Guid>`, …) vẫn giữ làm tài liệu tham chiếu.
+
 **Mục đích file:** Ghi lại những gì đã thống nhất, đã phân tích và đã hướng dẫn trong phiên làm việc này để các phiên sau hoặc agent khác có thể tiếp tục đúng trạng thái dự án.
 
 ---
@@ -11,15 +13,15 @@ Khi đọc repo EnableVN, không được lấy riêng một file `.md` cũ làm
 Thứ tự ưu tiên đúng:
 
 ```text
-Code hiện tại > Summary 6 > Summary 5 > Summary 4 > Summary 3 > Summary 2 > Summary 1
+Code hiện tại > Summary 8 > Summary 7 > Summary 6 > Summary 5 > Summary 4 > Summary 3 > Summary 2 > Summary 1
 ```
 
 Lý do:
 
 - Các file summary được tạo theo từng giai đoạn phát triển.
 - `EnableVN_Application_Summary_3.md` chỉ phản ánh trạng thái ở lần tạo thứ 3.
-- Những phần bản 3 ghi “chưa làm” có thể đã được bù ở bản 4, bản 5, bản 6 hoặc code hiện tại.
-- Bản 6 là bản cập nhật mới nhất liên quan đến SQLite.
+- Những phần bản cũ ghi “chưa làm” có thể đã được bù ở bản sau hoặc trong code.
+- **`EnableVN_Final_Project_Summary_8.md`** là bản tổng hợp trạng thái mới nhất (đã đồng bộ lại các summary 1–8).
 
 ---
 
@@ -40,7 +42,7 @@ Nội dung chính của bản 6:
 - Đã có `EnableVnDbContext`.
 - Đã có `EnableVnDbContextFactory`.
 - Đã có seed admin/catalog.
-- Đã có migration `InitialSqliteCreate`.
+- Đã có migration `InitialSqliteCreate` (và sau đó trong code: `AddNotifications`, `AddApplicationChatMessages` — xem `SQLITE_IMPLEMENTATION_SUMMARY_6.md` bản đã cập nhật).
 - Đã tạo database `enablevn.db`.
 - Build thành công theo nội dung summary.
 
@@ -851,35 +853,24 @@ Nghĩa là:
 
 ---
 
-## 15. Trạng thái hiện tại của phiên
+## 15. Trạng thái hiện tại (đồng bộ code — thay cho checklist phiên cũ)
 
-Hiện đang ở giai đoạn:
+Trong **code hiện tại** (xác nhận qua repo + `EnableVN_Final_Project_Summary_8.md`):
 
 ```text
-Đang triển khai Notification System của Giai đoạn 2.
+✅ Notification: Domain + Ports + Application + Sqlite + UI + migration AddNotifications
+✅ Employer search public candidate: UseCase + Controller/View
+✅ Company review: UseCase + InMemory repo (chưa Sqlite persistence)
+✅ Violation report: Domain + UseCase + UI — cần hoàn thiện DI (Summary 8 mục 10)
+✅ Chat theo hồ sơ: SignalR + Sqlite ApplicationChatMessages + migration
+✅ AI /api/ai + moderation (ngoài phạm vi phiên 7 ban đầu)
 ```
 
-Việc đã xử lý/hướng dẫn:
+Việc nên làm **tiếp theo** (ưu tiên thực tế):
 
 ```text
-1. Hiểu lại dự án với đủ 6 bản summary.
-2. Chấm Giai đoạn 1 khoảng 84%.
-3. Chọn thứ tự Giai đoạn 2.
-4. Bắt đầu Notification System.
-5. Fix hướng kế thừa Entity<Guid>.
-6. Fix lỗi public/internal cho Notification và DTO.
-7. Giải thích bảo mật khi đổi public.
-8. Chọn cách chạy migration trên Windows bằng Presentation.csproj.
-```
-
-Việc nên làm ngay tiếp theo:
-
-```text
-1. Hoàn tất SQLite Notification nếu chưa xong.
-2. Chạy dotnet build.
-3. Chạy migration AddNotifications bằng Presentation.csproj.
-4. Chạy database update.
-5. Test Candidate apply → Employer nhận notification.
-6. Test Employer đổi trạng thái → Candidate nhận notification.
-7. Sau đó mới sang Employer Search Candidate.
+1. Đăng ký DI: IViolationReportUseCase + IViolationReportRepository (Summary 8 mục 10).
+2. Kiểm thử tay toàn luồng (apply → notification, đổi trạng thái → notification, chat, admin report).
+3. (Tuỳ chọn) Sqlite persistence cho CompanyReview / ViolationReport nếu cần dữ liệu không mất khi restart.
+4. Bảo mật: secrets, NU1903, rotate key nếu cần.
 ```

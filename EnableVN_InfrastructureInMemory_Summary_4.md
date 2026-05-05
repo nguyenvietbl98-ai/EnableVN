@@ -1,5 +1,7 @@
 # EnableVN_InfrastructureInMemory_Summary.md
 
+> **Đồng bộ code:** SQLite + Presentation **đã có**; InMemory **vẫn** dùng cho password/token/email và các phần chưa có Sqlite. Hai repo InMemory review/violation: file trong `Ports/Outbound/Repositories/`. **Cần** `AddSingleton<IViolationReportRepository, InMemoryViolationReportRepository>()` — xem Summary 8.
+
 Tài liệu này dùng để gửi lại cho ChatGPT ở phiên làm việc mới nhằm tiếp tục phát triển dự án EnableVN mà không bị mất ngữ cảnh.
 
 ---
@@ -26,21 +28,18 @@ EnableVN.InfrastructureSqlite
 EnableVN.Presentation
 ```
 
-Hiện tại đã làm:
+Hiện tại đã làm (đồng bộ code):
 
 ```txt
-EnableVN.Domain                 ✅
-EnableVN.Ports                  ✅
-EnableVN.Application            ✅
-EnableVN.InfrastructureInMemory ✅
+EnableVN.Domain                    ✅
+EnableVN.Ports                   ✅
+EnableVN.Application             ✅
+EnableVN.InfrastructureInMemory  ✅
+EnableVN.InfrastructureSqlite    ✅
+EnableVN.Presentation (ENABLEVN/) ✅
 ```
 
-Chưa làm:
-
-```txt
-EnableVN.InfrastructureSqlite   ❌
-EnableVN.Presentation           ❌
-```
+**Lưu ý:** Dữ liệu SQLite ghi đè repository core; `ICompanyReviewRepository` vẫn dùng implementation InMemory (Singleton). `IViolationReportRepository` có class `InMemoryViolationReportRepository` nhưng **chưa đăng ký DI** trong `InfrastructureInMemory/DependencyInjection.cs` tại thời điểm đồng bộ tài liệu.
 
 ---
 
@@ -116,9 +115,9 @@ Nhưng InMemory không cần phụ thuộc Application.
 # 4. Cấu trúc project đã thiết kế
 
 ```txt
-EnableVN.InfrastructureInMemory
+InfrastructureInMemory/
 │
-├── Repositories
+├── Repositories/
 │   ├── InMemoryUserRepository.cs
 │   ├── InMemoryEmployerProfileRepository.cs
 │   ├── InMemoryCandidateProfileRepository.cs
@@ -126,16 +125,19 @@ EnableVN.InfrastructureInMemory
 │   ├── InMemoryJobApplicationRepository.cs
 │   ├── InMemoryDisabilityTypeRepository.cs
 │   ├── InMemoryAssistiveDeviceRepository.cs
-│   └── InMemoryJobCategoryRepository.cs
-│
-├── Services
+│   ├── InMemoryJobCategoryRepository.cs
 │   ├── InMemoryCurrentUserService.cs
 │   ├── SimplePasswordHasher.cs
 │   ├── SimpleTokenService.cs
 │   └── InMemoryDomainEventDispatcher.cs
 │
+├── Services/
+│   └── SmtpEmailService.cs
+│
 └── DependencyInjection.cs
 ```
+
+**Đồng bộ code:** `InMemoryCompanyReviewRepository.cs` và `InMemoryViolationReportRepository.cs` nằm trong project **`Ports/`** (`Ports/Outbound/Repositories/`), namespace `InfrastructureInMemory.Repositories`, nhưng vẫn được đăng ký từ `InfrastructureInMemory/DependencyInjection.cs` (trừ `IViolationReportRepository` — chưa đăng ký).
 
 ---
 
