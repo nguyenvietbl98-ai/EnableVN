@@ -61,6 +61,12 @@
                             </div>
                             <div class="d-flex flex-column align-items-lg-end gap-2">
                                 <span class="evn-tag">@StatusVi(item.Status)</span>
+                                <a class="btn btn-outline-secondary btn-sm"
+                                   asp-controller="Candidates"
+                                   asp-action="Details"
+                                   asp-route-id="@item.CandidateId">
+                                    Xem hồ sơ ứng viên
+                                </a>
                                 @if (item.Status != ApplicationStatus.Withdrawn)
                                 {
                                     <a class="btn btn-outline-primary btn-sm"

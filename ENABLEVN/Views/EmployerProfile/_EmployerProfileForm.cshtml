@@ -5,6 +5,46 @@
     <input id="employer-company-name" name="CompanyName" value="@Model.CompanyName" class="form-control" placeholder="VD: Công ty TNHH EnableVN" autocomplete="organization" />
 </div>
 
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <label class="form-label">Logo</label>
+        <input type="file" name="logoFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+        <input type="hidden" name="LogoUrl" value="@Model.LogoUrl" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="employer-email">Email liên hệ</label>
+        <input id="employer-email" name="ContactEmail" value="@Model.ContactEmail" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="employer-phone">Số điện thoại</label>
+        <input id="employer-phone" name="PhoneNumber" value="@Model.PhoneNumber" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="employer-address">Địa chỉ</label>
+        <input id="employer-address" name="Address" value="@Model.Address" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" for="employer-size">Quy mô công ty</label>
+        <input id="employer-size" name="CompanySize" value="@Model.CompanySize" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" for="employer-industry">Lĩnh vực hoạt động</label>
+        <input id="employer-industry" name="Industry" value="@Model.Industry" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" for="employer-taxcode">Mã số thuế</label>
+        <input id="employer-taxcode" name="TaxCode" value="@Model.TaxCode" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="employer-contact-name">Người liên hệ tuyển dụng</label>
+        <input id="employer-contact-name" name="RecruiterContactName" value="@Model.RecruiterContactName" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="employer-contact-title">Chức vụ người liên hệ</label>
+        <input id="employer-contact-title" name="RecruiterContactTitle" value="@Model.RecruiterContactTitle" class="form-control" />
+    </div>
+</div>
+
 <div class="mb-3">
     <label class="form-label" for="employer-website">Website</label>
     <input id="employer-website" name="WebsiteUrl" value="@Model.WebsiteUrl" class="form-control" placeholder="https://example.com" type="url" />
@@ -13,6 +53,16 @@
 <div class="mb-4">
     <label class="form-label" for="employer-description">Mô tả doanh nghiệp</label>
     <textarea id="employer-description" name="Description" class="form-control" rows="4">@Model.Description</textarea>
+</div>
+
+<div class="mb-3">
+    <label class="form-label" for="employer-benefits">Phúc lợi</label>
+    <textarea id="employer-benefits" name="Benefits" class="form-control" rows="3">@Model.Benefits</textarea>
+</div>
+
+<div class="mb-3">
+    <label class="form-label" for="employer-culture">Văn hóa công ty</label>
+    <textarea id="employer-culture" name="Culture" class="form-control" rows="3">@Model.Culture</textarea>
 </div>
 
 <hr class="my-4" />

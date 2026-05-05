@@ -17,19 +17,34 @@
                         Cập nhật thông tin cá nhân và CV của bạn.
                     </p>
 
-                    <form asp-action="Edit" method="post">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <div class="mb-3">
                             <label asp-for="FullName" class="form-label">Họ và tên</label>
                             <input asp-for="FullName" class="form-control" />
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="CvUrl" class="form-label">Đường dẫn CV</label>
-                            <input asp-for="CvUrl" class="form-control" />
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label">Ảnh đại diện</label><input type="file" name="avatarFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" /><input type="hidden" asp-for="AvatarUrl" /></div>
+                            <div class="col-md-6"><label asp-for="DateOfBirth" class="form-label">Ngày sinh</label><input asp-for="DateOfBirth" type="date" class="form-control" /></div>
+                            <div class="col-md-6"><label asp-for="Gender" class="form-label">Giới tính</label><input asp-for="Gender" class="form-control" /></div>
+                            <div class="col-md-6"><label asp-for="PhoneNumber" class="form-label">Số điện thoại</label><input asp-for="PhoneNumber" class="form-control" /></div>
+                            <div class="col-md-6"><label asp-for="ContactEmail" class="form-label">Email liên hệ</label><input asp-for="ContactEmail" class="form-control" /></div>
+                            <div class="col-md-6"><label asp-for="Address" class="form-label">Địa chỉ / tỉnh thành</label><input asp-for="Address" class="form-control" /></div>
+                            <div class="col-md-6"><label asp-for="DesiredPosition" class="form-label">Vị trí mong muốn</label><input asp-for="DesiredPosition" class="form-control" /></div>
+                            <div class="col-md-6"><label asp-for="DesiredSalary" class="form-label">Mức lương mong muốn</label><input asp-for="DesiredSalary" type="number" class="form-control" /></div>
+                            <div class="col-12"><label asp-for="ExperienceSummary" class="form-label">Kinh nghiệm</label><textarea asp-for="ExperienceSummary" class="form-control" rows="3"></textarea></div>
+                            <div class="col-12"><label asp-for="Skills" class="form-label">Kỹ năng</label><textarea asp-for="Skills" class="form-control" rows="3"></textarea></div>
+                            <div class="col-12"><label asp-for="Education" class="form-label">Học vấn</label><textarea asp-for="Education" class="form-control" rows="3"></textarea></div>
+                            <div class="col-12"><label asp-for="Certifications" class="form-label">Chứng chỉ</label><textarea asp-for="Certifications" class="form-control" rows="3"></textarea></div>
+                            <div class="col-md-6"><label asp-for="PortfolioUrl" class="form-label">Portfolio / GitHub / LinkedIn</label><input asp-for="PortfolioUrl" class="form-control" /></div>
+                            <div class="col-md-6"><label class="form-label">CV upload</label><input type="file" name="cvFile" accept=".pdf,.doc,.docx" class="form-control" /><input type="hidden" asp-for="CvUrl" /></div>
+                            <div class="col-md-6"><label asp-for="JobSeekingStatus" class="form-label">Trạng thái tìm việc</label><input asp-for="JobSeekingStatus" class="form-control" /></div>
+                            <div class="col-md-6"><label asp-for="DesiredWorkMode" class="form-label">Hình thức làm việc mong muốn</label><input asp-for="DesiredWorkMode" class="form-control" /></div>
+                            <div class="col-12"><label asp-for="AccessibilityNeeds" class="form-label">Nhu cầu hỗ trợ tiếp cận</label><textarea asp-for="AccessibilityNeeds" class="form-control" rows="3"></textarea></div>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-4 mt-3">
                             <label asp-for="Bio" class="form-label">Giới thiệu bản thân</label>
                             <textarea asp-for="Bio" class="form-control" rows="5"></textarea>
                         </div>

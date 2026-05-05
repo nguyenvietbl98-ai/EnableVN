@@ -42,5 +42,25 @@ namespace Ports.Inbound
             Guid employerProfileId,
             CancellationToken cancellationToken = default
         );
+
+        Task<IReadOnlyList<EmployerProfileReviewItemResult>> GetPendingProfilesAsync(
+            CancellationToken cancellationToken = default
+        );
+
+        Task<IReadOnlyList<EmployerProfileReviewItemResult>> GetProfilesForReviewAsync(
+            CancellationToken cancellationToken = default
+        );
+
+        Task ApproveProfileAsync(
+            Guid employerProfileId,
+            string? note,
+            CancellationToken cancellationToken = default
+        );
+
+        Task RejectProfileAsync(
+            Guid employerProfileId,
+            string? note,
+            CancellationToken cancellationToken = default
+        );
     }
 }

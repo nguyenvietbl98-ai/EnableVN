@@ -1,0 +1,66 @@
+﻿@using System.Globalization
+@model Presentation.ViewModels.ApplicationChat.ApplicationChatInboxViewModel
+
+@{
+    ViewData["Title"] = "Tin nhắn ứng tuyển";
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+            <div>
+                <span class="evn-badge mb-2"><i class="bi bi-chat-left-text" aria-hidden="true"></i> Inbox</span>
+                <h1 class="h4 fw-bold mb-0">Tin nhắn ứng tuyển</h1>
+            </div>
+        </div>
+
+        @if (!Model.Conversations.Any())
+        {
+            <div class="evn-card p-4">
+                <p class="mb-0 evn-muted">Bạn chưa có đoạn chat nào.</p>
+            </div>
+        }
+        else
+        {
+            <div class="evn-chat-inbox-list">
+                @foreach (var convo in Model.Conversations)
+                {
+                    var localTime = convo.LastActivityUtc.ToLocalTime();
+                    var dateLabel = localTime.Date == DateTime.Now.Date
+                        ? localTime.ToString("HH:mm", CultureInfo.GetCultureInfo("vi-VN"))
+                        : localTime.ToString("dd/MM", CultureInfo.GetCultureInfo("vi-VN"));
+                    var statusClass = convo.Status switch
+                    {
+                        Domain.Applications.ApplicationStatus.Interview => "evn-chat-inbox-item__status evn-chat-inbox-item__status--interview",
+                        Domain.Applications.ApplicationStatus.Accepted => "evn-chat-inbox-item__status evn-chat-inbox-item__status--accepted",
+                        Domain.Applications.ApplicationStatus.Rejected => "evn-chat-inbox-item__status evn-chat-inbox-item__status--rejected",
+                        _ => "evn-chat-inbox-item__status"
+                    };
+
+                    <a class="evn-chat-inbox-item"
+                       asp-controller="ApplicationChat"
+                       asp-action="Thread"
+                       asp-route-applicationId="@convo.ApplicationId">
+                        <div class="evn-chat-inbox-item__avatar" aria-hidden="true">
+                            @convo.JobTitle.Substring(0, 1).ToUpperInvariant()
+                        </div>
+                        <div class="evn-chat-inbox-item__body">
+                            <div class="evn-chat-inbox-item__head">
+                                <h2 class="evn-chat-inbox-item__title">@convo.JobTitle</h2>
+                                <time class="evn-chat-inbox-item__time" datetime="@convo.LastActivityUtc.ToString("o")">@dateLabel</time>
+                            </div>
+                            <p class="evn-chat-inbox-item__preview">@convo.LastMessagePreview</p>
+                            <div class="evn-chat-inbox-item__meta">
+                                <span class="@statusClass">@convo.Status</span>
+                                @if (!convo.HasMessages)
+                                {
+                                    <span class="evn-chat-inbox-item__hint">Chưa bắt đầu chat</span>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -15,6 +15,10 @@
                     <h1 class="evn-page-head__title mb-2">@Model.FullName</h1>
                     <p class="evn-muted mb-0">Quản lý hồ sơ, CV và quyền riêng tư thông tin hỗ trợ cá nhân.</p>
                 </div>
+                @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
+                {
+                    <img src="@Model.AvatarUrl" alt="Ảnh đại diện" class="rounded-circle" style="width:72px;height:72px;object-fit:cover;" />
+                }
                 <div class="d-flex flex-wrap gap-2">
                     <a class="btn btn-primary evn-btn-primary" asp-action="Edit">
                         <i class="bi bi-pencil-square me-1" aria-hidden="true"></i> Cập nhật hồ sơ
@@ -33,6 +37,20 @@
                     <dl class="row mb-0">
                         <dt class="col-sm-4 evn-muted small">Họ tên</dt>
                         <dd class="col-sm-8 fw-semibold">@Model.FullName</dd>
+                        <dt class="col-sm-4 evn-muted small">Ngày sinh</dt>
+                        <dd class="col-sm-8">@(Model.DateOfBirth?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</dd>
+                        <dt class="col-sm-4 evn-muted small">Giới tính</dt>
+                        <dd class="col-sm-8">@(Model.Gender ?? "Chưa cập nhật")</dd>
+                        <dt class="col-sm-4 evn-muted small">Điện thoại</dt>
+                        <dd class="col-sm-8">@(Model.PhoneNumber ?? "Chưa cập nhật")</dd>
+                        <dt class="col-sm-4 evn-muted small">Email liên hệ</dt>
+                        <dd class="col-sm-8">@(Model.ContactEmail ?? "Chưa cập nhật")</dd>
+                        <dt class="col-sm-4 evn-muted small">Địa chỉ</dt>
+                        <dd class="col-sm-8">@(Model.Address ?? "Chưa cập nhật")</dd>
+                        <dt class="col-sm-4 evn-muted small">Vị trí mong muốn</dt>
+                        <dd class="col-sm-8">@(Model.DesiredPosition ?? "Chưa cập nhật")</dd>
+                        <dt class="col-sm-4 evn-muted small">Lương mong muốn</dt>
+                        <dd class="col-sm-8">@(Model.DesiredSalary?.ToString("N0") ?? "Chưa cập nhật")</dd>
                         <dt class="col-sm-4 evn-muted small">CV</dt>
                         <dd class="col-sm-8">
                             @if (!string.IsNullOrWhiteSpace(Model.CvUrl))
@@ -48,6 +66,22 @@
                         <dd class="col-sm-8">
                             @(string.IsNullOrWhiteSpace(Model.Bio) ? "Chưa có giới thiệu." : Model.Bio)
                         </dd>
+                        <dt class="col-sm-4 evn-muted small">Kinh nghiệm</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.ExperienceSummary) ? "Chưa cập nhật" : Model.ExperienceSummary)</dd>
+                        <dt class="col-sm-4 evn-muted small">Kỹ năng</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Skills) ? "Chưa cập nhật" : Model.Skills)</dd>
+                        <dt class="col-sm-4 evn-muted small">Học vấn</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Education) ? "Chưa cập nhật" : Model.Education)</dd>
+                        <dt class="col-sm-4 evn-muted small">Chứng chỉ</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Certifications) ? "Chưa cập nhật" : Model.Certifications)</dd>
+                        <dt class="col-sm-4 evn-muted small">Portfolio</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.PortfolioUrl) ? "Chưa cập nhật" : Model.PortfolioUrl)</dd>
+                        <dt class="col-sm-4 evn-muted small">Trạng thái tìm việc</dt>
+                        <dd class="col-sm-8">@(Model.JobSeekingStatus ?? "Chưa cập nhật")</dd>
+                        <dt class="col-sm-4 evn-muted small">Hình thức làm việc</dt>
+                        <dd class="col-sm-8">@(Model.DesiredWorkMode ?? "Chưa cập nhật")</dd>
+                        <dt class="col-sm-4 evn-muted small">Nhu cầu tiếp cận</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.AccessibilityNeeds) ? "Chưa cập nhật" : Model.AccessibilityNeeds)</dd>
                     </dl>
                 </div>
             </div>

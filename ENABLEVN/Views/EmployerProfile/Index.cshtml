@@ -3,6 +3,18 @@
 @{
     ViewData["Title"] = "Hồ sơ doanh nghiệp";
     var crumb = new BreadcrumbModel { MiddleText = "Dashboard", MiddleController = "EmployerDashboard", MiddleAction = "Index", CurrentText = "Hồ sơ doanh nghiệp" };
+    var verificationBadgeClass = Model.VerificationStatus switch
+    {
+        "Approved" => "bg-success-subtle text-success",
+        "Rejected" => "bg-danger-subtle text-danger",
+        _ => "bg-warning-subtle text-warning-emphasis"
+    };
+    var verificationText = Model.VerificationStatus switch
+    {
+        "Approved" => "Đã duyệt",
+        "Rejected" => "Từ chối",
+        _ => "Chưa duyệt"
+    };
 }
 
 <div class="evn-page">
@@ -15,6 +27,13 @@
                     <h1 class="evn-page-head__title mb-2">@Model.CompanyName</h1>
                     <p class="evn-page-head__lead mb-0">
                         Hồ sơ doanh nghiệp và thông tin môi trường làm việc hòa nhập.
+                    </p>
+                    <p class="small mt-2 mb-0">
+                        Trạng thái kiểm duyệt: <span class="badge @verificationBadgeClass">@verificationText</span>
+                        @if (!string.IsNullOrWhiteSpace(Model.VerificationNote))
+                        {
+                            <span>— @Model.VerificationNote</span>
+                        }
                     </p>
                 </div>
 
@@ -58,6 +77,15 @@
                                     : Model.Description)
                             </p>
                         </div>
+                        <div><div class="evn-muted small">Email liên hệ</div><div>@(Model.ContactEmail ?? "Chưa cập nhật")</div></div>
+                        <div><div class="evn-muted small">Số điện thoại</div><div>@(Model.PhoneNumber ?? "Chưa cập nhật")</div></div>
+                        <div><div class="evn-muted small">Địa chỉ</div><div>@(Model.Address ?? "Chưa cập nhật")</div></div>
+                        <div><div class="evn-muted small">Quy mô</div><div>@(Model.CompanySize ?? "Chưa cập nhật")</div></div>
+                        <div><div class="evn-muted small">Lĩnh vực</div><div>@(Model.Industry ?? "Chưa cập nhật")</div></div>
+                        <div><div class="evn-muted small">Mã số thuế</div><div>@(Model.TaxCode ?? "Chưa cập nhật")</div></div>
+                        <div><div class="evn-muted small">Liên hệ tuyển dụng</div><div>@(Model.RecruiterContactName ?? "Chưa cập nhật") - @(Model.RecruiterContactTitle ?? "")</div></div>
+                        <div><div class="evn-muted small">Phúc lợi</div><div>@(Model.Benefits ?? "Chưa cập nhật")</div></div>
+                        <div><div class="evn-muted small">Văn hóa</div><div>@(Model.Culture ?? "Chưa cập nhật")</div></div>
                     </div>
                 </div>
             </div>

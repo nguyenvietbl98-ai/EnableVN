@@ -32,5 +32,60 @@
                 <a class="btn btn-outline-secondary" asp-controller="Notifications" asp-action="Index">Thông báo</a>
             </div>
         </div>
+
+        <div class="evn-card p-4 mt-4">
+            <h2 class="h6 fw-bold mb-3">Duyệt hồ sơ doanh nghiệp</h2>
+            @if (!Model.EmployerProfilesForReview.Any())
+            {
+                <p class="evn-muted mb-0">Chưa có hồ sơ doanh nghiệp nào.</p>
+            }
+            else
+            {
+                <div class="d-grid gap-3">
+                    @foreach (var item in Model.EmployerProfilesForReview)
+                    {
+                        var badgeClass = item.VerificationStatus switch
+                        {
+                            "Approved" => "bg-success-subtle text-success",
+                            "Rejected" => "bg-danger-subtle text-danger",
+                            _ => "bg-warning-subtle text-warning-emphasis"
+                        };
+                        var badgeText = item.VerificationStatus switch
+                        {
+                            "Approved" => "Đã duyệt",
+                            "Rejected" => "Từ chối",
+                            _ => "Chưa duyệt"
+                        };
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="fw-semibold">@item.CompanyName <span class="badge @badgeClass ms-2">@badgeText</span></div>
+                                    <div class="small evn-muted">@item.Industry</div>
+                                    <div class="small evn-muted">@item.ContactEmail · @item.PhoneNumber</div>
+                                    @if (!string.IsNullOrWhiteSpace(item.VerificationNote))
+                                    {
+                                        <div class="small mt-1">@item.VerificationNote</div>
+                                    }
+                                </div>
+                                <a class="btn btn-outline-secondary btn-sm" asp-controller="EmployerProfile" asp-action="Details" asp-route-id="@item.Id">Xem</a>
+                            </div>
+                            <div class="d-flex gap-2 mt-3">
+                                <form asp-action="ApproveEmployerProfile" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button class="btn btn-sm btn-primary evn-btn-primary" type="submit">Duyệt</button>
+                                </form>
+                                <form asp-action="RejectEmployerProfile" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <input type="text" name="note" class="form-control form-control-sm d-inline-block" style="width: 260px;" placeholder="Lý do từ chối (khuyến nghị)" />
+                                    <button class="btn btn-sm btn-outline-danger ms-2" type="submit">Từ chối</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
     </div>
 </div>

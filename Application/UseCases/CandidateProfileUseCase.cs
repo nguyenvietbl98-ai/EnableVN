@@ -54,6 +54,27 @@ namespace Application.UseCases
                 command.Bio,
                 command.CvUrl
             );
+            profile.UpdateBasicInfo(
+                command.FullName,
+                command.AvatarUrl,
+                command.DateOfBirth,
+                command.Gender,
+                command.PhoneNumber,
+                command.ContactEmail,
+                command.Address,
+                command.DesiredPosition,
+                command.DesiredSalary,
+                command.ExperienceSummary,
+                command.Skills,
+                command.Education,
+                command.Certifications,
+                command.PortfolioUrl,
+                command.Bio,
+                command.CvUrl,
+                command.JobSeekingStatus,
+                command.DesiredWorkMode,
+                command.AccessibilityNeeds
+            );
 
             await _candidateProfileRepository.AddAsync(profile, cancellationToken);
 
@@ -75,8 +96,24 @@ namespace Application.UseCases
 
             profile.UpdateBasicInfo(
                 command.FullName,
+                command.AvatarUrl,
+                command.DateOfBirth,
+                command.Gender,
+                command.PhoneNumber,
+                command.ContactEmail,
+                command.Address,
+                command.DesiredPosition,
+                command.DesiredSalary,
+                command.ExperienceSummary,
+                command.Skills,
+                command.Education,
+                command.Certifications,
+                command.PortfolioUrl,
                 command.Bio,
-                command.CvUrl
+                command.CvUrl,
+                command.JobSeekingStatus,
+                command.DesiredWorkMode,
+                command.AccessibilityNeeds
             );
 
             await _candidateProfileRepository.UpdateAsync(profile, cancellationToken);

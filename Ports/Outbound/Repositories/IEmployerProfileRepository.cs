@@ -22,6 +22,8 @@ namespace Ports.Outbound.Repositories
         /// </summary>
         Task<EmployerProfile?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
+        Task<IReadOnlyList<EmployerProfile>> GetAllAsync(CancellationToken cancellationToken = default);
+
         /// <summary>
         /// Kiểm tra User đã có EmployerProfile hay chưa.
         /// Một Employer thường chỉ nên có một hồ sơ doanh nghiệp chính.

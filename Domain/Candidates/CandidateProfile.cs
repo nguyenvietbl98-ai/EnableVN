@@ -10,8 +10,24 @@ namespace Domain.Candidates
     {
         public Guid UserId { get; private set; }
         public FullName FullName { get; private set; }
+        public string? AvatarUrl { get; private set; }
+        public DateTime? DateOfBirth { get; private set; }
+        public string? Gender { get; private set; }
+        public string? PhoneNumber { get; private set; }
+        public string? ContactEmail { get; private set; }
+        public string? Address { get; private set; }
+        public string? DesiredPosition { get; private set; }
+        public decimal? DesiredSalary { get; private set; }
+        public string? ExperienceSummary { get; private set; }
+        public string? Skills { get; private set; }
+        public string? Education { get; private set; }
+        public string? Certifications { get; private set; }
+        public string? PortfolioUrl { get; private set; }
         public string? Bio { get; private set; }
         public string? CvUrl { get; private set; }
+        public string? JobSeekingStatus { get; private set; }
+        public string? DesiredWorkMode { get; private set; }
+        public string? AccessibilityNeeds { get; private set; }
         public DisabilityInfo DisabilityInfo { get; private set; }
         public bool IsPublicProfile { get; private set; }
 
@@ -19,16 +35,48 @@ namespace Domain.Candidates
             Guid id,
             Guid userId,
             FullName fullName,
+            string? avatarUrl,
+            DateTime? dateOfBirth,
+            string? gender,
+            string? phoneNumber,
+            string? contactEmail,
+            string? address,
+            string? desiredPosition,
+            decimal? desiredSalary,
+            string? experienceSummary,
+            string? skills,
+            string? education,
+            string? certifications,
+            string? portfolioUrl,
             string? bio,
             string? cvUrl,
+            string? jobSeekingStatus,
+            string? desiredWorkMode,
+            string? accessibilityNeeds,
             DisabilityInfo disabilityInfo,
             bool isPublicProfile
         ) : base(id)
         {
             UserId = userId;
             FullName = fullName;
+            AvatarUrl = avatarUrl;
+            DateOfBirth = dateOfBirth;
+            Gender = gender;
+            PhoneNumber = phoneNumber;
+            ContactEmail = contactEmail;
+            Address = address;
+            DesiredPosition = desiredPosition;
+            DesiredSalary = desiredSalary;
+            ExperienceSummary = experienceSummary;
+            Skills = skills;
+            Education = education;
+            Certifications = certifications;
+            PortfolioUrl = portfolioUrl;
             Bio = bio;
             CvUrl = cvUrl;
+            JobSeekingStatus = jobSeekingStatus;
+            DesiredWorkMode = desiredWorkMode;
+            AccessibilityNeeds = accessibilityNeeds;
             DisabilityInfo = disabilityInfo;
             IsPublicProfile = isPublicProfile;
         }
@@ -47,8 +95,24 @@ namespace Domain.Candidates
                 Guid.NewGuid(),
                 userId,
                 FullName.Create(fullName),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 bio,
                 cvUrl,
+                null,
+                null,
+                null,
                 DisabilityInfo.Hidden(),
                 false
             );
@@ -62,13 +126,45 @@ namespace Domain.Candidates
 
         public void UpdateBasicInfo(
             string fullName,
+            string? avatarUrl,
+            DateTime? dateOfBirth,
+            string? gender,
+            string? phoneNumber,
+            string? contactEmail,
+            string? address,
+            string? desiredPosition,
+            decimal? desiredSalary,
+            string? experienceSummary,
+            string? skills,
+            string? education,
+            string? certifications,
+            string? portfolioUrl,
             string? bio,
-            string? cvUrl
+            string? cvUrl,
+            string? jobSeekingStatus,
+            string? desiredWorkMode,
+            string? accessibilityNeeds
         )
         {
             FullName = FullName.Create(fullName);
+            AvatarUrl = avatarUrl;
+            DateOfBirth = dateOfBirth;
+            Gender = gender;
+            PhoneNumber = phoneNumber;
+            ContactEmail = contactEmail;
+            Address = address;
+            DesiredPosition = desiredPosition;
+            DesiredSalary = desiredSalary;
+            ExperienceSummary = experienceSummary;
+            Skills = skills;
+            Education = education;
+            Certifications = certifications;
+            PortfolioUrl = portfolioUrl;
             Bio = bio;
             CvUrl = cvUrl;
+            JobSeekingStatus = jobSeekingStatus;
+            DesiredWorkMode = desiredWorkMode;
+            AccessibilityNeeds = accessibilityNeeds;
         }
 
         public void UpdateDisabilityInfo(DisabilityInfo disabilityInfo)
@@ -100,8 +196,24 @@ namespace Domain.Candidates
             Guid id,
             Guid userId,
             string fullName,
+            string? avatarUrl,
+            DateTime? dateOfBirth,
+            string? gender,
+            string? phoneNumber,
+            string? contactEmail,
+            string? address,
+            string? desiredPosition,
+            decimal? desiredSalary,
+            string? experienceSummary,
+            string? skills,
+            string? education,
+            string? certifications,
+            string? portfolioUrl,
             string? bio,
             string? cvUrl,
+            string? jobSeekingStatus,
+            string? desiredWorkMode,
+            string? accessibilityNeeds,
             DisabilityInfo disabilityInfo,
             bool isPublicProfile
         )
@@ -116,8 +228,24 @@ namespace Domain.Candidates
                 id,
                 userId,
                 FullName.Create(fullName),
+                avatarUrl,
+                dateOfBirth,
+                gender,
+                phoneNumber,
+                contactEmail,
+                address,
+                desiredPosition,
+                desiredSalary,
+                experienceSummary,
+                skills,
+                education,
+                certifications,
+                portfolioUrl,
                 bio,
                 cvUrl,
+                jobSeekingStatus,
+                desiredWorkMode,
+                accessibilityNeeds,
                 disabilityInfo,
                 isPublicProfile
             );

@@ -1,150 +1,160 @@
 (function () {
-  "use strict";
+    "use strict";
 
-  function pad(n) {
-    return n < 10 ? "0" + n : String(n);
-  }
-
-  function formatLocal(iso) {
-    if (!iso) return "";
-    var d = new Date(iso);
-    if (isNaN(d.getTime())) return "";
-    return (
-      pad(d.getDate()) +
-      "/" +
-      pad(d.getMonth() + 1) +
-      " " +
-      pad(d.getHours()) +
-      ":" +
-      pad(d.getMinutes())
-    );
-  }
-
-  function escapeHtml(s) {
-    var d = document.createElement("div");
-    d.textContent = s;
-    return d.innerHTML;
-  }
-
-  window.evnApplicationChatInit = function () {
-    var root = document.querySelector("[data-evn-app-chat-root]");
-    if (!root) return;
-
-    var applicationId = root.getAttribute("data-application-id");
-    var log = document.getElementById("evn-app-chat-log");
-    var input = document.getElementById("evn-app-chat-input");
-    var sendBtn = document.getElementById("evn-app-chat-send");
-    var statusEl = document.getElementById("evn-app-chat-status");
-    if (!applicationId || !log || !input || !sendBtn) return;
-
-    function setStatus(t) {
-      if (statusEl) statusEl.textContent = t || "";
+    function escapeHtml(s) {
+        var d = document.createElement("div");
+        d.textContent = s || "";
+        return d.innerHTML;
     }
 
-    function appendBubble(m, currentUserId) {
-      var mine = m.senderUserId === currentUserId;
-      var wrap = document.createElement("div");
-      wrap.className =
-        "evn-app-chat__row " + (mine ? "evn-app-chat__row--mine" : "evn-app-chat__row--other");
-      var warn =
-        m.moderationOutcome === "warn" && m.moderationReasonVi
-          ? '<div class="evn-app-chat__warn small">' +
-            escapeHtml(m.moderationReasonVi) +
-            "</div>"
-          : "";
-      wrap.innerHTML =
-        '<div class="evn-app-chat__bubble">' +
-        warn +
-        '<div class="evn-app-chat__text">' +
-        escapeHtml(m.body || "") +
-        '</div><div class="evn-app-chat__meta">' +
-        escapeHtml(formatLocal(m.sentAtUtc)) +
-        "</div></div>";
-      log.appendChild(wrap);
-      log.scrollTop = log.scrollHeight;
+    function formatLocal(iso) {
+        var d = new Date(iso);
+        return isNaN(d.getTime()) ? "" : d.toLocaleString("vi-VN");
     }
 
-    var connection = new signalR.HubConnectionBuilder()
-      .withUrl("/hubs/recruiter-chat")
-      .withAutomaticReconnect()
-      .build();
+    window.evnApplicationChatInit = function () {
+        var root = document.querySelector("[data-evn-app-chat-root]");
+        if (!root) return;
 
-    var currentUserId = null;
+        var applicationId = root.dataset.applicationId;
+        var log = document.getElementById("evn-app-chat-log");
+        var input = document.getElementById("evn-app-chat-input");
+        var sendBtn = document.getElementById("evn-app-chat-send");
+        var statusEl = document.getElementById("evn-app-chat-status");
 
-    connection.on("ReceiveMessage", function (payload) {
-      appendBubble(payload, currentUserId);
-    });
+        var currentUserId = null;
+        var ready = false;
+        var sendBlockedByModeration = false;
 
-    connection.on("MessageBlocked", function (payload) {
-      var r = (payload && payload.reasonVi) || "Tin nhắn không được gửi.";
-      setStatus(r);
-    });
-
-    connection.onreconnecting(function () {
-      setStatus("Đang kết nối lại…");
-    });
-
-    connection.onreconnected(function () {
-      setStatus("Đã kết nối lại.");
-      connection.invoke("JoinThread", applicationId).catch(function () {});
-    });
-
-    function wireSend() {
-      sendBtn.addEventListener("click", function () {
-        var t = (input.value || "").trim();
-        if (!t) return;
-        setStatus("");
-        connection
-          .invoke("SendMessage", applicationId, t)
-          .then(function () {
-            input.value = "";
-          })
-          .catch(function (err) {
-            setStatus(
-              (err && (err.message || err.toString())) || "Không gửi được tin nhắn."
-            );
-          });
-      });
-    }
-
-    fetch(
-      "/ApplicationChat/History?applicationId=" + encodeURIComponent(applicationId),
-      { credentials: "same-origin" }
-    )
-      .then(function (res) {
-        return res.json().then(function (data) {
-          return { ok: res.ok, data: data };
-        });
-      })
-      .then(function (x) {
-        if (!x.ok) {
-          setStatus((x.data && x.data.error) || "Không tải được lịch sử chat.");
-          return;
+        function setReady(v) {
+            ready = v;
+            sendBtn.disabled = !v;
+            input.disabled = !v;
         }
-        currentUserId = x.data.currentUserId;
-        log.innerHTML = "";
-        (x.data.messages || []).forEach(function (m) {
-          appendBubble(m, currentUserId);
-        });
-      })
-      .catch(function () {
-        setStatus("Lỗi mạng khi tải lịch sử.");
-      });
 
-    connection
-      .start()
-      .then(function () {
-        setStatus("");
-        return connection.invoke("JoinThread", applicationId);
-      })
-      .then(function () {
-        wireSend();
-      })
-      .catch(function (err) {
-        setStatus(
-          "Không kết nối được chat thời gian thực: " +
-            ((err && err.message) || err)
-        );
-      });
-  };
+        function setStatus(text) {
+            statusEl.textContent = text || "";
+        }
+
+        function appendBubble(m) {
+            var mine = String(m.senderUserId).toLowerCase() === String(currentUserId).toLowerCase();
+            var row = document.createElement("div");
+            row.className = "evn-app-chat__row " + (mine ? "evn-app-chat__row--mine" : "evn-app-chat__row--other");
+
+            var warn = m.moderationOutcome === "warn" && m.moderationReasonVi
+                ? `<span class="evn-badge evn-badge--warn">${escapeHtml(m.moderationReasonVi)}</span>`
+                : "";
+
+            row.innerHTML = `
+        <div class="evn-app-chat__bubble">
+          <div class="evn-app-chat__sender">${mine ? "Bạn" : "Người đối thoại"}</div>
+          ${warn}
+          <div>${escapeHtml(m.body)}</div>
+          <small>${escapeHtml(formatLocal(m.sentAtUtc))}</small>
+        </div>`;
+
+            log.appendChild(row);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        setReady(false);
+        setStatus("Đang tải lịch sử chat...");
+
+        if (!window.signalR || !window.signalR.HubConnectionBuilder) {
+            setStatus("Không tải được thư viện realtime. Hãy kiểm tra mạng/CDN rồi tải lại trang.");
+            return;
+        }
+
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/recruiter-chat")
+            .withAutomaticReconnect([0, 2000, 5000, 10000])
+            .build();
+
+        connection.on("ReceiveMessage", appendBubble);
+
+        connection.on("MessageBlocked", function (payload) {
+            sendBlockedByModeration = true;
+            setStatus((payload && payload.reasonVi) || "Tin nhắn bị chặn.");
+        });
+
+        connection.onreconnecting(function () {
+            setReady(false);
+            setStatus("Mất kết nối, đang thử kết nối lại...");
+        });
+
+        connection.onreconnected(function () {
+            connection.invoke("JoinThread", applicationId).then(function () {
+                setReady(true);
+                setStatus("Đã kết nối lại.");
+            });
+        });
+
+        connection.onclose(function () {
+            setReady(false);
+            setStatus("Chat đã ngắt kết nối. Hãy tải lại trang.");
+        });
+
+        function send() {
+            if (!ready) return;
+
+            var text = (input.value || "").trim();
+            if (!text) return;
+
+            setReady(false);
+            sendBlockedByModeration = false;
+            setStatus("Đang gửi...");
+
+            connection.invoke("SendMessage", applicationId, text)
+                .then(function () {
+                    if (!sendBlockedByModeration) {
+                        input.value = "";
+                        setStatus("");
+                    }
+                })
+                .catch(function (err) {
+                    setStatus((err && err.message) || "Không gửi được tin nhắn.");
+                })
+                .finally(function () {
+                    setReady(true);
+                    input.focus();
+                });
+        }
+
+        sendBtn.addEventListener("click", send);
+
+        input.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                send();
+            }
+        });
+
+        fetch("/ApplicationChat/History?applicationId=" + encodeURIComponent(applicationId), {
+            credentials: "same-origin"
+        })
+            .then(function (res) {
+                return res.json().then(function (data) {
+                    return { ok: res.ok, data: data };
+                });
+            })
+            .then(function (x) {
+                if (!x.ok) throw new Error((x.data && x.data.error) || "Không tải được lịch sử chat.");
+                currentUserId = x.data.currentUserId;
+                log.innerHTML = "";
+                (x.data.messages || []).forEach(appendBubble);
+                setStatus("Đang kết nối realtime...");
+                return connection.start();
+            })
+            .then(function () {
+                return connection.invoke("JoinThread", applicationId);
+            })
+            .then(function () {
+                setReady(true);
+                setStatus("");
+            })
+            .catch(function (err) {
+                setReady(false);
+                setStatus((err && err.message) || "Không mở được chat.");
+            });
+    };
 })();

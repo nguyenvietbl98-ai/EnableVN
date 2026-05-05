@@ -17,7 +17,7 @@
                         Bạn cần có hồ sơ doanh nghiệp trước khi đăng tin tuyển dụng.
                     </p>
 
-                    <form asp-action="Create" method="post">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <partial name="_EmployerProfileForm" model="Model" />
 

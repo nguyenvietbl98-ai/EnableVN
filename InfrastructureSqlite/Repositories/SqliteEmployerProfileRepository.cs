@@ -44,6 +44,15 @@ namespace InfrastructureSqlite.Repositories
                 : EmployerProfilePersistenceMapper.ToDomain(record);
         }
 
+        public async Task<IReadOnlyList<EmployerProfile>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            var rows = await _dbContext.EmployerProfiles
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return rows.Select(EmployerProfilePersistenceMapper.ToDomain).ToList();
+        }
+
         public async Task<bool> ExistsByUserIdAsync(
             Guid userId,
             CancellationToken cancellationToken = default)

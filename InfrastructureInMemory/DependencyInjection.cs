@@ -45,6 +45,7 @@ namespace InfrastructureInMemory
             services.AddSingleton<IAssistiveDeviceRepository, InMemoryAssistiveDeviceRepository>();
 
             services.AddSingleton<IJobCategoryRepository, InMemoryJobCategoryRepository>();
+            services.AddSingleton<IViolationReportRepository, InMemoryViolationReportRepository>();
 
             // =========================
             // Services

@@ -13,6 +13,10 @@
             <span class="evn-badge mb-2">Hồ sơ doanh nghiệp</span>
             <h1 class="evn-page-head__title">@Model.CompanyName</h1>
             <p class="evn-page-head__lead mb-0">Môi trường làm việc hòa nhập và các hỗ trợ tiếp cận dành cho ứng viên.</p>
+            @if (!string.IsNullOrWhiteSpace(Model.LogoUrl))
+            {
+                <img src="@Model.LogoUrl" alt="Logo doanh nghiệp" class="mt-3 rounded" style="max-height:72px;" />
+            }
         </header>
 
         <div class="row g-4">
@@ -24,6 +28,14 @@
                     {
                         <p class="mb-0"><strong>Website:</strong> <a href="@Model.WebsiteUrl" target="_blank" rel="noopener">@Model.WebsiteUrl <span class="visually-hidden">(mở tab mới)</span></a></p>
                     }
+                    <p class="mt-2 mb-0"><strong>Email:</strong> @(Model.ContactEmail ?? "Chưa cập nhật")</p>
+                    <p class="mb-0"><strong>Điện thoại:</strong> @(Model.PhoneNumber ?? "Chưa cập nhật")</p>
+                    <p class="mb-0"><strong>Địa chỉ:</strong> @(Model.Address ?? "Chưa cập nhật")</p>
+                    <p class="mb-0"><strong>Quy mô:</strong> @(Model.CompanySize ?? "Chưa cập nhật")</p>
+                    <p class="mb-0"><strong>Lĩnh vực:</strong> @(Model.Industry ?? "Chưa cập nhật")</p>
+                    <p class="mb-0"><strong>Người liên hệ:</strong> @(Model.RecruiterContactName ?? "Chưa cập nhật") (@(Model.RecruiterContactTitle ?? "N/A"))</p>
+                    <p class="mb-0"><strong>Phúc lợi:</strong> @(Model.Benefits ?? "Chưa cập nhật")</p>
+                    <p class="mb-0"><strong>Văn hóa:</strong> @(Model.Culture ?? "Chưa cập nhật")</p>
                 </article>
             </div>
             <div class="col-lg-5">

@@ -63,10 +63,33 @@ namespace Presentation.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateEmployerProfileCommand command)
+        public async Task<IActionResult> Create(CreateEmployerProfileCommand command, IFormFile? logoFile)
         {
             try
             {
+                var logoUrl = await SaveImageFileAsync(logoFile, "employer-logos");
+                command = new CreateEmployerProfileCommand
+                {
+                    CompanyName = command.CompanyName,
+                    LogoUrl = logoUrl ?? command.LogoUrl,
+                    ContactEmail = command.ContactEmail,
+                    PhoneNumber = command.PhoneNumber,
+                    Address = command.Address,
+                    CompanySize = command.CompanySize,
+                    Industry = command.Industry,
+                    TaxCode = command.TaxCode,
+                    RecruiterContactName = command.RecruiterContactName,
+                    RecruiterContactTitle = command.RecruiterContactTitle,
+                    Description = command.Description,
+                    Benefits = command.Benefits,
+                    Culture = command.Culture,
+                    WebsiteUrl = command.WebsiteUrl,
+                    HasWheelchairAccess = command.HasWheelchairAccess,
+                    HasAccessibleRestroom = command.HasAccessibleRestroom,
+                    SupportsFlexibleWorkingTime = command.SupportsFlexibleWorkingTime,
+                    SupportsRemoteWork = command.SupportsRemoteWork,
+                    ProvidesAssistiveDevices = command.ProvidesAssistiveDevices
+                };
                 await _employerProfileUseCase.CreateAsync(command);
 
                 TempData["Success"] = "Đã tạo hồ sơ doanh nghiệp.";
@@ -99,7 +122,18 @@ namespace Presentation.Controllers
                 var command = new UpdateEmployerProfileCommand
                 {
                     CompanyName = profile.CompanyName,
+                    LogoUrl = profile.LogoUrl,
+                    ContactEmail = profile.ContactEmail,
+                    PhoneNumber = profile.PhoneNumber,
+                    Address = profile.Address,
+                    CompanySize = profile.CompanySize,
+                    Industry = profile.Industry,
+                    TaxCode = profile.TaxCode,
+                    RecruiterContactName = profile.RecruiterContactName,
+                    RecruiterContactTitle = profile.RecruiterContactTitle,
                     Description = profile.Description,
+                    Benefits = profile.Benefits,
+                    Culture = profile.Culture,
                     WebsiteUrl = profile.WebsiteUrl,
                     HasWheelchairAccess = profile.HasWheelchairAccess,
                     HasAccessibleRestroom = profile.HasAccessibleRestroom,
@@ -122,10 +156,33 @@ namespace Presentation.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateEmployerProfileCommand command)
+        public async Task<IActionResult> Edit(UpdateEmployerProfileCommand command, IFormFile? logoFile)
         {
             try
             {
+                var logoUrl = await SaveImageFileAsync(logoFile, "employer-logos");
+                command = new UpdateEmployerProfileCommand
+                {
+                    CompanyName = command.CompanyName,
+                    LogoUrl = logoUrl ?? command.LogoUrl,
+                    ContactEmail = command.ContactEmail,
+                    PhoneNumber = command.PhoneNumber,
+                    Address = command.Address,
+                    CompanySize = command.CompanySize,
+                    Industry = command.Industry,
+                    TaxCode = command.TaxCode,
+                    RecruiterContactName = command.RecruiterContactName,
+                    RecruiterContactTitle = command.RecruiterContactTitle,
+                    Description = command.Description,
+                    Benefits = command.Benefits,
+                    Culture = command.Culture,
+                    WebsiteUrl = command.WebsiteUrl,
+                    HasWheelchairAccess = command.HasWheelchairAccess,
+                    HasAccessibleRestroom = command.HasAccessibleRestroom,
+                    SupportsFlexibleWorkingTime = command.SupportsFlexibleWorkingTime,
+                    SupportsRemoteWork = command.SupportsRemoteWork,
+                    ProvidesAssistiveDevices = command.ProvidesAssistiveDevices
+                };
                 await _employerProfileUseCase.UpdateMyProfileAsync(command);
 
                 TempData["Success"] = "Đã cập nhật hồ sơ doanh nghiệp.";
@@ -158,6 +215,23 @@ namespace Presentation.Controllers
                 TempData["Error"] = ex.Message;
                 return RedirectToAction("Index", "Home");
             }
+        }
+
+        private const long MaxImageSizeBytes = 2 * 1024 * 1024;
+        private async Task<string?> SaveImageFileAsync(IFormFile? imageFile, string folder)
+        {
+            if (imageFile is null || imageFile.Length == 0) return null;
+            if (imageFile.Length > MaxImageSizeBytes) throw new UseCaseException("Ảnh tối đa 2MB.");
+            var ext = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            if (!allowed.Contains(ext)) throw new UseCaseException("Ảnh chỉ hỗ trợ JPG, PNG, WEBP.");
+            var uploadsRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", folder);
+            Directory.CreateDirectory(uploadsRoot);
+            var safeName = $"{Guid.NewGuid():N}{ext}";
+            var fullPath = Path.Combine(uploadsRoot, safeName);
+            await using var stream = System.IO.File.Create(fullPath);
+            await imageFile.CopyToAsync(stream);
+            return $"/uploads/{folder}/{safeName}";
         }
     }
 }

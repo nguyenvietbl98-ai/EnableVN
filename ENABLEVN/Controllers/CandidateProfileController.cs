@@ -58,14 +58,38 @@ namespace Presentation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateCandidateProfileCommand command)
+        public async Task<IActionResult> Create(CreateCandidateProfileCommand command, IFormFile? cvFile, IFormFile? avatarFile)
         {
             try
             {
+                var cvUrl = await SaveCvFileAsync(cvFile);
+                var avatarUrl = await SaveImageFileAsync(avatarFile, "avatars");
+
+                command = new CreateCandidateProfileCommand
+                {
+                    FullName = command.FullName,
+                    AvatarUrl = avatarUrl,
+                    DateOfBirth = command.DateOfBirth,
+                    Gender = command.Gender,
+                    PhoneNumber = command.PhoneNumber,
+                    ContactEmail = command.ContactEmail,
+                    Address = command.Address,
+                    DesiredPosition = command.DesiredPosition,
+                    DesiredSalary = command.DesiredSalary,
+                    ExperienceSummary = command.ExperienceSummary,
+                    Skills = command.Skills,
+                    Education = command.Education,
+                    Certifications = command.Certifications,
+                    PortfolioUrl = command.PortfolioUrl,
+                    Bio = command.Bio,
+                    CvUrl = cvUrl,
+                    JobSeekingStatus = command.JobSeekingStatus,
+                    DesiredWorkMode = command.DesiredWorkMode,
+                    AccessibilityNeeds = command.AccessibilityNeeds
+                };
+
                 await _candidateProfileUseCase.CreateAsync(command);
-
                 TempData["Success"] = "Đã tạo hồ sơ ứng viên.";
-
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) when (ex is UseCaseException or DomainException)
@@ -74,7 +98,49 @@ namespace Presentation.Controllers
                 return View(command);
             }
         }
+        private const long MaxCvSizeBytes = 5 * 1024 * 1024;
+        private const long MaxImageSizeBytes = 2 * 1024 * 1024;
 
+        private async Task<string?> SaveCvFileAsync(IFormFile? cvFile)
+        {
+            if (cvFile is null || cvFile.Length == 0) return null;
+
+            if (cvFile.Length > MaxCvSizeBytes)
+                throw new UseCaseException("CV tối đa 5MB.");
+
+            var ext = Path.GetExtension(cvFile.FileName).ToLowerInvariant();
+            var allowed = new[] { ".pdf", ".doc", ".docx" };
+
+            if (!allowed.Contains(ext))
+                throw new UseCaseException("CV chỉ hỗ trợ PDF, DOC hoặc DOCX.");
+
+            var uploadsRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cv");
+            Directory.CreateDirectory(uploadsRoot);
+
+            var safeName = $"{Guid.NewGuid():N}{ext}";
+            var fullPath = Path.Combine(uploadsRoot, safeName);
+
+            await using var stream = System.IO.File.Create(fullPath);
+            await cvFile.CopyToAsync(stream);
+
+            return $"/uploads/cv/{safeName}";
+        }
+
+        private async Task<string?> SaveImageFileAsync(IFormFile? imageFile, string folder)
+        {
+            if (imageFile is null || imageFile.Length == 0) return null;
+            if (imageFile.Length > MaxImageSizeBytes) throw new UseCaseException("Ảnh tối đa 2MB.");
+            var ext = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            if (!allowed.Contains(ext)) throw new UseCaseException("Ảnh chỉ hỗ trợ JPG, PNG, WEBP.");
+            var uploadsRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", folder);
+            Directory.CreateDirectory(uploadsRoot);
+            var safeName = $"{Guid.NewGuid():N}{ext}";
+            var fullPath = Path.Combine(uploadsRoot, safeName);
+            await using var stream = System.IO.File.Create(fullPath);
+            await imageFile.CopyToAsync(stream);
+            return $"/uploads/{folder}/{safeName}";
+        }
         [HttpGet]
         public async Task<IActionResult> Edit()
         {
@@ -91,8 +157,24 @@ namespace Presentation.Controllers
                 var command = new UpdateCandidateProfileCommand
                 {
                     FullName = profile.FullName,
+                    AvatarUrl = profile.AvatarUrl,
+                    DateOfBirth = profile.DateOfBirth,
+                    Gender = profile.Gender,
+                    PhoneNumber = profile.PhoneNumber,
+                    ContactEmail = profile.ContactEmail,
+                    Address = profile.Address,
+                    DesiredPosition = profile.DesiredPosition,
+                    DesiredSalary = profile.DesiredSalary,
+                    ExperienceSummary = profile.ExperienceSummary,
+                    Skills = profile.Skills,
+                    Education = profile.Education,
+                    Certifications = profile.Certifications,
+                    PortfolioUrl = profile.PortfolioUrl,
                     Bio = profile.Bio,
-                    CvUrl = profile.CvUrl
+                    CvUrl = profile.CvUrl,
+                    JobSeekingStatus = profile.JobSeekingStatus,
+                    DesiredWorkMode = profile.DesiredWorkMode,
+                    AccessibilityNeeds = profile.AccessibilityNeeds
                 };
 
                 return View(command);
@@ -106,14 +188,38 @@ namespace Presentation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateCandidateProfileCommand command)
+        public async Task<IActionResult> Edit(UpdateCandidateProfileCommand command, IFormFile? cvFile, IFormFile? avatarFile)
         {
             try
             {
+                var uploadedCvUrl = await SaveCvFileAsync(cvFile);
+                var uploadedAvatarUrl = await SaveImageFileAsync(avatarFile, "avatars");
+
+                command = new UpdateCandidateProfileCommand
+                {
+                    FullName = command.FullName,
+                    AvatarUrl = uploadedAvatarUrl ?? command.AvatarUrl,
+                    DateOfBirth = command.DateOfBirth,
+                    Gender = command.Gender,
+                    PhoneNumber = command.PhoneNumber,
+                    ContactEmail = command.ContactEmail,
+                    Address = command.Address,
+                    DesiredPosition = command.DesiredPosition,
+                    DesiredSalary = command.DesiredSalary,
+                    ExperienceSummary = command.ExperienceSummary,
+                    Skills = command.Skills,
+                    Education = command.Education,
+                    Certifications = command.Certifications,
+                    PortfolioUrl = command.PortfolioUrl,
+                    Bio = command.Bio,
+                    CvUrl = uploadedCvUrl ?? command.CvUrl,
+                    JobSeekingStatus = command.JobSeekingStatus,
+                    DesiredWorkMode = command.DesiredWorkMode,
+                    AccessibilityNeeds = command.AccessibilityNeeds
+                };
+
                 await _candidateProfileUseCase.UpdateMyProfileAsync(command);
-
                 TempData["Success"] = "Đã cập nhật hồ sơ ứng viên.";
-
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex) when (ex is UseCaseException or DomainException)

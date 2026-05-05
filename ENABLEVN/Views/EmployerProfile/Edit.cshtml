@@ -17,7 +17,7 @@
                         Cập nhật thông tin doanh nghiệp và các hỗ trợ tiếp cận.
                     </p>
 
-                    <form asp-action="Edit" method="post">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <partial name="_EmployerProfileForm" model="Model" />
 

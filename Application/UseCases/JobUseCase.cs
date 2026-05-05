@@ -125,6 +125,12 @@ namespace Application.UseCases
                 cancellationToken
             );
 
+            var userId = AuthorizationGuard.RequireEmployer(_currentUser);
+            var employerProfile = await _employerProfileRepository.GetByUserIdAsync(userId, cancellationToken)
+                ?? throw new UseCaseException("Bạn chưa có hồ sơ doanh nghiệp.");
+            if (employerProfile.VerificationStatus != Domain.Employers.EmployerVerificationStatus.Approved)
+                throw new UseCaseException("Hồ sơ doanh nghiệp chưa được admin duyệt. Bạn chưa thể đăng tin.");
+
             job.Publish();
 
             await _jobRepository.UpdateAsync(job, cancellationToken);

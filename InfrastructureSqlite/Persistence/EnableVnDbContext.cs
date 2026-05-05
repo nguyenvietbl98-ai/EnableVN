@@ -153,6 +153,19 @@ namespace InfrastructureSqlite.Persistence
                 .HasMaxLength(200);
 
             employer.Property(x => x.Description).HasMaxLength(2000);
+            employer.Property(x => x.LogoUrl).HasMaxLength(500);
+            employer.Property(x => x.ContactEmail).HasMaxLength(255);
+            employer.Property(x => x.PhoneNumber).HasMaxLength(50);
+            employer.Property(x => x.Address).HasMaxLength(500);
+            employer.Property(x => x.CompanySize).HasMaxLength(100);
+            employer.Property(x => x.Industry).HasMaxLength(200);
+            employer.Property(x => x.TaxCode).HasMaxLength(100);
+            employer.Property(x => x.RecruiterContactName).HasMaxLength(200);
+            employer.Property(x => x.RecruiterContactTitle).HasMaxLength(200);
+            employer.Property(x => x.Benefits).HasMaxLength(2000);
+            employer.Property(x => x.Culture).HasMaxLength(2000);
+            employer.Property(x => x.VerificationStatus).HasMaxLength(50);
+            employer.Property(x => x.VerificationNote).HasMaxLength(1000);
 
             employer.Property(x => x.WebsiteUrl).HasMaxLength(500);
         }
@@ -174,6 +187,20 @@ namespace InfrastructureSqlite.Persistence
                 .HasMaxLength(100);
 
             candidate.Property(x => x.Bio).HasMaxLength(2000);
+            candidate.Property(x => x.AvatarUrl).HasMaxLength(500);
+            candidate.Property(x => x.Gender).HasMaxLength(50);
+            candidate.Property(x => x.PhoneNumber).HasMaxLength(50);
+            candidate.Property(x => x.ContactEmail).HasMaxLength(255);
+            candidate.Property(x => x.Address).HasMaxLength(500);
+            candidate.Property(x => x.DesiredPosition).HasMaxLength(200);
+            candidate.Property(x => x.ExperienceSummary).HasMaxLength(2000);
+            candidate.Property(x => x.Skills).HasMaxLength(2000);
+            candidate.Property(x => x.Education).HasMaxLength(2000);
+            candidate.Property(x => x.Certifications).HasMaxLength(2000);
+            candidate.Property(x => x.PortfolioUrl).HasMaxLength(500);
+            candidate.Property(x => x.JobSeekingStatus).HasMaxLength(100);
+            candidate.Property(x => x.DesiredWorkMode).HasMaxLength(100);
+            candidate.Property(x => x.AccessibilityNeeds).HasMaxLength(2000);
 
             candidate.Property(x => x.CvUrl).HasMaxLength(500);
 

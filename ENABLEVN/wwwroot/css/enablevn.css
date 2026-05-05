@@ -1353,3 +1353,122 @@ a:hover {
   font-size: 0.75rem;
   color: var(--evn-text-muted);
 }
+
+/* --- Application chat inbox --- */
+.evn-chat-inbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.evn-chat-inbox-item {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+  background: var(--evn-surface);
+  border: 1px solid var(--evn-border);
+  border-radius: var(--evn-radius-lg);
+  box-shadow: var(--evn-shadow-sm);
+  padding: 0.85rem 1rem;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.evn-chat-inbox-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--evn-shadow-md);
+  border-color: var(--evn-primary-border);
+}
+
+.evn-chat-inbox-item__avatar {
+  flex: 0 0 2.55rem;
+  width: 2.55rem;
+  height: 2.55rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--evn-primary-dark);
+  background: var(--evn-primary-soft);
+  border: 1px solid var(--evn-primary-border);
+  text-transform: uppercase;
+}
+
+.evn-chat-inbox-item__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.evn-chat-inbox-item__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.evn-chat-inbox-item__title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 650;
+  color: var(--evn-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evn-chat-inbox-item__time {
+  color: var(--evn-text-muted);
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.evn-chat-inbox-item__preview {
+  margin: 0.2rem 0 0.35rem;
+  color: var(--evn-text-muted);
+  line-height: 1.38;
+  font-size: 0.89rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evn-chat-inbox-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.evn-chat-inbox-item__status {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.15rem 0.58rem;
+  font-size: 0.73rem;
+  border: 1px solid var(--evn-border);
+  background: var(--evn-surface-muted);
+  color: var(--evn-text-muted);
+}
+
+.evn-chat-inbox-item__status--interview {
+  color: var(--evn-primary-dark);
+  border-color: var(--evn-primary-border);
+  background: var(--evn-primary-soft);
+}
+
+.evn-chat-inbox-item__status--accepted {
+  color: #0d6b2a;
+  border-color: #a8ddb7;
+  background: #e8f6ed;
+}
+
+.evn-chat-inbox-item__status--rejected {
+  color: #8a2031;
+  border-color: #ebc6cd;
+  background: #fcebee;
+}
+
+.evn-chat-inbox-item__hint {
+  font-size: 0.73rem;
+  color: var(--evn-text-muted);
+}

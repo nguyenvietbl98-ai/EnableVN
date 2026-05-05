@@ -33,6 +33,12 @@ namespace InfrastructureInMemory.Repositories
             return Task.FromResult(profile);
         }
 
+        public Task<IReadOnlyList<EmployerProfile>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            IReadOnlyList<EmployerProfile> result = _profiles.ToList();
+            return Task.FromResult(result);
+        }
+
         public Task<bool> ExistsByUserIdAsync(
             Guid userId,
             CancellationToken cancellationToken = default

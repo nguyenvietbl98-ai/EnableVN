@@ -1,6 +1,7 @@
 ﻿using Application.Common;
 using Application.Mappers;
 using Domain.Employers;
+using Domain.Users;
 using Ports.Inbound;
 using Ports.Models.Employers;
 using Ports.Outbound.Repositories;
@@ -63,6 +64,22 @@ namespace Application.UseCases
                 command.WebsiteUrl,
                 workplaceInfo
             );
+            profile.UpdateCompanyInfo(
+                command.CompanyName,
+                command.LogoUrl,
+                command.ContactEmail,
+                command.PhoneNumber,
+                command.Address,
+                command.CompanySize,
+                command.Industry,
+                command.TaxCode,
+                command.RecruiterContactName,
+                command.RecruiterContactTitle,
+                command.Description,
+                command.Benefits,
+                command.Culture,
+                command.WebsiteUrl
+            );
 
             await _employerProfileRepository.AddAsync(profile, cancellationToken);
 
@@ -100,7 +117,18 @@ namespace Application.UseCases
 
             profile.UpdateCompanyInfo(
                 command.CompanyName,
+                command.LogoUrl,
+                command.ContactEmail,
+                command.PhoneNumber,
+                command.Address,
+                command.CompanySize,
+                command.Industry,
+                command.TaxCode,
+                command.RecruiterContactName,
+                command.RecruiterContactTitle,
                 command.Description,
+                command.Benefits,
+                command.Culture,
                 command.WebsiteUrl
             );
 
@@ -138,6 +166,55 @@ namespace Application.UseCases
             return profile is null
                 ? null
                 : EmployerProfileMapper.ToResult(profile);
+        }
+
+        public async Task<IReadOnlyList<EmployerProfileReviewItemResult>> GetPendingProfilesAsync(
+            CancellationToken cancellationToken = default)
+        {
+            AuthorizationGuard.RequireAdmin(_currentUser);
+            var all = await GetProfilesForReviewAsync(cancellationToken);
+            return all.Where(x => x.VerificationStatus == EmployerVerificationStatus.Pending.ToString()).ToList();
+        }
+
+        public async Task<IReadOnlyList<EmployerProfileReviewItemResult>> GetProfilesForReviewAsync(
+            CancellationToken cancellationToken = default)
+        {
+            AuthorizationGuard.RequireAdmin(_currentUser);
+            var profiles = await _employerProfileRepository.GetAllAsync(cancellationToken);
+            return profiles
+                .Select(x => new EmployerProfileReviewItemResult
+                {
+                    Id = x.Id,
+                    UserId = x.UserId,
+                    CompanyName = x.CompanyName.Value,
+                    Industry = x.Industry,
+                    ContactEmail = x.ContactEmail,
+                    PhoneNumber = x.PhoneNumber,
+                    VerificationStatus = x.VerificationStatus.ToString(),
+                    VerifiedAtUtc = x.VerifiedAtUtc,
+                    VerificationNote = x.VerificationNote
+                })
+                .OrderByDescending(x => x.VerificationStatus == EmployerVerificationStatus.Pending.ToString())
+                .ThenByDescending(x => x.VerifiedAtUtc ?? DateTime.MinValue)
+                .ToList();
+        }
+
+        public async Task ApproveProfileAsync(Guid employerProfileId, string? note, CancellationToken cancellationToken = default)
+        {
+            AuthorizationGuard.RequireAdmin(_currentUser);
+            var profile = await _employerProfileRepository.GetByIdAsync(employerProfileId, cancellationToken)
+                ?? throw new UseCaseException("Không tìm thấy hồ sơ doanh nghiệp.");
+            profile.ApproveByAdmin(note);
+            await _employerProfileRepository.UpdateAsync(profile, cancellationToken);
+        }
+
+        public async Task RejectProfileAsync(Guid employerProfileId, string? note, CancellationToken cancellationToken = default)
+        {
+            AuthorizationGuard.RequireAdmin(_currentUser);
+            var profile = await _employerProfileRepository.GetByIdAsync(employerProfileId, cancellationToken)
+                ?? throw new UseCaseException("Không tìm thấy hồ sơ doanh nghiệp.");
+            profile.RejectByAdmin(note);
+            await _employerProfileRepository.UpdateAsync(profile, cancellationToken);
         }
     }
 }

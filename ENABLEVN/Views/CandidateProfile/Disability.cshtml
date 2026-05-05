@@ -15,7 +15,7 @@
                 <div class="evn-card evn-form p-4 p-lg-5">
                     <span class="evn-badge mb-3">Privacy by design</span>
 
-                    <h1 class="h3 fw-bold mb-2">Thông tin khuyết tật</h1>
+                    <h1 class="h3 fw-bold mb-2">Thông tin hỗ trợ cá nhân</h1>
 
                     <p class="evn-muted mb-4">
                         Bạn có toàn quyền quyết định thông tin này có hiển thị với nhà tuyển dụng hay không.
@@ -24,7 +24,7 @@
                     @if (disabilityTypes.Count == 0)
                     {
                         <div class="alert alert-warning evn-alert" role="alert">
-                            Hiện chưa có danh mục loại khuyết tật.
+                            Hiện chưa có danh mục hỗ trợ.
                             Admin cần tạo danh mục trước trong phần Quản lý danh mục.
                         </div>
                     }
@@ -33,7 +33,7 @@
                         @Html.AntiForgeryToken()
                         <div class="mb-3">
                             <label asp-for="DisabilityTypeId" class="form-label">
-                                Loại khuyết tật
+                                Loại cần hỗ trợ
                             </label>
 
                             <select asp-for="DisabilityTypeId" class="form-select">
@@ -48,7 +48,7 @@
                             </select>
 
                             <div class="form-text">
-                                Bạn có thể không chọn nếu chưa muốn khai báo loại khuyết tật.
+                                Bạn có thể không chọn nếu chưa muốn khai báo.
                             </div>
                         </div>
 
@@ -72,7 +72,7 @@
                             </div>
 
                             <div class="form-text">
-                                Nếu không bật, nhà tuyển dụng sẽ không thấy loại khuyết tật và mô tả này.
+                                Nếu không bật, nhà tuyển dụng sẽ không thấy mô tả này.
                             </div>
                         </div>
 

@@ -50,8 +50,7 @@ public sealed class RecruiterChatHub : Hub
         var useCase = sp.GetRequiredService<IJobApplicationUseCase>();
         var moderation = sp.GetRequiredService<ChatModerationService>();
         var repo = sp.GetRequiredService<IApplicationChatRepository>();
-        var httpAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-        var userId = SessionUserIdOrEmpty(httpAccessor.HttpContext);
+        var userId = SessionUserIdOrEmpty(Context.GetHttpContext());
         if (userId == Guid.Empty)
             throw new HubException("Phiên đăng nhập không hợp lệ — hãy tải lại trang.");
 
