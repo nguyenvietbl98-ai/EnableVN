@@ -1,5 +1,8 @@
+using Application.Email;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Ports.Outbound.Services;
+using System.Net.Mail;
 
 namespace Presentation.Controllers
 {
@@ -7,44 +10,69 @@ namespace Presentation.Controllers
     /// Endpoint test nhanh cho SMTP/Gmail.
     /// Chỉ dùng khi Development để xác nhận email gửi được thật hay không.
     /// </summary>
+    [Route("Diagnostics")]
     public sealed class DiagnosticsController : Controller
     {
         private readonly IWebHostEnvironment _environment;
         private readonly IEmailService _emailService;
+        private readonly ILogger<DiagnosticsController> _logger;
 
         public DiagnosticsController(
             IWebHostEnvironment environment,
-            IEmailService emailService)
+            IEmailService emailService,
+            ILogger<DiagnosticsController> logger)
         {
             _environment = environment;
             _emailService = emailService;
+            _logger = logger;
         }
 
-        [HttpGet]
+        [HttpPost("SendTestEmail")]
+        [ValidateAntiForgeryToken]
+        [Consumes("application/x-www-form-urlencoded")]
         public async Task<IActionResult> SendTestEmail(
-            string to,
+            [FromForm] string to,
             CancellationToken cancellationToken)
         {
             if (!_environment.IsDevelopment())
                 return NotFound();
 
             if (string.IsNullOrWhiteSpace(to))
-                return BadRequest("Query param 'to' is required.");
+                return BadRequest(new { success = false, error = "Form field 'to' is required." });
+
+            string normalized;
+            try
+            {
+                normalized = new MailAddress(to.Trim()).Address;
+            }
+            catch (FormatException)
+            {
+                return BadRequest(new { success = false, error = "Invalid recipient email address." });
+            }
+
+            const string subject = "EnableVN - Test email";
+            var html = EmailTemplates.RenderNotificationHtml(
+                "EnableVN - Test email",
+                "Nếu bạn nhận được email này nghĩa là SMTP Gmail đã hoạt động.");
 
             try
             {
+                _logger.LogInformation("Diagnostics test email requested. To={Recipient}", normalized);
+
                 await _emailService.SendAsync(
-                    to,
-                    "EnableVN - Test email",
-                    "Nếu bạn nhận được email này nghĩa là SMTP Gmail đã hoạt động.",
+                    normalized,
+                    subject,
+                    html,
                     cancellationToken
                 );
 
-                return Content($"OK. Sent test email to: {to}");
+                _logger.LogInformation("Diagnostics test email sent. To={Recipient}", normalized);
+                return Ok(new { success = true, to = normalized, subject });
             }
             catch (Exception ex)
             {
-                return Content($"FAILED: {ex.GetType().Name}: {ex.Message}");
+                _logger.LogError(ex, "Diagnostics test email failed. To={Recipient}", normalized);
+                return StatusCode(500, new { success = false, error = ex.Message });
             }
         }
     }

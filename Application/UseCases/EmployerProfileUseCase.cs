@@ -1,7 +1,10 @@
-﻿using Application.Common;
+﻿using Application.Email;
+using Application.Common;
 using Application.Mappers;
 using Domain.Employers;
+using Domain.Notifications;
 using Domain.Users;
+using Microsoft.Extensions.Logging;
 using Ports.Inbound;
 using Ports.Models.Employers;
 using Ports.Outbound.Repositories;
@@ -22,16 +25,28 @@ namespace Application.UseCases
         private readonly IEmployerProfileRepository _employerProfileRepository;
         private readonly ICurrentUserService _currentUser;
         private readonly IDomainEventDispatcher _domainEventDispatcher;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<EmployerProfileUseCase> _logger;
 
         public EmployerProfileUseCase(
             IEmployerProfileRepository employerProfileRepository,
             ICurrentUserService currentUser,
-            IDomainEventDispatcher domainEventDispatcher
+            IDomainEventDispatcher domainEventDispatcher,
+            INotificationRepository notificationRepository,
+            IUserRepository userRepository,
+            IEmailService emailService,
+            ILogger<EmployerProfileUseCase> logger
         )
         {
             _employerProfileRepository = employerProfileRepository;
             _currentUser = currentUser;
             _domainEventDispatcher = domainEventDispatcher;
+            _notificationRepository = notificationRepository;
+            _userRepository = userRepository;
+            _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<Guid> CreateAsync(
@@ -206,6 +221,24 @@ namespace Application.UseCases
                 ?? throw new UseCaseException("Không tìm thấy hồ sơ doanh nghiệp.");
             profile.ApproveByAdmin(note);
             await _employerProfileRepository.UpdateAsync(profile, cancellationToken);
+
+            // FLOW 2 — tạo notification trong DB + gửi email best-effort
+            var notification = Notification.Create(
+                profile.UserId,
+                "Hồ sơ doanh nghiệp đã được duyệt",
+                string.IsNullOrWhiteSpace(note)
+                    ? $"Hồ sơ doanh nghiệp \"{profile.CompanyName.Value}\" đã được duyệt."
+                    : $"Hồ sơ doanh nghiệp \"{profile.CompanyName.Value}\" đã được duyệt. Ghi chú: {note}",
+                NotificationType.System);
+
+            await _notificationRepository.AddAsync(notification, cancellationToken);
+
+            await SendEmployerReviewEmailBestEffortAsync(
+                profileUserId: profile.UserId,
+                companyName: profile.CompanyName.Value,
+                approved: true,
+                reasonOrNote: note,
+                cancellationToken: cancellationToken);
         }
 
         public async Task RejectProfileAsync(Guid employerProfileId, string? note, CancellationToken cancellationToken = default)
@@ -215,6 +248,66 @@ namespace Application.UseCases
                 ?? throw new UseCaseException("Không tìm thấy hồ sơ doanh nghiệp.");
             profile.RejectByAdmin(note);
             await _employerProfileRepository.UpdateAsync(profile, cancellationToken);
+
+            // FLOW 2 — tạo notification trong DB + gửi email best-effort
+            var notification = Notification.Create(
+                profile.UserId,
+                "Hồ sơ doanh nghiệp bị từ chối",
+                string.IsNullOrWhiteSpace(note)
+                    ? $"Hồ sơ doanh nghiệp \"{profile.CompanyName.Value}\" đã bị từ chối."
+                    : $"Hồ sơ doanh nghiệp \"{profile.CompanyName.Value}\" đã bị từ chối. Lý do: {note}",
+                NotificationType.System);
+
+            await _notificationRepository.AddAsync(notification, cancellationToken);
+
+            await SendEmployerReviewEmailBestEffortAsync(
+                profileUserId: profile.UserId,
+                companyName: profile.CompanyName.Value,
+                approved: false,
+                reasonOrNote: note,
+                cancellationToken: cancellationToken);
+        }
+
+        private async Task SendEmployerReviewEmailBestEffortAsync(
+            Guid profileUserId,
+            string companyName,
+            bool approved,
+            string? reasonOrNote,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(profileUserId, cancellationToken);
+                var recipient = user?.Email.Value;
+
+                if (string.IsNullOrWhiteSpace(recipient))
+                {
+                    _logger.LogWarning(
+                        "Employer review email skipped: recipient is empty. ProfileUserId={ProfileUserId}",
+                        profileUserId);
+                    return;
+                }
+
+                var subject = approved
+                    ? "EnableVN - Hồ sơ doanh nghiệp đã được duyệt"
+                    : "EnableVN - Hồ sơ doanh nghiệp bị từ chối";
+
+                var html = EmailTemplates.RenderEmployerProfileReviewedHtml(
+                    companyName: companyName,
+                    approved: approved,
+                    reasonOrNote: reasonOrNote);
+
+                await _emailService.SendAsync(recipient, subject, html, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // Best-effort: không làm fail luồng chính.
+                _logger.LogWarning(
+                    ex,
+                    "Failed to send employer review email. ProfileUserId={ProfileUserId} Approved={Approved}",
+                    profileUserId,
+                    approved);
+            }
         }
     }
 }

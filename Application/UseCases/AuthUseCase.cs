@@ -1,5 +1,7 @@
-﻿using Application.Common;
+﻿using Application.Email;
+using Application.Common;
 using Domain.Users;
+using Microsoft.Extensions.Logging;
 using Ports.Inbound;
 using Ports.Models.Auth;
 using Ports.Outbound.Repositories;
@@ -27,18 +29,24 @@ namespace Application.UseCases
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenService _tokenService;
         private readonly IDomainEventDispatcher _domainEventDispatcher;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<AuthUseCase> _logger;
 
         public AuthUseCase(
             IUserRepository userRepository,
             IPasswordHasher passwordHasher,
             ITokenService tokenService,
-            IDomainEventDispatcher domainEventDispatcher
+            IDomainEventDispatcher domainEventDispatcher,
+            IEmailService emailService,
+            ILogger<AuthUseCase> logger
         )
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _tokenService = tokenService;
             _domainEventDispatcher = domainEventDispatcher;
+            _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<AuthResult> RegisterAsync(
@@ -78,6 +86,11 @@ namespace Application.UseCases
                 user.Email.Value,
                 user.Role
             );
+
+            // FLOW 1 — Welcome email (best-effort, không làm fail đăng ký).
+            _ = SendWelcomeEmailBestEffortAsync(
+                recipientEmail: user.Email.Value,
+                cancellationToken: cancellationToken);
 
             return new AuthResult
             {
@@ -125,6 +138,34 @@ namespace Application.UseCases
                 Role = user.Role,
                 Token = token
             };
+        }
+
+        private async Task SendWelcomeEmailBestEffortAsync(
+            string? recipientEmail,
+            CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(recipientEmail))
+            {
+                _logger.LogWarning("Welcome email skipped: recipient is empty.");
+                return;
+            }
+
+            const string subject = "Chào mừng bạn đến với EnableVN";
+            var html = EmailTemplates.RenderWelcomeEmailHtml(recipientEmail);
+
+            try
+            {
+                await _emailService.SendAsync(recipientEmail, subject, html, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // Best-effort: không làm fail đăng ký.
+                _logger.LogWarning(
+                    ex,
+                    "Failed to send welcome email. Recipient={Recipient} Subject={Subject}",
+                    recipientEmail,
+                    subject);
+            }
         }
     }
 }

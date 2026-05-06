@@ -1,8 +1,10 @@
-﻿using Application.Common;
+﻿using Application.Email;
+using Application.Common;
 using Application.Mappers;
 using Domain.Applications;
 using Domain.Notifications;
 using Domain.Users;
+using Microsoft.Extensions.Logging;
 using Ports.Inbound;
 using Ports.Models.Applications;
 using Ports.Models.Chat;
@@ -31,6 +33,7 @@ namespace Application.UseCases
         private readonly IDomainEventDispatcher _domainEventDispatcher;
         private readonly INotificationRepository _notificationRepository;
         private readonly IEmailService _emailService;
+        private readonly ILogger<JobApplicationUseCase> _logger;
 
         public JobApplicationUseCase(
             IJobApplicationRepository jobApplicationRepository,
@@ -41,7 +44,8 @@ namespace Application.UseCases
             ICurrentUserService currentUser,
             IDomainEventDispatcher domainEventDispatcher,
             INotificationRepository notificationRepository,
-            IEmailService emailService
+            IEmailService emailService,
+            ILogger<JobApplicationUseCase> logger
         )
         {
             _jobApplicationRepository = jobApplicationRepository;
@@ -53,6 +57,7 @@ namespace Application.UseCases
             _domainEventDispatcher = domainEventDispatcher;
             _notificationRepository = notificationRepository;
             _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<Guid> SubmitAsync(
@@ -130,8 +135,9 @@ namespace Application.UseCases
                 );
 
                 await SendNotificationEmailBestEffortAsync(
-                    jobEmployerProfile.UserId,
-                    notification,
+                    userId: jobEmployerProfile.UserId,
+                    subject: notification.Title,
+                    htmlBody: EmailTemplates.RenderNotificationHtml(notification.Title, notification.Message),
                     cancellationToken
                 );
             }
@@ -199,8 +205,9 @@ namespace Application.UseCases
             if (candidateProfile is not null)
             {
                 var statusChanged = previousStatus != application.Status;
+                var statusVi = EmailTemplates.ToVietnameseApplicationStatus(application.Status);
                 var notificationMessage = statusChanged
-                    ? $"Hồ sơ của bạn đã được cập nhật sang trạng thái: {application.Status}."
+                    ? $"Hồ sơ của bạn đã được cập nhật sang trạng thái: {statusVi}."
                     : "Nhà tuyển dụng vừa gửi phản hồi (ghi chú) cho hồ sơ ứng tuyển của bạn — xem trong mục Đơn ứng tuyển.";
 
                 var notification = Notification.Create(
@@ -217,8 +224,11 @@ namespace Application.UseCases
                 );
 
                 await SendNotificationEmailBestEffortAsync(
-                    candidateProfile.UserId,
-                    notification,
+                    userId: candidateProfile.UserId,
+                    subject: statusChanged ? "EnableVN - Cập nhật hồ sơ ứng tuyển" : "EnableVN - Phản hồi từ nhà tuyển dụng",
+                    htmlBody: statusChanged
+                        ? EmailTemplates.RenderApplicationStatusChangedHtml(job.Title.Value, application.Status, command.Note)
+                        : EmailTemplates.RenderNotificationHtml(notification.Title, string.IsNullOrWhiteSpace(command.Note) ? notification.Message : command.Note),
                     cancellationToken
                 );
             }
@@ -459,24 +469,38 @@ namespace Application.UseCases
 
         private async Task SendNotificationEmailBestEffortAsync(
             Guid userId,
-            Notification notification,
+            string subject,
+            string htmlBody,
             CancellationToken cancellationToken)
         {
             try
             {
                 var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
-                if (user is null) return;
+                var recipient = user?.Email.Value;
+                if (string.IsNullOrWhiteSpace(recipient))
+                {
+                    _logger.LogWarning(
+                        "Notification email skipped: recipient is empty. UserId={UserId} Subject={Subject}",
+                        userId,
+                        subject);
+                    return;
+                }
 
                 await _emailService.SendAsync(
-                    user.Email.Value,
-                    notification.Title,
-                    notification.Message,
+                    recipient,
+                    subject,
+                    htmlBody,
                     cancellationToken
                 );
             }
-            catch
+            catch (Exception ex)
             {
                 // MVP: email fail không được làm fail nghiệp vụ chính.
+                _logger.LogWarning(
+                    ex,
+                    "Notification email failed (best-effort). UserId={UserId} Subject={Subject}",
+                    userId,
+                    subject);
             }
         }
     }

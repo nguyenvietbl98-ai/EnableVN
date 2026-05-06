@@ -3,13 +3,12 @@
     /// <summary>
     /// Outbound Port cho gửi email.
     /// 
-    /// MVP có thể chưa dùng ngay.
-    /// Giai đoạn 2 sẽ dùng để gửi thông báo khi trạng thái hồ sơ thay đổi.
+     /// Body được truyền vào dưới dạng HTML (UTF-8) để hỗ trợ email tiếng Việt & template.
     /// </summary>
     public interface IEmailService
     {
         /// <summary>
-        /// Gửi email đơn giản (plain text).
+        /// Gửi email (HTML).
         /// </summary>
         Task SendAsync(
             string to,
