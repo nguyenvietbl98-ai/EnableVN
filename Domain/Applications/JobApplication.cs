@@ -18,6 +18,10 @@ namespace Domain.Applications
         public ApplicationStatus Status { get; private set; }
         public DateTime SubmittedAt { get; private set; }
 
+        public double MatchScore { get; private set; }
+        public string MatchLevel { get; private set; } = string.Empty;
+        public string MatchReason { get; private set; } = string.Empty;
+
         public IReadOnlyCollection<ApplicationStatusHistory> StatusHistories
             => _statusHistories.AsReadOnly();
 
@@ -35,6 +39,9 @@ namespace Domain.Applications
             CvUrl = cvUrl;
             Status = ApplicationStatus.Pending;
             SubmittedAt = DateTime.UtcNow;
+            MatchScore = 0;
+            MatchLevel = string.Empty;
+            MatchReason = string.Empty;
 
             _statusHistories.Add(
                 ApplicationStatusHistory.Create(ApplicationStatus.Pending, "Ứng viên đã nộp hồ sơ.")
@@ -74,6 +81,13 @@ namespace Domain.Applications
             );
 
             return application;
+        }
+
+        public void SetMatchScore(double score, string level, string reason)
+        {
+            MatchScore = Math.Clamp(score, 0, 100);
+            MatchLevel = level ?? string.Empty;
+            MatchReason = reason ?? string.Empty;
         }
 
         public void ChangeStatus(
@@ -133,7 +147,10 @@ namespace Domain.Applications
             string? cvUrl,
             ApplicationStatus status,
             DateTime submittedAt,
-            IReadOnlyList<ApplicationStatusHistory> statusHistories
+            IReadOnlyList<ApplicationStatusHistory> statusHistories,
+            double matchScore = 0,
+            string matchLevel = "",
+            string matchReason = ""
         )
         {
             if (id == Guid.Empty)
@@ -154,6 +171,9 @@ namespace Domain.Applications
             );
 
             application.Status = status;
+            application.MatchScore = Math.Clamp(matchScore, 0, 100);
+            application.MatchLevel = matchLevel ?? string.Empty;
+            application.MatchReason = matchReason ?? string.Empty;
             // Clear default history added by constructor
             application._statusHistories.Clear();
             // Add restored histories

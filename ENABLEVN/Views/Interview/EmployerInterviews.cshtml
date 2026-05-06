@@ -1,0 +1,132 @@
+@using Ports.Models.Interviews
+@model IReadOnlyList<InterviewScheduleDto>
+@{
+    ViewData["Title"] = "Quản lý lịch phỏng vấn";
+    var crumb = new BreadcrumbModel { MiddleText = "Dashboard", MiddleController = "EmployerDashboard", MiddleAction = "Index", CurrentText = "Lịch phỏng vấn" };
+
+    string StatusCss(string status) => status switch
+    {
+        "Pending" => "evn-tag evn-tag--warning",
+        "Accepted" => "evn-tag evn-tag--success",
+        "Declined" => "evn-tag evn-tag--danger",
+        "Cancelled" => "evn-tag evn-tag--muted",
+        "Completed" => "evn-tag",
+        _ => "evn-tag"
+    };
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Employer</span>
+            <h1 class="evn-page-head__title">Quản lý lịch phỏng vấn</h1>
+            <p class="evn-page-head__lead">Danh sách lịch phỏng vấn bạn đã tạo.</p>
+        </header>
+
+        @if (!string.IsNullOrEmpty(TempData["Success"]?.ToString()))
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+        @if (!string.IsNullOrEmpty(TempData["Error"]?.ToString()))
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        @if (Model.Count == 0)
+        {
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Chưa có lịch phỏng vấn</h2>
+                <p class="evn-empty__text">Tạo lịch phỏng vấn từ trang quản lý hồ sơ ứng tuyển khi trạng thái là "Phỏng vấn".</p>
+            </div>
+        }
+        else
+        {
+            <div class="d-grid gap-4">
+                @foreach (var s in Model)
+                {
+                    <article class="evn-card p-4">
+                        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+                            <div>
+                                <h2 class="h6 fw-bold mb-1">@s.JobTitle</h2>
+                                <p class="evn-muted small mb-0">Ứng viên: @s.CandidateName</p>
+                            </div>
+                            <span class="@StatusCss(s.Status)">@s.StatusVi</span>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
+                                <div class="evn-card-soft p-3">
+                                    <div class="small evn-muted mb-1">Thời gian</div>
+                                    <div class="fw-semibold">@s.ScheduledAt.ToLocalTime().ToString("HH:mm — dd/MM/yyyy")</div>
+                                    <div class="small">@s.DurationMinutes phút · @s.InterviewType</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="evn-card-soft p-3">
+                                    <div class="small evn-muted mb-1">Link / Địa điểm</div>
+                                    @if (!string.IsNullOrWhiteSpace(s.MeetingLink))
+                                    {
+                                        <a href="@s.MeetingLink" target="_blank" rel="noopener" class="small">@s.MeetingLink</a>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(s.Location))
+                                    {
+                                        <div class="small">@s.Location</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="small evn-muted">—</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (s.CandidateRespondedAt.HasValue)
+                        {
+                            <p class="small mb-2">
+                                Ứng viên phản hồi lúc @s.CandidateRespondedAt.Value.ToLocalTime().ToString("HH:mm dd/MM/yyyy")
+                                @if (!string.IsNullOrWhiteSpace(s.CandidateDeclineReason))
+                                {
+                                    <span>· Lý do từ chối: @s.CandidateDeclineReason</span>
+                                }
+                            </p>
+                        }
+
+                        @if (s.Status == "Pending" || s.Status == "Accepted")
+                        {
+                            <button class="btn btn-outline-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#cancelModal-@s.Id">
+                                <i class="bi bi-x-circle me-1" aria-hidden="true"></i> Hủy lịch
+                            </button>
+
+                            <div class="modal fade" id="cancelModal-@s.Id" tabindex="-1" aria-labelledby="cancelLabel-@s.Id" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form asp-action="Cancel" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@s.Id" />
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="cancelLabel-@s.Id">Hủy lịch phỏng vấn</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <label class="form-label" for="cancelReason-@s.Id">Lý do hủy (tùy chọn)</label>
+                                                <textarea id="cancelReason-@s.Id" name="reason" class="form-control" rows="2" maxlength="500"></textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</div>

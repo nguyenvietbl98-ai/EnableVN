@@ -112,6 +112,93 @@ public static class EmailTemplates
             bodyHtml: body);
     }
 
+    public static string RenderInterviewInvitationHtml(
+        string candidateName,
+        string companyName,
+        string jobTitle,
+        DateTime scheduledAt,
+        int durationMinutes,
+        string interviewType,
+        string? meetingLinkOrLocation,
+        string? note)
+    {
+        var safeName = WebUtility.HtmlEncode(candidateName);
+        var safeCompany = WebUtility.HtmlEncode(companyName);
+        var safeJob = WebUtility.HtmlEncode(jobTitle);
+        var safeType = WebUtility.HtmlEncode(interviewType);
+        var safeLocation = string.IsNullOrWhiteSpace(meetingLinkOrLocation)
+            ? "—"
+            : WebUtility.HtmlEncode(meetingLinkOrLocation);
+
+        var localTime = scheduledAt.ToLocalTime().ToString("HH:mm — dd/MM/yyyy");
+
+        var noteBlock = string.IsNullOrWhiteSpace(note)
+            ? string.Empty
+            : $@"<div style=""margin-top:12px;padding:12px;border-radius:10px;background:#F9FAFB;border:1px solid #E5E7EB;"">
+                  <div style=""font-size:12px;color:#6B7280;margin-bottom:6px;"">Ghi chú từ nhà tuyển dụng</div>
+                  <div style=""font-size:14px;line-height:22px;color:#111827;"">{WebUtility.HtmlEncode(note)}</div>
+                </div>";
+
+        var body = $@"
+            <h2 style=""margin:0 0 12px 0;font-size:20px;line-height:28px;color:#111827;"">Lời mời phỏng vấn từ EnableVN</h2>
+            <p style=""margin:0 0 12px 0;color:#374151;font-size:14px;line-height:22px;"">
+                Xin chào <strong>{safeName}</strong>,
+            </p>
+            <p style=""margin:0 0 12px 0;color:#374151;font-size:14px;line-height:22px;"">
+                Nhà tuyển dụng <strong>{safeCompany}</strong> đã mời bạn tham gia phỏng vấn cho vị trí <strong>{safeJob}</strong>.
+            </p>
+            <table role=""presentation"" cellpadding=""0"" cellspacing=""0"" style=""width:100%;border-collapse:collapse;margin-bottom:12px;"">
+              <tr><td style=""padding:6px 0;color:#6B7280;font-size:13px;width:120px;"">Thời gian</td><td style=""padding:6px 0;color:#111827;font-size:13px;font-weight:600;"">{localTime}</td></tr>
+              <tr><td style=""padding:6px 0;color:#6B7280;font-size:13px;"">Thời lượng</td><td style=""padding:6px 0;color:#111827;font-size:13px;"">{durationMinutes} phút</td></tr>
+              <tr><td style=""padding:6px 0;color:#6B7280;font-size:13px;"">Hình thức</td><td style=""padding:6px 0;color:#111827;font-size:13px;"">{safeType}</td></tr>
+              <tr><td style=""padding:6px 0;color:#6B7280;font-size:13px;"">Link / Địa điểm</td><td style=""padding:6px 0;color:#111827;font-size:13px;"">{safeLocation}</td></tr>
+            </table>
+            {noteBlock}
+            <p style=""margin:16px 0 0 0;color:#6B7280;font-size:13px;line-height:20px;"">
+                Vui lòng đăng nhập EnableVN để xác nhận hoặc từ chối lịch phỏng vấn.
+            </p>";
+
+        return RenderLayoutHtml(
+            title: "Lời mời phỏng vấn từ EnableVN",
+            preheader: $"Bạn có lịch phỏng vấn mới cho vị trí {jobTitle} tại {companyName}.",
+            bodyHtml: body);
+    }
+
+    public static string RenderInterviewResponseHtml(
+        string employerCompanyName,
+        string candidateName,
+        string jobTitle,
+        bool accepted,
+        string? declineReason)
+    {
+        var safeCompany = WebUtility.HtmlEncode(employerCompanyName);
+        var safeName = WebUtility.HtmlEncode(candidateName);
+        var safeJob = WebUtility.HtmlEncode(jobTitle);
+
+        var responseText = accepted ? "đã xác nhận" : "đã từ chối";
+        var noteBlock = (!accepted && !string.IsNullOrWhiteSpace(declineReason))
+            ? $@"<div style=""margin-top:12px;padding:12px;border-radius:10px;background:#FEF2F2;border:1px solid #FECACA;"">
+                  <div style=""font-size:12px;color:#991B1B;margin-bottom:6px;"">Lý do từ chối</div>
+                  <div style=""font-size:14px;line-height:22px;color:#111827;"">{WebUtility.HtmlEncode(declineReason)}</div>
+                </div>"
+            : string.Empty;
+
+        var body = $@"
+            <h2 style=""margin:0 0 12px 0;font-size:20px;line-height:28px;color:#111827;"">Phản hồi lịch phỏng vấn</h2>
+            <p style=""margin:0 0 12px 0;color:#374151;font-size:14px;line-height:22px;"">
+                Ứng viên <strong>{safeName}</strong> {responseText} lịch phỏng vấn vị trí <strong>{safeJob}</strong>.
+            </p>
+            {noteBlock}
+            <p style=""margin:16px 0 0 0;color:#6B7280;font-size:13px;line-height:20px;"">
+                Vui lòng đăng nhập EnableVN để xem chi tiết và liên hệ ứng viên.
+            </p>";
+
+        return RenderLayoutHtml(
+            title: "Phản hồi lịch phỏng vấn",
+            preheader: $"Ứng viên {candidateName} {responseText} lịch phỏng vấn.",
+            bodyHtml: body);
+    }
+
     public static string ToVietnameseApplicationStatus(ApplicationStatus status)
         => status switch
         {

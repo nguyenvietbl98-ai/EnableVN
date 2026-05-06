@@ -1,4 +1,5 @@
-﻿using Application.UseCases;
+﻿using Application.Services;
+using Application.UseCases;
 using Microsoft.Extensions.DependencyInjection;
 using Ports.Inbound;
 
@@ -27,6 +28,9 @@ public static class DependencyInjection
         services.AddScoped<IEmployerCandidateSearchUseCase, EmployerCandidateSearchUseCase>();
         services.AddScoped<ICompanyReviewUseCase, CompanyReviewUseCase>();
         services.AddScoped<IViolationReportUseCase, ViolationReportUseCase>();
+        services.AddScoped<IJobRecommendationUseCase, JobRecommendationUseCase>();
+        services.AddScoped<IInterviewScheduleUseCase, InterviewScheduleUseCase>();
+        services.AddScoped<IJobMatchScoringService, JobMatchScoringService>();
 
         return services;
     }

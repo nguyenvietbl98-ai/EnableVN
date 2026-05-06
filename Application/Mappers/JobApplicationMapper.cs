@@ -42,7 +42,10 @@ namespace Application.Mappers
                 LatestHistoryStatus = last?.Status,
                 LatestHistoryAt = last?.ChangedAt,
                 EmployerFeedbackNote = employerFeedback?.Note,
-                EmployerFeedbackAt = employerFeedback?.ChangedAt
+                EmployerFeedbackAt = employerFeedback?.ChangedAt,
+                MatchScore = application.MatchScore,
+                MatchLevel = application.MatchLevel,
+                MatchReason = application.MatchReason
             };
         }
     }

@@ -1,4 +1,5 @@
-﻿using InfrastructureSqlite.PersistenceModels;
+﻿using Domain.Interviews;
+using InfrastructureSqlite.PersistenceModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,8 @@ namespace InfrastructureSqlite.Persistence
 
         public DbSet<ApplicationChatMessageRecord> ApplicationChatMessages => Set<ApplicationChatMessageRecord>();
 
+        public DbSet<InterviewScheduleRecord> InterviewSchedules => Set<InterviewScheduleRecord>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -47,6 +50,7 @@ namespace InfrastructureSqlite.Persistence
             ConfigureDisabilityTypes(modelBuilder);
             ConfigureAssistiveDevices(modelBuilder);
             ConfigureJobCategories(modelBuilder);
+            ConfigureInterviewSchedules(modelBuilder);
             modelBuilder.Entity<NotificationRecord>(entity =>
             {
                 entity.ToTable("Notifications"); // Tên bảng trong SQLite.
@@ -272,6 +276,10 @@ namespace InfrastructureSqlite.Persistence
             app.HasIndex(x => x.JobId);
 
             app.HasIndex(x => x.CandidateId);
+
+            app.Property(x => x.MatchScore).HasDefaultValue(0.0);
+            app.Property(x => x.MatchLevel).HasMaxLength(100).HasDefaultValue(string.Empty);
+            app.Property(x => x.MatchReason).HasMaxLength(500).HasDefaultValue(string.Empty);
         }
 
         private static void ConfigureApplicationStatusHistories(ModelBuilder modelBuilder)
@@ -356,5 +364,37 @@ namespace InfrastructureSqlite.Persistence
             category.HasIndex(x => x.Status);
         }
 
+        private static void ConfigureInterviewSchedules(ModelBuilder modelBuilder)
+        {
+            var interview = modelBuilder.Entity<InterviewScheduleRecord>();
+
+            interview.ToTable("InterviewSchedules");
+
+            interview.HasKey(x => x.Id);
+
+            interview.Property(x => x.JobApplicationId).IsRequired();
+            interview.Property(x => x.EmployerUserId).IsRequired();
+            interview.Property(x => x.CandidateUserId).IsRequired();
+            interview.Property(x => x.ScheduledAt).IsRequired();
+            interview.Property(x => x.DurationMinutes).IsRequired();
+
+            interview.Property(x => x.InterviewType)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            interview.Property(x => x.MeetingLink).HasMaxLength(500);
+            interview.Property(x => x.Location).HasMaxLength(500);
+            interview.Property(x => x.Note).HasMaxLength(1000);
+
+            interview.Property(x => x.Status)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            interview.Property(x => x.CandidateDeclineReason).HasMaxLength(500);
+
+            interview.HasIndex(x => x.JobApplicationId);
+            interview.HasIndex(x => x.CandidateUserId);
+            interview.HasIndex(x => x.EmployerUserId);
+        }
     }
 }

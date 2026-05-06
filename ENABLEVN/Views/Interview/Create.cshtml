@@ -1,0 +1,93 @@
+@using Domain.Interviews
+@model Ports.Models.Interviews.CreateInterviewScheduleRequest
+@{
+    ViewData["Title"] = "Tạo lịch phỏng vấn";
+    var crumb = new BreadcrumbModel { MiddleText = "Lịch phỏng vấn", MiddleController = "Interview", MiddleAction = "EmployerInterviews", CurrentText = "Tạo mới" };
+}
+
+<div class="evn-page">
+    <div class="container py-4" style="max-width:600px;">
+        <partial name="_Breadcrumb" model="crumb" />
+
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Employer</span>
+            <h1 class="evn-page-head__title">Tạo lịch phỏng vấn</h1>
+        </header>
+
+        @if (!string.IsNullOrEmpty(TempData["Error"]?.ToString()))
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <div class="evn-card p-4">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="JobApplicationId" />
+
+                <div class="mb-3">
+                    <label asp-for="ScheduledAt" class="form-label">Thời gian phỏng vấn <span class="text-danger">*</span></label>
+                    <input asp-for="ScheduledAt" type="datetime-local" class="form-control"
+                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
+                    <span asp-validation-for="ScheduledAt" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="DurationMinutes" class="form-label">Thời lượng (phút) <span class="text-danger">*</span></label>
+                    <input asp-for="DurationMinutes" type="number" class="form-control" min="15" max="480" required />
+                    <span asp-validation-for="DurationMinutes" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="InterviewType" class="form-label">Hình thức <span class="text-danger">*</span></label>
+                    <select asp-for="InterviewType" class="form-select" id="interviewTypeSelect">
+                        <option value="@((int)InterviewType.Online)">Online</option>
+                        <option value="@((int)InterviewType.Offline)">Offline</option>
+                        <option value="@((int)InterviewType.Phone)">Phone</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="meetingLinkGroup">
+                    <label asp-for="MeetingLink" class="form-label">Meeting Link (Online)</label>
+                    <input asp-for="MeetingLink" type="url" class="form-control" placeholder="https://meet.google.com/..." />
+                    <span asp-validation-for="MeetingLink" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3" id="locationGroup" style="display:none;">
+                    <label asp-for="Location" class="form-label">Địa điểm (Offline)</label>
+                    <input asp-for="Location" type="text" class="form-control" placeholder="Địa chỉ văn phòng…" maxlength="500" />
+                    <span asp-validation-for="Location" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Note" class="form-label">Ghi chú (tùy chọn)</label>
+                    <textarea asp-for="Note" class="form-control" rows="3" maxlength="1000" placeholder="Thông tin cần chuẩn bị, link tham gia, hướng dẫn…"></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary evn-btn-primary">Tạo lịch phỏng vấn</button>
+                    <a class="btn btn-outline-secondary" asp-action="EmployerInterviews">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+    (function () {
+        var select = document.getElementById('interviewTypeSelect');
+        var meetingGroup = document.getElementById('meetingLinkGroup');
+        var locationGroup = document.getElementById('locationGroup');
+
+        function toggle() {
+            var val = parseInt(select.value);
+            // Online = 1, Offline = 2, Phone = 3
+            meetingGroup.style.display = val === 1 ? '' : 'none';
+            locationGroup.style.display = val === 2 ? '' : 'none';
+        }
+
+        select.addEventListener('change', toggle);
+        toggle();
+    })();
+    </script>
+}

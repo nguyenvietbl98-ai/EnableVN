@@ -1,0 +1,111 @@
+@using Ports.Models.Jobs
+@model IReadOnlyList<RecommendedJobDto>
+@{
+    ViewData["Title"] = "Việc làm phù hợp với bạn";
+    var crumb = new BreadcrumbModel { MiddleText = "Dashboard", MiddleController = "CandidateDashboard", MiddleAction = "Index", CurrentText = "Việc làm phù hợp" };
+
+    string LevelBadgeCss(string level) => level switch
+    {
+        "Phù hợp cao" => "evn-badge evn-badge--success",
+        "Cần xem xét" => "evn-badge evn-badge--warning",
+        "Phù hợp trung bình" => "evn-badge evn-badge--info",
+        _ => "evn-badge evn-badge--muted"
+    };
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Candidate</span>
+            <h1 class="evn-page-head__title">Việc làm phù hợp với bạn</h1>
+            <p class="evn-page-head__lead">Hệ thống gợi ý dựa trên kỹ năng, kinh nghiệm và mong muốn nghề nghiệp của bạn.</p>
+        </header>
+
+        @if (!string.IsNullOrEmpty(TempData["Error"]?.ToString()))
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        @if (Model.Count == 0)
+        {
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Chưa có gợi ý việc làm</h2>
+                <p class="evn-empty__text">Hãy cập nhật đầy đủ hồ sơ ứng viên (kỹ năng, vị trí mong muốn, mức lương) để nhận gợi ý chính xác hơn.</p>
+                <a class="btn btn-primary evn-btn-primary" asp-controller="CandidateProfile" asp-action="Index">Cập nhật hồ sơ</a>
+            </div>
+        }
+        else
+        {
+            <div class="d-grid gap-4">
+                @foreach (var job in Model)
+                {
+                    <article class="evn-card p-4">
+                        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                    <h2 class="h6 fw-bold mb-0">@job.Title</h2>
+                                    <span class="@LevelBadgeCss(job.MatchLevel)">@job.MatchLevel</span>
+                                    @if (job.AlreadyApplied)
+                                    {
+                                        <span class="badge bg-secondary">Đã ứng tuyển</span>
+                                    }
+                                </div>
+                                <p class="evn-muted small mb-2">@job.CompanyName · @job.WorkMode</p>
+
+                                @if (job.SalaryMin.HasValue || job.SalaryMax.HasValue)
+                                {
+                                    <p class="small mb-2">
+                                        <i class="bi bi-currency-dollar" aria-hidden="true"></i>
+                                        @(job.SalaryMin.HasValue ? $"{job.SalaryMin:N0}" : "—") — @(job.SalaryMax.HasValue ? $"{job.SalaryMax:N0}" : "—") VNĐ
+                                    </p>
+                                }
+
+                                @if (job.MatchedSkills.Count > 0)
+                                {
+                                    <div class="mb-2">
+                                        <span class="small evn-muted">Kỹ năng phù hợp:</span>
+                                        @foreach (var skill in job.MatchedSkills.Take(5))
+                                        {
+                                            <span class="badge bg-success-subtle text-success ms-1">@skill</span>
+                                        }
+                                    </div>
+                                }
+
+                                @if (job.MissingSkills.Count > 0)
+                                {
+                                    <div>
+                                        <span class="small evn-muted">Kỹ năng còn thiếu:</span>
+                                        @foreach (var skill in job.MissingSkills.Take(3))
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger ms-1">@skill</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="d-flex flex-column align-items-lg-end gap-2 text-center text-lg-end">
+                                <div class="evn-score-circle">
+                                    <span class="evn-score-circle__value">@job.RecommendationScore.ToString("0")<small>%</small></span>
+                                    <span class="evn-score-circle__label">phù hợp</span>
+                                </div>
+                                <a class="btn btn-outline-secondary btn-sm"
+                                   asp-controller="Jobs"
+                                   asp-action="Details"
+                                   asp-route-id="@job.JobId">Xem chi tiết</a>
+                                @if (!job.AlreadyApplied)
+                                {
+                                    <a class="btn btn-primary evn-btn-primary btn-sm"
+                                       asp-controller="Jobs"
+                                       asp-action="Details"
+                                       asp-route-id="@job.JobId">Ứng tuyển ngay</a>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</div>

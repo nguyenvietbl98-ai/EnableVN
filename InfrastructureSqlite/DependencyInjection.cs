@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ports.Outbound.Repositories;
 using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -58,6 +59,7 @@ namespace InfrastructureSqlite
             services.AddScoped<INotificationRepository, SqliteNotificationRepository>();
 
             services.AddScoped<IApplicationChatRepository, SqliteApplicationChatRepository>();
+            services.AddScoped<IInterviewScheduleRepository, SqliteInterviewScheduleRepository>();
 
             return services;
         }

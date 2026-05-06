@@ -1,0 +1,150 @@
+@using Ports.Models.Interviews
+@model IReadOnlyList<InterviewScheduleDto>
+@{
+    ViewData["Title"] = "Lịch phỏng vấn của tôi";
+    var crumb = new BreadcrumbModel { MiddleText = "Dashboard", MiddleController = "CandidateDashboard", MiddleAction = "Index", CurrentText = "Lịch phỏng vấn" };
+
+    string StatusCss(string status) => status switch
+    {
+        "Pending" => "evn-tag evn-tag--warning",
+        "Accepted" => "evn-tag evn-tag--success",
+        "Declined" => "evn-tag evn-tag--danger",
+        "Cancelled" => "evn-tag evn-tag--muted",
+        "Completed" => "evn-tag",
+        _ => "evn-tag"
+    };
+}
+
+<div class="evn-page">
+    <div class="container py-4">
+        <partial name="_Breadcrumb" model="crumb" />
+
+        <header class="evn-page-head mb-4">
+            <span class="evn-badge mb-2">Candidate</span>
+            <h1 class="evn-page-head__title">Lịch phỏng vấn của tôi</h1>
+            <p class="evn-page-head__lead">Xem và phản hồi các lịch phỏng vấn từ nhà tuyển dụng.</p>
+        </header>
+
+        @if (!string.IsNullOrEmpty(TempData["Success"]?.ToString()))
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+        @if (!string.IsNullOrEmpty(TempData["Error"]?.ToString()))
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        @if (Model.Count == 0)
+        {
+            <div class="evn-empty" role="status">
+                <h2 class="evn-empty__title">Chưa có lịch phỏng vấn</h2>
+                <p class="evn-empty__text">Khi nhà tuyển dụng mời bạn phỏng vấn, lịch sẽ hiển thị tại đây.</p>
+            </div>
+        }
+        else
+        {
+            <div class="d-grid gap-4">
+                @foreach (var s in Model)
+                {
+                    <article class="evn-card p-4">
+                        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+                            <div>
+                                <h2 class="h6 fw-bold mb-1">@s.JobTitle</h2>
+                                <p class="evn-muted small mb-0">@s.EmployerCompanyName</p>
+                            </div>
+                            <div class="d-flex align-items-start gap-2">
+                                <span class="@StatusCss(s.Status)">@s.StatusVi</span>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
+                                <div class="evn-card-soft p-3">
+                                    <div class="small evn-muted mb-1">Thời gian</div>
+                                    <div class="fw-semibold">@s.ScheduledAt.ToLocalTime().ToString("HH:mm — dd/MM/yyyy")</div>
+                                    <div class="small">Thời lượng: @s.DurationMinutes phút</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="evn-card-soft p-3">
+                                    <div class="small evn-muted mb-1">Hình thức</div>
+                                    <div class="fw-semibold">@s.InterviewType</div>
+                                    @if (!string.IsNullOrWhiteSpace(s.MeetingLink))
+                                    {
+                                        <div class="small"><a href="@s.MeetingLink" target="_blank" rel="noopener">@s.MeetingLink</a></div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(s.Location))
+                                    {
+                                        <div class="small">@s.Location</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(s.Note))
+                        {
+                            <div class="evn-card-soft p-3 mb-3">
+                                <div class="small evn-muted mb-1">Ghi chú từ nhà tuyển dụng</div>
+                                <p class="mb-0 small">@s.Note</p>
+                            </div>
+                        }
+
+                        @if (s.Status == "Pending")
+                        {
+                            <div class="d-flex flex-wrap gap-2">
+                                <form asp-action="Accept" method="post" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@s.Id" />
+                                    <button class="btn btn-success btn-sm" type="submit">
+                                        <i class="bi bi-check-circle me-1" aria-hidden="true"></i> Xác nhận tham gia
+                                    </button>
+                                </form>
+
+                                <button class="btn btn-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#declineModal-@s.Id">
+                                    <i class="bi bi-x-circle me-1" aria-hidden="true"></i> Từ chối
+                                </button>
+                            </div>
+
+                            <!-- Modal từ chối -->
+                            <div class="modal fade" id="declineModal-@s.Id" tabindex="-1" aria-labelledby="declineLabel-@s.Id" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form asp-action="Decline" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@s.Id" />
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="declineLabel-@s.Id">Từ chối lịch phỏng vấn</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <label class="form-label" for="reason-@s.Id">Lý do từ chối (tùy chọn)</label>
+                                                <textarea id="reason-@s.Id" name="reason" class="form-control" rows="3" maxlength="500" placeholder="VD: Tôi đã nhận việc khác…"></textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                <button type="submit" class="btn btn-danger">Xác nhận từ chối</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (s.CandidateRespondedAt.HasValue)
+                        {
+                            <p class="small evn-muted mt-2 mb-0">
+                                Phản hồi lúc @s.CandidateRespondedAt.Value.ToLocalTime().ToString("HH:mm dd/MM/yyyy")
+                                @if (!string.IsNullOrWhiteSpace(s.CandidateDeclineReason))
+                                {
+                                    <span>· Lý do: @s.CandidateDeclineReason</span>
+                                }
+                            </p>
+                        }
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</div>

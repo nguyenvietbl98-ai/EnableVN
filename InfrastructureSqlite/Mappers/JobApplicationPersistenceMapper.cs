@@ -18,7 +18,10 @@ namespace InfrastructureSqlite.Mappers
                 CoverLetter = application.CoverLetter,
                 CvUrl = application.CvUrl,
                 Status = application.Status.ToString(),
-                SubmittedAt = application.SubmittedAt
+                SubmittedAt = application.SubmittedAt,
+                MatchScore = application.MatchScore,
+                MatchLevel = application.MatchLevel,
+                MatchReason = application.MatchReason
             };
         }
 
@@ -34,13 +37,19 @@ namespace InfrastructureSqlite.Mappers
                 record.CvUrl,
                 status,
                 record.SubmittedAt,
-                statusHistories
+                statusHistories,
+                record.MatchScore,
+                record.MatchLevel,
+                record.MatchReason
             );
         }
 
         public static void UpdateRecord(JobApplicationRecord record, JobApplication application)
         {
             record.Status = application.Status.ToString();
+            record.MatchScore = application.MatchScore;
+            record.MatchLevel = application.MatchLevel;
+            record.MatchReason = application.MatchReason;
         }
     }
 }

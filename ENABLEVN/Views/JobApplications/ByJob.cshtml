@@ -58,6 +58,14 @@
                                 <h2 class="h6 fw-bold mb-1">Ứng viên</h2>
                                 <p class="evn-muted small mb-0">Mã hồ sơ: <code>@item.Id</code> · Ứng viên: <code>@item.CandidateId</code></p>
                                 <p class="evn-muted small mb-0">Nộp lúc @item.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                                @if (item.MatchScore > 0)
+                                {
+                                    <p class="small mb-0">
+                                        <strong>Điểm phù hợp:</strong>
+                                        <span class="fw-bold text-primary">@item.MatchScore.ToString("0")%</span>
+                                        <span class="badge @(item.MatchLevel == "Phù hợp cao" ? "bg-success" : item.MatchLevel == "Cần xem xét" ? "bg-warning text-dark" : "bg-secondary") ms-1">@item.MatchLevel</span>
+                                    </p>
+                                }
                             </div>
                             <div class="d-flex flex-column align-items-lg-end gap-2">
                                 <span class="evn-tag">@StatusVi(item.Status)</span>
@@ -74,6 +82,15 @@
                                        asp-action="Thread"
                                        asp-route-applicationId="@item.Id">
                                         <i class="bi bi-chat-dots" aria-hidden="true"></i> Chat với ứng viên
+                                    </a>
+                                }
+                                @if (item.Status == ApplicationStatus.Interview)
+                                {
+                                    <a class="btn btn-success btn-sm"
+                                       asp-controller="Interview"
+                                       asp-action="Create"
+                                       asp-route-applicationId="@item.Id">
+                                        <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i> Tạo lịch phỏng vấn
                                     </a>
                                 }
                                 @if (item.Status == ApplicationStatus.Accepted)

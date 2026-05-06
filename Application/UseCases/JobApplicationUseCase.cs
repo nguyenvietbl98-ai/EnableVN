@@ -1,6 +1,7 @@
 ﻿using Application.Email;
 using Application.Common;
 using Application.Mappers;
+using Application.Services;
 using Domain.Applications;
 using Domain.Notifications;
 using Domain.Users;
@@ -34,6 +35,7 @@ namespace Application.UseCases
         private readonly INotificationRepository _notificationRepository;
         private readonly IEmailService _emailService;
         private readonly ILogger<JobApplicationUseCase> _logger;
+        private readonly IJobMatchScoringService _matchScoringService;
 
         public JobApplicationUseCase(
             IJobApplicationRepository jobApplicationRepository,
@@ -45,7 +47,8 @@ namespace Application.UseCases
             IDomainEventDispatcher domainEventDispatcher,
             INotificationRepository notificationRepository,
             IEmailService emailService,
-            ILogger<JobApplicationUseCase> logger
+            ILogger<JobApplicationUseCase> logger,
+            IJobMatchScoringService matchScoringService
         )
         {
             _jobApplicationRepository = jobApplicationRepository;
@@ -58,6 +61,7 @@ namespace Application.UseCases
             _notificationRepository = notificationRepository;
             _emailService = emailService;
             _logger = logger;
+            _matchScoringService = matchScoringService;
         }
 
         public async Task<Guid> SubmitAsync(
@@ -112,6 +116,20 @@ namespace Application.UseCases
                 command.CoverLetter,
                 cvUrl
             );
+
+            // Tính Match Score ngay khi apply
+            try
+            {
+                var matchResult = _matchScoringService.CalculateMatchScore(candidateProfile, job);
+                application.SetMatchScore(matchResult.Score, matchResult.Level, matchResult.Reason);
+                _logger.LogInformation(
+                    "Match score calculated. ApplicationId={ApplicationId} Score={Score} Level={Level}",
+                    application.Id, matchResult.Score, matchResult.Level);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Match score calculation failed. ApplicationId={ApplicationId}", application.Id);
+            }
 
             await _jobApplicationRepository.AddAsync(
                 application,

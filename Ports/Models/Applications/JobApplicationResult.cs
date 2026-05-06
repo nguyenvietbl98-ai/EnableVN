@@ -45,5 +45,9 @@ namespace Ports.Models.Applications
         public string? EmployerFeedbackNote { get; init; }
 
         public DateTime? EmployerFeedbackAt { get; init; }
+
+        public double MatchScore { get; init; }
+        public string MatchLevel { get; init; } = string.Empty;
+        public string MatchReason { get; init; } = string.Empty;
     }
 }

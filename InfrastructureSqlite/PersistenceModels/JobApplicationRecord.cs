@@ -15,4 +15,10 @@ public sealed class JobApplicationRecord
     public string Status { get; set; } = string.Empty;
 
     public DateTime SubmittedAt { get; set; }
+
+    public double MatchScore { get; set; }
+
+    public string MatchLevel { get; set; } = string.Empty;
+
+    public string MatchReason { get; set; } = string.Empty;
 }
