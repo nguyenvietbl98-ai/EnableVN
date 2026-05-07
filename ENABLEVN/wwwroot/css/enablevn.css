@@ -76,6 +76,20 @@ html {
   scroll-behavior: smooth;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 html,
 body {
   margin: 0;
@@ -95,6 +109,10 @@ a {
 
 a:hover {
   color: var(--evn-primary);
+  text-decoration: underline;
+}
+
+a:focus-visible {
   text-decoration: underline;
 }
 
@@ -253,6 +271,32 @@ a:hover {
 }
 
 .evn-user-pill__email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Avatar dropdown (header) */
+.evn-avatar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.evn-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  background: var(--evn-primary);
+  color: #fff;
+}
+
+.evn-avatar-email {
+  max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

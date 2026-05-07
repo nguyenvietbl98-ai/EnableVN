@@ -24,6 +24,10 @@
 <body>
     <!-- Skip Link cho Screen Reader & Keyboard Navigation -->
     <a class="evn-skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+
+    <!-- Screen reader live announcer (global) -->
+    <div id="evn-sr-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+    <div id="evn-sr-alert" class="visually-hidden" aria-live="assertive" aria-atomic="true"></div>
     
     <!-- Render Navbar -->
     <partial name="_Header" />
@@ -32,7 +36,7 @@
     <main id="main-content" tabindex="-1" class="min-vh-100 d-flex flex-column">
         @if (TempData["Success"] is not null || TempData["SuccessMessage"] is not null)
         {
-            <div class="container mt-4 evn-alert-host">
+            <div class="container mt-4 evn-alert-host" role="region" aria-label="Thông báo hệ thống" aria-live="polite" aria-atomic="true">
                 <div class="alert alert-success alert-dismissible fade show evn-card-soft" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i>
                     @(TempData["Success"] ?? TempData["SuccessMessage"])
@@ -43,7 +47,7 @@
 
         @if (TempData["Error"] is not null || TempData["ErrorMessage"] is not null)
         {
-            <div class="container mt-4 evn-alert-host">
+            <div class="container mt-4 evn-alert-host" role="region" aria-label="Thông báo hệ thống" aria-live="assertive" aria-atomic="true">
                 <div class="alert alert-danger alert-dismissible fade show evn-card-soft" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     @(TempData["Error"] ?? TempData["ErrorMessage"])

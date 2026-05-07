@@ -18,25 +18,71 @@
             </button>
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Jobs" asp-action="Index">Việc làm</a>
-                    </li>
                     @if (isLoggedIn && userRole == nameof(UserRole.Candidate))
                     {
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="CandidateDashboard" asp-action="Index">Dashboard</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="CandidateProfile" asp-action="Index">Hồ sơ của tôi</a>
+                        <li class="nav-item dropdown">
+                            <button class="nav-link dropdown-toggle"
+                                    id="candidateJobsMenu"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                Việc làm
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="candidateJobsMenu">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Jobs" asp-action="Index">
+                                        <i class="bi bi-briefcase me-2" aria-hidden="true"></i>Việc làm
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="JobRecommendation" asp-action="Index">
+                                        <i class="bi bi-lightning-charge me-2" aria-hidden="true"></i>Việc làm phù hợp
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="JobApplications" asp-action="MyApplications">
+                                        <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>Đơn ứng tuyển
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Interview" asp-action="MyInterviews">
+                                        <i class="bi bi-calendar-check me-2" aria-hidden="true"></i>Lịch phỏng vấn
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="JobApplications" asp-action="MyApplications">Đơn ứng tuyển</a>
+
+                        <li class="nav-item dropdown">
+                            <button class="nav-link dropdown-toggle"
+                                    id="candidateInteractMenu"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                Tương tác
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="candidateInteractMenu">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="AiAssistant" asp-action="Index">
+                                        <i class="bi bi-stars me-2" aria-hidden="true"></i>Trợ lý AI
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="ApplicationChat" asp-action="Inbox">
+                                        <i class="bi bi-chat-left-text me-2" aria-hidden="true"></i>Tin nhắn
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
+                    }
+                    else if (!isLoggedIn)
+                    {
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="AiAssistant" asp-action="Index"><i class="bi bi-stars me-1" aria-hidden="true"></i>Trợ lý AI</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="ApplicationChat" asp-action="Inbox">Tin nhắn</a>
+                            <a class="nav-link" asp-controller="Jobs" asp-action="Index">Việc làm</a>
                         </li>
                     }
                     @if (isLoggedIn && userRole == nameof(UserRole.Employer))
@@ -45,28 +91,45 @@
                             <a class="nav-link" asp-controller="EmployerDashboard" asp-action="Index">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="EmployerProfile" asp-action="Index">Hồ sơ doanh nghiệp</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" asp-controller="EmployerJobs" asp-action="Index">Tin tuyển dụng</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Candidates" asp-action="Index">Tìm ứng viên</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="AiAssistant" asp-action="Index"><i class="bi bi-stars me-1" aria-hidden="true"></i>Trợ lý AI</a>
+                            <a class="nav-link" asp-controller="Interview" asp-action="EmployerInterviews">Lịch phỏng vấn</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="ApplicationChat" asp-action="Inbox">Tin nhắn</a>
+
+                        <li class="nav-item dropdown">
+                            <button class="nav-link dropdown-toggle"
+                                    id="employerInteractMenu"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                Tương tác
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="employerInteractMenu">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="AiAssistant" asp-action="Index">
+                                        <i class="bi bi-stars me-2" aria-hidden="true"></i>Trợ lý AI
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="ApplicationChat" asp-action="Inbox">
+                                        <i class="bi bi-chat-left-text me-2" aria-hidden="true"></i>Tin nhắn
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     }
                     @if (isLoggedIn && userRole == nameof(UserRole.Admin))
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="AdminDashboard" asp-action="Index">Admin</a>
+                            <a class="nav-link" asp-controller="AdminDashboard" asp-action="Index">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Catalog" asp-action="Index">Danh mục</a>
+                            <a class="nav-link" asp-controller="Catalog" asp-action="Index">Quản lý danh mục</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="ViolationReports" asp-action="Index">Báo cáo vi phạm</a>
@@ -83,14 +146,44 @@
                             <i class="bi bi-bell me-1" aria-hidden="true"></i> Thông báo
                         </a>
                         @await Component.InvokeAsync("NotificationBell")
-                        <span class="evn-user-pill d-none d-lg-inline-flex" title="@userEmail">
-                            <span class="evn-brand-mark" style="width:1.75rem;height:1.75rem;font-size:0.75rem;" aria-hidden="true">@((userEmail?.Length > 0) ? userEmail![0].ToString().ToUpperInvariant() : "?")</span>
-                            <span class="evn-user-pill__email">@userEmail</span>
-                        </span>
-                        <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button class="btn btn-outline-secondary btn-sm" type="submit">Đăng xuất</button>
-                        </form>
+
+                        <div class="dropdown d-inline-flex">
+                            <button class="btn btn-outline-secondary btn-sm evn-avatar-btn dropdown-toggle"
+                                    type="button"
+                                    id="evnAvatarMenu"
+                                    data-bs-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                    aria-label="Menu tài khoản">
+                                <span class="evn-avatar" aria-hidden="true">
+                                    @((userEmail?.Length > 0) ? userEmail![0].ToString().ToUpperInvariant() : "?")
+                                </span>
+                                <span class="d-none d-lg-inline evn-avatar-email" title="@userEmail">@userEmail</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="evnAvatarMenu">
+                                @if (userRole == nameof(UserRole.Candidate))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="CandidateProfile" asp-action="Index">Hồ sơ của tôi</a></li>
+                                    <li><a class="dropdown-item" asp-controller="CandidateProfile" asp-action="Edit">Cập nhật hồ sơ</a></li>
+                                }
+                                else if (userRole == nameof(UserRole.Employer))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="EmployerProfile" asp-action="Index">Hồ sơ doanh nghiệp</a></li>
+                                    <li><a class="dropdown-item" asp-controller="EmployerProfile" asp-action="Edit">Cập nhật hồ sơ doanh nghiệp</a></li>
+                                }
+                                else if (userRole == nameof(UserRole.Admin))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="AdminDashboard" asp-action="Index">Tài khoản</a></li>
+                                }
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0">
+                                        @Html.AntiForgeryToken()
+                                        <button class="dropdown-item" type="submit">Đăng xuất</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     }
                     else
                     {

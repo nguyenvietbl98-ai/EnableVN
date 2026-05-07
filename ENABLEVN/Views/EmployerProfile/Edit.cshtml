@@ -19,6 +19,7 @@
 
                     <form asp-action="Edit" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert" aria-live="assertive" aria-atomic="true"></div>
                         <partial name="_EmployerProfileForm" model="Model" />
 
                         <button class="btn btn-primary evn-btn-primary" type="submit">

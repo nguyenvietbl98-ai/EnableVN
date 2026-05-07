@@ -49,8 +49,10 @@
         <div class="evn-app-chat__bubble">
           <div class="evn-app-chat__sender">${mine ? "Bạn" : "Người đối thoại"}</div>
           ${warn}
-          <div>${escapeHtml(m.body)}</div>
-          <small>${escapeHtml(formatLocal(m.sentAtUtc))}</small>
+          <div class="evn-app-chat__text">${escapeHtml(m.body)}</div>
+          <div class="evn-app-chat__meta">
+            <time datetime="${escapeHtml(m.sentAtUtc)}">${escapeHtml(formatLocal(m.sentAtUtc))}</time>
+          </div>
         </div>`;
 
             log.appendChild(row);

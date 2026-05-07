@@ -19,13 +19,18 @@
 
                     <form asp-action="Create" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert" aria-live="assertive" aria-atomic="true"></div>
                         <div class="mb-3">
                             <label asp-for="FullName" class="form-label">Họ và tên</label>
                             <input asp-for="FullName" class="form-control" placeholder="VD: Nguyễn Văn A" />
+                            <span asp-validation-for="FullName" class="text-danger small" role="status" aria-live="polite"></span>
                         </div>
 
                         <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label">Ảnh đại diện</label><input type="file" name="avatarFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" /></div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="candidate-avatar-file">Ảnh đại diện</label>
+                                <input id="candidate-avatar-file" type="file" name="avatarFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                            </div>
                             <div class="col-md-6"><label asp-for="DateOfBirth" class="form-label">Ngày sinh</label><input asp-for="DateOfBirth" type="date" class="form-control" /></div>
                             <div class="col-md-6"><label asp-for="Gender" class="form-label">Giới tính</label><input asp-for="Gender" class="form-control" /></div>
                             <div class="col-md-6"><label asp-for="PhoneNumber" class="form-label">Số điện thoại</label><input asp-for="PhoneNumber" class="form-control" /></div>
@@ -38,7 +43,10 @@
                             <div class="col-12"><label asp-for="Education" class="form-label">Học vấn</label><textarea asp-for="Education" class="form-control" rows="3"></textarea></div>
                             <div class="col-12"><label asp-for="Certifications" class="form-label">Chứng chỉ</label><textarea asp-for="Certifications" class="form-control" rows="3"></textarea></div>
                             <div class="col-md-6"><label asp-for="PortfolioUrl" class="form-label">Portfolio / GitHub / LinkedIn</label><input asp-for="PortfolioUrl" class="form-control" /></div>
-                            <div class="col-md-6"><label class="form-label">CV upload</label><input type="file" name="cvFile" class="form-control" accept=".pdf,.doc,.docx" /></div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="candidate-cv-file">CV upload</label>
+                                <input id="candidate-cv-file" type="file" name="cvFile" class="form-control" accept=".pdf,.doc,.docx" />
+                            </div>
                             <div class="col-md-6"><label asp-for="JobSeekingStatus" class="form-label">Trạng thái tìm việc</label><input asp-for="JobSeekingStatus" class="form-control" /></div>
                             <div class="col-md-6"><label asp-for="DesiredWorkMode" class="form-label">Hình thức làm việc mong muốn</label><input asp-for="DesiredWorkMode" class="form-control" /></div>
                             <div class="col-12"><label asp-for="AccessibilityNeeds" class="form-label">Nhu cầu hỗ trợ tiếp cận</label><textarea asp-for="AccessibilityNeeds" class="form-control" rows="3"></textarea></div>

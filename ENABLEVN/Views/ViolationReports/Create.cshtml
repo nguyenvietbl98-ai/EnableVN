@@ -16,6 +16,7 @@
 
                     <form asp-action="Create" method="post">
                         @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert" aria-live="assertive" aria-atomic="true"></div>
                         <input asp-for="TargetId" type="hidden" />
                         <input asp-for="TargetType" type="hidden" />
 
@@ -25,8 +26,11 @@
                         </div>
 
                         <div class="mb-4">
-                            <label asp-for="Reason" class="form-label">Lý do báo cáo</label>
-                            <textarea asp-for="Reason" class="form-control" rows="5" required></textarea>
+                            <label asp-for="Reason" class="form-label">
+                                Lý do báo cáo <span class="text-danger" aria-hidden="true">*</span><span class="visually-hidden"> (bắt buộc)</span>
+                            </label>
+                            <textarea asp-for="Reason" class="form-control" rows="5" required aria-required="true"></textarea>
+                            <span asp-validation-for="Reason" class="text-danger small" role="status" aria-live="polite"></span>
                         </div>
 
                         <button class="btn btn-primary evn-btn-primary" type="submit">Gửi báo cáo</button>

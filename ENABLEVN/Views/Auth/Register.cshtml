@@ -1,51 +1,54 @@
-﻿@model RegisterCommand
-@{
-    ViewData["Title"] = "Đăng ký";
-    var crumb = new BreadcrumbModel { CurrentText = "Đăng ký" };
-}
-
-<div class="evn-page evn-auth-page">
-    <div class="container">
-        <partial name="_Breadcrumb" model="crumb" />
-        <div class="row justify-content-center py-4 py-md-5">
-            <div class="col-12 col-md-10 col-lg-5">
-                <div class="evn-card evn-form evn-auth-card shadow-sm">
-                    <div class="evn-auth-card__head">
-                        <span class="evn-badge mb-3">Tài khoản</span>
-                        <h1 class="h3 fw-bold mb-2">Tạo tài khoản</h1>
-                        <p class="evn-muted mb-0">Tham gia EnableVN với vai trò ứng viên hoặc nhà tuyển dụng.</p>
-                    </div>
-
-                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 mt-3" role="alert"></div>
-
-                    <form asp-action="Register" method="post" novalidate class="evn-auth-form">
-                        @Html.AntiForgeryToken()
-                        <div class="evn-field mb-3">
-                            <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" class="form-control form-control-lg" autocomplete="email" placeholder="you@example.com" />
-                        </div>
-                        <div class="evn-field mb-3">
-                            <label asp-for="Password" class="form-label">Mật khẩu</label>
-                            <input asp-for="Password" type="password" class="form-control form-control-lg" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự" />
-                        </div>
-                        <div class="evn-field mb-4">
-                            <label asp-for="Role" class="form-label">Vai trò</label>
-                            <select asp-for="Role" class="form-select form-select-lg evn-select-role" aria-describedby="role-hint">
-                                <option value="@UserRole.Candidate">Ứng viên</option>
-                                <option value="@UserRole.Employer">Nhà tuyển dụng</option>
-                            </select>
-                            <div id="role-hint" class="form-text">Chọn loại tài khoản phù hợp — sau khi tạo không đổi vai trò trong MVP này.</div>
-                        </div>
-                        <button class="btn btn-primary evn-btn-primary w-100 btn-lg" type="submit">Đăng ký</button>
-                    </form>
-
-                    <p class="mt-4 mb-0 evn-muted text-center small">
-                        Đã có tài khoản?
-                        <a asp-controller="Auth" asp-action="Login">Đăng nhập</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+﻿@model RegisterCommand
+@{
+    ViewData["Title"] = "Đăng ký";
+    var crumb = new BreadcrumbModel { CurrentText = "Đăng ký" };
+}
+
+<div class="evn-page evn-auth-page">
+    <div class="container">
+        <partial name="_Breadcrumb" model="crumb" />
+        <div class="row justify-content-center py-4 py-md-5">
+            <div class="col-12 col-md-10 col-lg-5">
+                <div class="evn-card evn-form evn-auth-card shadow-sm">
+                    <div class="evn-auth-card__head">
+                        <span class="evn-badge mb-3">Tài khoản</span>
+                        <h1 class="h3 fw-bold mb-2">Tạo tài khoản</h1>
+                        <p class="evn-muted mb-0">Tham gia EnableVN với vai trò ứng viên hoặc nhà tuyển dụng.</p>
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 mt-3" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+                    <form asp-action="Register" method="post" novalidate class="evn-auth-form">
+                        @Html.AntiForgeryToken()
+                        <div class="evn-field mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control form-control-lg" autocomplete="email" placeholder="you@example.com" />
+                            <span asp-validation-for="Email" class="text-danger small" role="status" aria-live="polite"></span>
+                        </div>
+                        <div class="evn-field mb-3">
+                            <label asp-for="Password" class="form-label">Mật khẩu</label>
+                            <input asp-for="Password" type="password" class="form-control form-control-lg" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự" />
+                            <span asp-validation-for="Password" class="text-danger small" role="status" aria-live="polite"></span>
+                        </div>
+                        <div class="evn-field mb-4">
+                            <label asp-for="Role" class="form-label">Vai trò</label>
+                            <select asp-for="Role" class="form-select form-select-lg evn-select-role" aria-describedby="role-hint">
+                                <option value="@UserRole.Candidate">Ứng viên</option>
+                                <option value="@UserRole.Employer">Nhà tuyển dụng</option>
+                            </select>
+                            <div id="role-hint" class="form-text">Chọn loại tài khoản phù hợp — sau khi tạo không đổi vai trò trong MVP này.</div>
+                            <span asp-validation-for="Role" class="text-danger small" role="status" aria-live="polite"></span>
+                        </div>
+                        <button class="btn btn-primary evn-btn-primary w-100 btn-lg" type="submit">Đăng ký</button>
+                    </form>
+
+                    <p class="mt-4 mb-0 evn-muted text-center small">
+                        Đã có tài khoản?
+                        <a asp-controller="Auth" asp-action="Login">Đăng nhập</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

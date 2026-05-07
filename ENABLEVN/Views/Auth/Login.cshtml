@@ -54,7 +54,7 @@
 
 
 
-                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert"></div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
 
 
@@ -69,6 +69,7 @@
                             <label asp-for="Email" class="form-label">Email</label>
 
                             <input asp-for="Email" class="form-control form-control-lg" autocomplete="username" placeholder="you@example.com" />
+                            <span asp-validation-for="Email" class="text-danger small" role="status" aria-live="polite"></span>
 
                         </div>
 
@@ -77,6 +78,7 @@
                             <label asp-for="Password" class="form-label">Mật khẩu</label>
 
                             <input asp-for="Password" type="password" class="form-control form-control-lg" autocomplete="current-password" placeholder="••••••••" />
+                            <span asp-validation-for="Password" class="text-danger small" role="status" aria-live="polite"></span>
 
                         </div>
 

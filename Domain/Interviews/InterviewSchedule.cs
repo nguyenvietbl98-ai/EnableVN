@@ -27,6 +27,9 @@ public sealed class InterviewSchedule : AggregateRoot<Guid>
     public DateTime? CandidateRespondedAt { get; private set; }
     public string? CandidateDeclineReason { get; private set; }
 
+    public DateTime EndsAtUtc =>
+        DateTime.SpecifyKind(ScheduledAt, DateTimeKind.Utc).AddMinutes(DurationMinutes);
+
     private InterviewSchedule(
         Guid id,
         Guid jobApplicationId,
@@ -127,6 +130,35 @@ public sealed class InterviewSchedule : AggregateRoot<Guid>
 
         Status = InterviewStatus.Cancelled;
         Note = string.IsNullOrWhiteSpace(reason) ? Note : $"[Hủy] {reason?.Trim()}";
+    }
+
+    /// <summary>
+    /// Chuyển lịch sang trạng thái Completed. Chỉ hợp lệ khi đang Pending hoặc Accepted.
+    /// </summary>
+    public void MarkAsCompleted()
+    {
+        if (Status is not (InterviewStatus.Pending or InterviewStatus.Accepted))
+            throw new DomainException("Chỉ có thể đánh dấu kết thúc khi lịch đang ở trạng thái Chờ phản hồi hoặc Đã xác nhận.");
+
+        Status = InterviewStatus.Completed;
+    }
+
+    /// <summary>
+    /// Tự động hoàn tất nếu lịch đã qua thời gian kết thúc.
+    /// Không áp dụng cho Declined/Cancelled/Completed.
+    /// </summary>
+    public bool CompleteIfEnded(DateTime nowUtc)
+    {
+        if (Status is InterviewStatus.Declined or InterviewStatus.Cancelled or InterviewStatus.Completed)
+            return false;
+
+        if (EndsAtUtc <= nowUtc)
+        {
+            MarkAsCompleted();
+            return true;
+        }
+
+        return false;
     }
 
     public static InterviewSchedule Restore(

@@ -71,11 +71,13 @@ public sealed class InterviewScheduleUseCase : IInterviewScheduleUseCase
             application.CandidateId, cancellationToken)
             ?? throw new UseCaseException("Không tìm thấy hồ sơ ứng viên.");
 
+        var scheduledAtUtc = NormalizeToUtcMinutePrecision(request.ScheduledAt);
+
         var schedule = InterviewSchedule.Create(
             jobApplicationId: request.JobApplicationId,
             employerUserId: employerUserId,
             candidateUserId: candidateProfile.UserId,
-            scheduledAt: request.ScheduledAt,
+            scheduledAt: scheduledAtUtc,
             durationMinutes: request.DurationMinutes,
             interviewType: request.InterviewType,
             meetingLink: request.MeetingLink,
@@ -128,6 +130,12 @@ public sealed class InterviewScheduleUseCase : IInterviewScheduleUseCase
         if (schedule.CandidateUserId != candidateUserId)
             throw new UseCaseException("Bạn không có quyền phản hồi lịch phỏng vấn này.");
 
+        if (schedule.CompleteIfEnded(DateTime.UtcNow))
+        {
+            await _interviewRepository.UpdateAsync(schedule, cancellationToken);
+            throw new UseCaseException("Lịch phỏng vấn đã kết thúc, không thể xác nhận.");
+        }
+
         schedule.Accept();
         await _interviewRepository.UpdateAsync(schedule, cancellationToken);
 
@@ -147,6 +155,12 @@ public sealed class InterviewScheduleUseCase : IInterviewScheduleUseCase
         if (schedule.CandidateUserId != candidateUserId)
             throw new UseCaseException("Bạn không có quyền phản hồi lịch phỏng vấn này.");
 
+        if (schedule.CompleteIfEnded(DateTime.UtcNow))
+        {
+            await _interviewRepository.UpdateAsync(schedule, cancellationToken);
+            throw new UseCaseException("Lịch phỏng vấn đã kết thúc, không thể từ chối.");
+        }
+
         schedule.Decline(reason);
         await _interviewRepository.UpdateAsync(schedule, cancellationToken);
 
@@ -165,6 +179,12 @@ public sealed class InterviewScheduleUseCase : IInterviewScheduleUseCase
 
         if (schedule.EmployerUserId != employerUserId)
             throw new UseCaseException("Bạn không có quyền hủy lịch phỏng vấn này.");
+
+        if (schedule.CompleteIfEnded(DateTime.UtcNow))
+        {
+            await _interviewRepository.UpdateAsync(schedule, cancellationToken);
+            throw new UseCaseException("Lịch phỏng vấn đã kết thúc, không thể hủy.");
+        }
 
         schedule.Cancel(reason);
         await _interviewRepository.UpdateAsync(schedule, cancellationToken);
@@ -187,7 +207,18 @@ public sealed class InterviewScheduleUseCase : IInterviewScheduleUseCase
     {
         var userId = AuthorizationGuard.RequireCandidate(_currentUser);
         var schedules = await _interviewRepository.GetByCandidateUserIdAsync(userId, cancellationToken);
-        return await ToDtoListAsync(schedules, cancellationToken);
+
+        var nowUtc = DateTime.UtcNow;
+        foreach (var s in schedules)
+        {
+            if (s.CompleteIfEnded(nowUtc))
+            {
+                await _interviewRepository.UpdateAsync(s, cancellationToken);
+            }
+        }
+
+        var sorted = SortForTimeline(schedules, nowUtc);
+        return await ToDtoListAsync(sorted, cancellationToken);
     }
 
     public async Task<IReadOnlyList<InterviewScheduleDto>> GetMyInterviewsAsEmployerAsync(
@@ -195,7 +226,18 @@ public sealed class InterviewScheduleUseCase : IInterviewScheduleUseCase
     {
         var userId = AuthorizationGuard.RequireEmployer(_currentUser);
         var schedules = await _interviewRepository.GetByEmployerUserIdAsync(userId, cancellationToken);
-        return await ToDtoListAsync(schedules, cancellationToken);
+
+        var nowUtc = DateTime.UtcNow;
+        foreach (var s in schedules)
+        {
+            if (s.CompleteIfEnded(nowUtc))
+            {
+                await _interviewRepository.UpdateAsync(s, cancellationToken);
+            }
+        }
+
+        var sorted = SortForTimeline(schedules, nowUtc);
+        return await ToDtoListAsync(sorted, cancellationToken);
     }
 
     public async Task<IReadOnlyList<InterviewScheduleDto>> GetByJobApplicationAsync(
@@ -338,7 +380,7 @@ public sealed class InterviewScheduleUseCase : IInterviewScheduleUseCase
             InterviewStatus.Accepted => "Đã xác nhận",
             InterviewStatus.Declined => "Đã từ chối",
             InterviewStatus.Cancelled => "Đã hủy",
-            InterviewStatus.Completed => "Đã hoàn thành",
+            InterviewStatus.Completed => "Đã kết thúc",
             _ => s.Status.ToString()
         };
 
@@ -363,5 +405,46 @@ public sealed class InterviewScheduleUseCase : IInterviewScheduleUseCase
             CandidateRespondedAt = s.CandidateRespondedAt,
             CandidateDeclineReason = s.CandidateDeclineReason
         });
+    }
+
+    private static DateTime NormalizeToUtcMinutePrecision(DateTime scheduledAt)
+    {
+        var kind = scheduledAt.Kind;
+        var localOrUnspecified = kind == DateTimeKind.Utc
+            ? scheduledAt.ToUniversalTime()
+            : kind == DateTimeKind.Local
+                ? scheduledAt.ToUniversalTime()
+                : DateTime.SpecifyKind(scheduledAt, DateTimeKind.Local).ToUniversalTime();
+
+        return new DateTime(
+            localOrUnspecified.Year,
+            localOrUnspecified.Month,
+            localOrUnspecified.Day,
+            localOrUnspecified.Hour,
+            localOrUnspecified.Minute,
+            0,
+            DateTimeKind.Utc);
+    }
+
+    private static IReadOnlyList<InterviewSchedule> SortForTimeline(
+        IReadOnlyList<InterviewSchedule> schedules,
+        DateTime nowUtc)
+    {
+        // Upcoming: Pending/Accepted & not ended -> first (soonest first)
+        // History: Completed/Cancelled/Declined/ended -> after (newest first to review recent history)
+        return schedules
+            .OrderBy(s =>
+                (s.Status is InterviewStatus.Completed or InterviewStatus.Cancelled or InterviewStatus.Declined || s.EndsAtUtc <= nowUtc)
+                    ? 1
+                    : 0)
+            .ThenBy(s =>
+                (s.Status is InterviewStatus.Completed or InterviewStatus.Cancelled or InterviewStatus.Declined || s.EndsAtUtc <= nowUtc)
+                    ? DateTime.MaxValue
+                    : s.ScheduledAt)
+            .ThenByDescending(s =>
+                (s.Status is InterviewStatus.Completed or InterviewStatus.Cancelled or InterviewStatus.Declined || s.EndsAtUtc <= nowUtc)
+                    ? s.ScheduledAt
+                    : DateTime.MinValue)
+            .ToList();
     }
 }

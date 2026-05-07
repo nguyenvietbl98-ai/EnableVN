@@ -16,7 +16,7 @@
 
         @if (!string.IsNullOrEmpty(TempData["Error"]?.ToString()))
         {
-            <div class="alert alert-danger">@TempData["Error"]</div>
+            <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
         }
 
         <div class="evn-card p-4">
@@ -25,21 +25,33 @@
                 <input type="hidden" asp-for="JobApplicationId" />
 
                 <div class="mb-3">
-                    <label asp-for="ScheduledAt" class="form-label">Thời gian phỏng vấn <span class="text-danger">*</span></label>
+                    <label asp-for="ScheduledAt" class="form-label">
+                        Thời gian phỏng vấn <span class="text-danger" aria-hidden="true">*</span><span class="visually-hidden"> (bắt buộc)</span>
+                    </label>
                     <input asp-for="ScheduledAt" type="datetime-local" class="form-control"
-                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
-                    <span asp-validation-for="ScheduledAt" class="text-danger small"></span>
+                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                           step="60"
+                           value="@(Model.ScheduledAt == default ? "" : Model.ScheduledAt.ToString("yyyy-MM-ddTHH:mm"))"
+                           aria-describedby="scheduledAt-hint valmsg-ScheduledAt"
+                           required
+                           aria-required="true" />
+                    <div id="scheduledAt-hint" class="form-text">Chọn ngày, giờ và phút phỏng vấn. Không cần nhập giây.</div>
+                    <span id="valmsg-ScheduledAt" asp-validation-for="ScheduledAt" class="text-danger small" role="status" aria-live="polite"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="DurationMinutes" class="form-label">Thời lượng (phút) <span class="text-danger">*</span></label>
-                    <input asp-for="DurationMinutes" type="number" class="form-control" min="15" max="480" required />
-                    <span asp-validation-for="DurationMinutes" class="text-danger small"></span>
+                    <label asp-for="DurationMinutes" class="form-label">
+                        Thời lượng (phút) <span class="text-danger" aria-hidden="true">*</span><span class="visually-hidden"> (bắt buộc)</span>
+                    </label>
+                    <input asp-for="DurationMinutes" type="number" class="form-control" min="15" max="480" required aria-required="true" />
+                    <span id="valmsg-DurationMinutes" asp-validation-for="DurationMinutes" class="text-danger small" role="status" aria-live="polite"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="InterviewType" class="form-label">Hình thức <span class="text-danger">*</span></label>
-                    <select asp-for="InterviewType" class="form-select" id="interviewTypeSelect">
+                    <label asp-for="InterviewType" class="form-label">
+                        Hình thức <span class="text-danger" aria-hidden="true">*</span><span class="visually-hidden"> (bắt buộc)</span>
+                    </label>
+                    <select asp-for="InterviewType" class="form-select" id="interviewTypeSelect" required aria-required="true">
                         <option value="@((int)InterviewType.Online)">Online</option>
                         <option value="@((int)InterviewType.Offline)">Offline</option>
                         <option value="@((int)InterviewType.Phone)">Phone</option>
@@ -49,13 +61,13 @@
                 <div class="mb-3" id="meetingLinkGroup">
                     <label asp-for="MeetingLink" class="form-label">Meeting Link (Online)</label>
                     <input asp-for="MeetingLink" type="url" class="form-control" placeholder="https://meet.google.com/..." />
-                    <span asp-validation-for="MeetingLink" class="text-danger small"></span>
+                    <span id="valmsg-MeetingLink" asp-validation-for="MeetingLink" class="text-danger small" role="status" aria-live="polite"></span>
                 </div>
 
-                <div class="mb-3" id="locationGroup" style="display:none;">
+                <div class="mb-3" id="locationGroup" hidden>
                     <label asp-for="Location" class="form-label">Địa điểm (Offline)</label>
                     <input asp-for="Location" type="text" class="form-control" placeholder="Địa chỉ văn phòng…" maxlength="500" />
-                    <span asp-validation-for="Location" class="text-danger small"></span>
+                    <span id="valmsg-Location" asp-validation-for="Location" class="text-danger small" role="status" aria-live="polite"></span>
                 </div>
 
                 <div class="mb-3">
@@ -78,12 +90,20 @@
         var select = document.getElementById('interviewTypeSelect');
         var meetingGroup = document.getElementById('meetingLinkGroup');
         var locationGroup = document.getElementById('locationGroup');
+        var meetingInput = meetingGroup ? meetingGroup.querySelector('input') : null;
+        var locationInput = locationGroup ? locationGroup.querySelector('input') : null;
 
         function toggle() {
             var val = parseInt(select.value);
             // Online = 1, Offline = 2, Phone = 3
-            meetingGroup.style.display = val === 1 ? '' : 'none';
-            locationGroup.style.display = val === 2 ? '' : 'none';
+            var showMeeting = val === 1;
+            var showLocation = val === 2;
+
+            meetingGroup.hidden = !showMeeting;
+            locationGroup.hidden = !showLocation;
+
+            if (meetingInput) meetingInput.disabled = !showMeeting;
+            if (locationInput) locationInput.disabled = !showLocation;
         }
 
         select.addEventListener('change', toggle);

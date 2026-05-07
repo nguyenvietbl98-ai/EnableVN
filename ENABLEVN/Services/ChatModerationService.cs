@@ -71,9 +71,12 @@ public sealed class ChatModerationService
     {
         if (!_ml.IsConfigured)
         {
-            throw new InvalidOperationException(
-                "Chế độ chỉ ML nhưng chưa có file model hoặc đường dẫn sai. " +
-                "Đặt ChatModeration:ClassifierModelPath trỏ tới TextClassifierModel.zip (vd: MLModels/TextClassifierModel.zip).");
+            // Degrade gracefully: do not block chat if moderation model is missing.
+            return new ChatModerationResult
+            {
+                Action = ChatModerationAction.Allow,
+                ReasonVi = string.Empty
+            };
         }
 
         if (!_ml.TryEvaluate(text, out var isToxic, out var err))
@@ -105,9 +108,12 @@ public sealed class ChatModerationService
     {
         if (!_gemini.IsConfigured)
         {
-            throw new InvalidOperationException(
-                "Chưa cấu hình Gemini (ApiKey/Model) trong khi bước kiểm duyệt cần Gemini. " +
-                "Cấu hình Gemini hoặc đặt ChatModeration:Mode = ml (và cung cấp file model ML).");
+            // Degrade gracefully: if Gemini is not configured, allow message.
+            return new ChatModerationResult
+            {
+                Action = ChatModerationAction.Allow,
+                ReasonVi = string.Empty
+            };
         }
 
         var system =

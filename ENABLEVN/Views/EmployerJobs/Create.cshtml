@@ -26,19 +26,23 @@
 
                     <form asp-action="Create" method="post" id="evn-employer-job-create-form">
                         @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert" aria-live="assertive" aria-atomic="true"></div>
                         <div class="mb-3">
                             <label asp-for="Title" class="form-label">Tiêu đề</label>
                             <input asp-for="Title" class="form-control" placeholder="VD: Frontend Developer" />
+                            <span asp-validation-for="Title" class="text-danger small" role="status" aria-live="polite"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Description" class="form-label">Mô tả công việc</label>
                             <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small" role="status" aria-live="polite"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Requirement" class="form-label">Yêu cầu</label>
                             <textarea asp-for="Requirement" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Requirement" class="text-danger small" role="status" aria-live="polite"></span>
                         </div>
 
                         <div class="row g-3">

@@ -49,7 +49,7 @@ public sealed class SqliteInterviewScheduleRepository : IInterviewScheduleReposi
         var records = await _db.InterviewSchedules
             .AsNoTracking()
             .Where(x => x.CandidateUserId == candidateUserId)
-            .OrderByDescending(x => x.ScheduledAt)
+            .OrderBy(x => x.ScheduledAt)
             .ToListAsync(cancellationToken);
 
         return records.Select(InterviewSchedulePersistenceMapper.ToDomain).ToList();
@@ -61,7 +61,7 @@ public sealed class SqliteInterviewScheduleRepository : IInterviewScheduleReposi
         var records = await _db.InterviewSchedules
             .AsNoTracking()
             .Where(x => x.EmployerUserId == employerUserId)
-            .OrderByDescending(x => x.ScheduledAt)
+            .OrderBy(x => x.ScheduledAt)
             .ToListAsync(cancellationToken);
 
         return records.Select(InterviewSchedulePersistenceMapper.ToDomain).ToList();
